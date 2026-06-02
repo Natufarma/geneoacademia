@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+@theme {
+  --color-geneo: #E6005C;     /* acento de marca (uso medido, estilo Noora) */
+  --color-surface: #FCFAFB;   /* casi blanco (apenas un susurro cálido) */
+  --color-paper: #FFFFFF;     /* tarjetas blancas */
+  --color-ink: #16161A;       /* casi negro */
+  --color-muted: #56565B;     /* texto secundario (oscurecido para legibilidad) */
+  --color-soft: #A6A6AC;      /* gris claro: 2do tono de títulos (Noora) */
+  --color-dark: #111113;      /* bloques oscuros de acento */
+  --color-line: #E7E6E2;      /* hairline muy sutil */
+  --font-sans: var(--font-montserrat);
+
+  /* Noora: tarjetas blancas que FLOTAN con sombra suave y aireada sobre el
+     gris cálido. Profundidad gentil, nunca dura. */
+  --shadow-soft: 0 1px 3px rgb(17 17 17 / 0.04), 0 10px 30px -16px rgb(17 17 17 / 0.12);
+  --shadow-card: 0 2px 8px rgb(17 17 17 / 0.05), 0 26px 55px -24px rgb(17 17 17 / 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Foco visible accesible por teclado en todos los interactivos que no definan
+   el suyo. Solo aparece con navegación por teclado (no con click/touch). */
+:focus-visible {
+  outline: 2px solid var(--color-geneo);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #1A1A1A;
+  /* clip (no hidden) para evitar scroll horizontal SIN romper position: sticky */
+  overflow-x: clip;
+}
+
+/* ───────────────────────── Lenis (scroll suave) ───────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* ───────────────────────── Keyframes premium ──────────────────────────
+   Todas usan transform/opacity (compositadas por GPU) para no disparar
+   layout/paint y mantener 60fps. */
+
+/* Blobs de gradiente: deriva orgánica y lenta. */
+@keyframes blob-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(4%, -6%, 0) scale(1.08);
+  }
+  66% {
+    transform: translate3d(-5%, 4%, 0) scale(0.94);
+  }
+}
+
+/* Flotación suave (productos). */
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1deg);
+  }
+}
+
+/* Respiración (escala mínima, para halos). */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.8;
+  }
+}
+
+/* Barrido de brillo en botones (shine sweep). */
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  60%,
+  100% {
+    transform: translateX(260%) skewX(-20deg);
+  }
+}
+
+/* Paneo de gradiente animado (banners). */
+@keyframes gradient-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Marquee horizontal infinito. */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Fundido de entrada (video del hero al cargar). */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Pulso de los nodos del timeline. */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* ───────────────────────── Utilidades de animación ───────────────────── */
+.anim-blob {
+  animation: blob-drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+.anim-float {
+  animation: float-soft 6s ease-in-out infinite;
+  will-change: transform;
+}
+.anim-breathe {
+  animation: breathe 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.anim-gradient {
+  background-size: 200% 200%;
+  animation: gradient-pan 12s ease infinite;
+}
+
+/* Shine: aplicar a un hijo dentro de un .group con overflow-hidden. */
+.group:hover .shine {
+  animation: shine-sweep 0.9s ease-out;
+}
+
+.marquee-track {
+  animation: marquee-x var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+.marquee-paused:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.pulse-ring {
+  animation: pulse-ring 2.6s ease-out infinite;
+}
+
+/* ───────────────────────── Reduced motion ─────────────────────────────
+   Si el usuario pide menos movimiento, desactivamos TODO lo decorativo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .anim-blob,
+  .anim-float,
+  .anim-breathe,
+  .anim-gradient,
+  .marquee-track,
+  .pulse-ring {
+    animation: none !important;
+  }
+}

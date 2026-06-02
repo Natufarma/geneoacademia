@@ -1,0 +1,114 @@
+"use client";
+
+import { useRef } from "react";
+import Image from "next/image";
+import { motion, useReducedMotion, useInView } from "framer-motion";
+import Reveal from "@/components/Reveal";
+import Parallax from "@/components/Parallax";
+import CountUp from "@/components/CountUp";
+
+const nodos = [
+  {
+    dias: 20,
+    descripcion: "Piel más hidratada, se siente más suave y nutrida.",
+  },
+  {
+    dias: 40,
+    descripcion: "Más glow natural. La piel se ve más luminosa.",
+  },
+  {
+    dias: 90,
+    descripcion: "Más firmeza. Una piel con mejor estructura.",
+  },
+];
+
+export default function Timeline() {
+  const reduced = useReducedMotion();
+  // Observamos el CONTENEDOR (grande → el observer dispara siempre), no la
+  // línea de 1px. Desde acá manejamos el "dibujado" de la línea.
+  const lineRef = useRef<HTMLDivElement>(null);
+  const lineInView = useInView(lineRef, { once: true, margin: "-80px" });
+  return (
+    <section
+      id="resultados"
+      className="relative z-[40] bg-geneo py-16 sm:py-36 px-6 overflow-hidden"
+    >
+      {/* Foto de rostro a la derecha, con parallax y fundida con el negro */}
+      <Parallax speed={50} className="absolute right-0 inset-y-0 w-2/5 sm:w-1/2 lg:w-2/5 pointer-events-none">
+        <div className="relative h-full w-full">
+          <Image
+            src="/img/timeline-face.webp"
+            alt="Piel luminosa tras el ritual Geneo"
+            fill
+            sizes="(max-width: 1024px) 50vw, 40vw"
+            className="object-cover object-center mix-blend-luminosity opacity-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-geneo via-geneo/45 to-transparent" />
+        </div>
+      </Parallax>
+
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto">
+        <Reveal blur={8}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium leading-[1.1] tracking-tight max-w-2xl text-white">
+            Tu piel no cambia de un día para otro,{" "}
+            <span className="text-white/85">pero sí cambia con constancia.</span>
+          </h2>
+        </Reveal>
+
+        {/* Timeline */}
+        <div ref={lineRef} className="relative mt-16">
+          {/* Línea que se "carga" cuando la sección entra. El trigger lo da el
+              contenedor (lineInView), NO la línea de 1px (que el observer no
+              detecta). Animamos clip-path: la caja queda full-size y solo se
+              revela. reduced-motion → línea estática completa. */}
+          {/* Desktop: se dibuja de izquierda a derecha */}
+          <motion.div
+            className="hidden md:block absolute top-3 left-0 right-0 h-px bg-white/70"
+            initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
+            animate={
+              reduced || lineInView
+                ? { clipPath: "inset(0 0% 0 0)" }
+                : { clipPath: "inset(0 100% 0 0)" }
+            }
+            transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          {/* Mobile: se dibuja de arriba hacia abajo */}
+          <motion.div
+            className="md:hidden absolute top-3 bottom-3 left-3 w-px -translate-x-1/2 bg-white/70"
+            initial={reduced ? false : { clipPath: "inset(0 0 100% 0)" }}
+            animate={
+              reduced || lineInView
+                ? { clipPath: "inset(0 0 0% 0)" }
+                : { clipPath: "inset(0 0 100% 0)" }
+            }
+            transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          <div className="flex flex-col md:flex-row md:gap-0">
+            {nodos.map((nodo, i) => (
+              <Reveal key={nodo.dias} delay={0.3 + i * 0.15} className="relative flex-1 md:pr-8" blur={6}>
+                <div className="flex flex-row items-start gap-4 pl-0 md:flex-col md:gap-0 md:pl-0 mb-8 md:mb-0">
+                  {/* Dot con anillo de pulso — acento magenta */}
+                  <div className="relative w-6 h-6 flex-shrink-0 z-10 md:mb-5">
+                    <span className="absolute inset-0 rounded-full bg-white/60 pulse-ring" />
+                    <span className="absolute inset-0 rounded-full bg-white" />
+                  </div>
+                  {/* Texto */}
+                  <div className="md:mt-0">
+                    <p className="font-medium text-white text-lg tracking-tight">
+                      +<CountUp to={nodo.dias} /> días
+                    </p>
+                    <p className="text-white/90 text-sm mt-1 max-w-[180px] leading-relaxed">
+                      {nodo.descripcion}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

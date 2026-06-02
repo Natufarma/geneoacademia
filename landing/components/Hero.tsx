@@ -1,0 +1,97 @@
+import Image from "next/image";
+import { Leaf, CheckCircle2, ArrowRight, type LucideIcon } from "lucide-react";
+import Reveal from "@/components/Reveal";
+import Parallax from "@/components/Parallax";
+import HeroVideo from "@/components/HeroVideo";
+
+type Badge = { t: string; s: string; mark?: string; Icon?: LucideIcon };
+
+const badges: Badge[] = [
+  { mark: "/img/natufarma-mark.webp", t: "Respaldado por", s: "Natufarma" },
+  { Icon: Leaf, t: "Ingredientes", s: "premium" },
+  { Icon: CheckCircle2, t: "Resultados", s: "comprobados" },
+];
+
+export default function Hero() {
+  return (
+    <section className="sticky top-0 z-[10] min-h-[100svh] flex items-end overflow-hidden bg-surface">
+      {/* Fondo full-bleed con parallax (sobreescaneado para no ver bordes).
+          Capa base: foto (siempre presente como fallback/poster).
+          Capa superior: video en loop, si existe y no hay reduced-motion. */}
+      <Parallax speed={70} className="absolute inset-0">
+        <div className="absolute -inset-x-0 -top-24 -bottom-24">
+          {/* Poster (fallback/carga) — desktop horizontal */}
+          <Image
+            src="/img/hero.webp"
+            alt="Mujer disfrutando su ritual Geneo"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[68%_30%] hidden md:block"
+          />
+          {/* Poster — mobile vertical */}
+          <Image
+            src="/img/hero-mobile.webp"
+            alt="Mujer disfrutando su ritual Geneo"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center md:hidden"
+          />
+          <HeroVideo />
+        </div>
+      </Parallax>
+
+      <div className="relative z-10 px-6 pt-24 pb-16 md:pt-32 md:pb-24 w-full max-w-[1440px] mx-auto">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-medium leading-[1.05] tracking-tight text-ink">
+            <Reveal as="span" className="block" blur={8} y={20}>
+              La belleza empieza adentro
+            </Reveal>
+            <Reveal as="span" className="block" blur={8} y={20} delay={0.1}>
+              <span className="text-ink">y se celebra</span>{" "}
+              <span className="text-geneo">afuera</span>
+            </Reveal>
+          </h1>
+
+          <Reveal delay={0.3}>
+            <p className="mt-7 text-muted text-base md:text-lg leading-relaxed max-w-md">
+              Nutrí tu piel desde adentro. Resultados que se ven, confianza que se siente.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.38} y={16}>
+            <a
+              href="#ritual-finder"
+              className="group inline-flex items-center gap-2 mt-9 bg-geneo text-white rounded-full pl-7 pr-6 py-3.5 font-medium text-sm hover:bg-[#c70050] transition-colors duration-300 ease-out"
+            >
+              Encontrá tu ritual
+              <ArrowRight
+                size={17}
+                className="transition-transform duration-300 ease-out group-hover:translate-x-1"
+              />
+            </a>
+          </Reveal>
+
+          <div className="flex flex-col sm:flex-row sm:items-stretch mt-8 sm:mt-14 border-t border-ink/15 pt-6 gap-6 sm:gap-0">
+            {badges.map((b, i) => (
+              <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
+                <div className="flex items-center gap-3">
+                  {b.mark ? (
+                    <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-5 w-5 shrink-0" />
+                  ) : b.Icon ? (
+                    <b.Icon className="text-geneo shrink-0" size={20} aria-hidden="true" />
+                  ) : null}
+                  <div>
+                    <p className="text-sm font-medium text-ink">{b.t}</p>
+                    <p className="text-xs text-muted">{b.s}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

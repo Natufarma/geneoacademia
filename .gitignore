@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+**/.DS_Store
+
+# Dependencias / build (regenerables) — landing/.gitignore cubre el resto
+landing/node_modules/
+landing/.next/
+landing/out/
+**/*.tsbuildinfo
+
+# Artefactos derivados (se regeneran con build / backup)
+*.zip
+landing/deploy-*.zip
+
+# Tooling / reportes locales
+.atl/
+.gstack/
+
+# Material de scratch (capturas viejas y de debug, no son parte del sitio)
+REFERENCIA/
+Errores/
