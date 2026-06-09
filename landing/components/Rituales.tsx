@@ -54,51 +54,60 @@ export default function Rituales() {
               className="object-cover"
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-geneo via-geneo to-[#8a0038]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-geneo via-geneo to-geneo-dark" />
           )}
 
-          {/* Velo de legibilidad a la izquierda */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-transparent" />
+          {/* Sin velo: la imagen queda a todo color. La legibilidad del texto
+              se resuelve con text-shadow (abajo), no oscureciendo la foto. */}
 
           {/* Info arriba a la izquierda */}
           <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pt-20 sm:pt-32">
-            <Reveal blur={10} className="max-w-lg text-white">
+            <Reveal
+              blur={10}
+              className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_18px_rgba(0,0,0,0.45)]"
+            >
               <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/70">
                 Nuestros rituales · {String(i + 1).padStart(2, "0")} / {String(productos.length).padStart(2, "0")}
               </p>
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-white/90 mt-6">
-                {p.formula}
-              </p>
-              <h2 className="text-4xl sm:text-6xl md:text-7xl font-medium tracking-tight leading-[1.02] mt-2">
-                {p.nombre}
-              </h2>
-              <p className="text-white/85 mt-4 text-base sm:text-lg max-w-sm leading-relaxed">
+
+              {/* Título: fórmula + nombre, agrupados con gap (sin márgenes sueltos) */}
+              <div className="flex flex-col gap-2">
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-white/90">
+                  {p.formula}
+                </p>
+                <h2 className="text-[clamp(2.25rem,6vw,4.5rem)] font-medium tracking-tight leading-[1.02]">
+                  {p.nombre}
+                </h2>
+              </div>
+
+              <p className="text-white/85 text-base sm:text-lg max-w-sm leading-relaxed">
                 {p.beneficio}
               </p>
 
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 {p.img ? (
                   <a
                     href={TIENDA_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`Comprar Geneo ${p.nombre} en la tienda online`}
-                    className="group/btn inline-flex items-center justify-center gap-1.5 bg-white text-geneo rounded-full px-7 h-12 text-sm font-medium hover:bg-white/90 transition-colors duration-300"
+                    className="group/btn inline-flex items-center justify-center gap-1.5 bg-white text-geneo rounded-full px-7 h-12 text-sm font-medium hover:bg-white/90 active:bg-white/90 transition-colors duration-300 [text-shadow:none]"
                   >
                     Comprar ahora
-                    <ArrowRight size={15} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    <ArrowRight size={15} className="transition-transform duration-300 group-hover/btn:translate-x-1 group-active/btn:translate-x-1" />
                   </a>
                 ) : (
                   <span className="inline-flex items-center rounded-full border border-white/40 px-6 h-12 text-[11px] font-medium tracking-[0.18em] uppercase text-white/90">
                     Próximamente
                   </span>
                 )}
+                {/* min-h-11 = 44px: cumple el touch target mínimo en móvil */}
                 <a
                   href="#ciencia"
-                  className="group/link inline-flex items-center gap-1.5 text-white text-sm font-medium"
+                  className="group/link inline-flex items-center gap-1.5 min-h-11 px-1 text-white text-sm font-medium"
                 >
                   Conocer más
-                  <ArrowRight size={14} className="transition-transform duration-300 group-hover/link:translate-x-1" />
+                  <ArrowRight size={14} className="transition-transform duration-300 group-hover/link:translate-x-1 group-active/link:translate-x-1" />
                 </a>
               </div>
             </Reveal>

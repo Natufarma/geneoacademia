@@ -95,13 +95,13 @@ function Paso({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <span className="text-geneo font-medium text-xl leading-none">{numero}</span>
         <span className="h-px flex-1 bg-line" />
       </div>
-      <p className="font-medium text-ink mt-3 text-base tracking-tight">{pregunta}</p>
-      <div className="flex flex-wrap gap-2.5 mt-4">{children}</div>
+      <p className="font-medium text-ink text-base tracking-tight">{pregunta}</p>
+      <div className="flex flex-wrap gap-2.5">{children}</div>
     </div>
   );
 }
@@ -114,16 +114,16 @@ export default function EncontraRitual() {
 
   return (
     <section id="ritual-finder" className="relative z-[30] bg-surface py-16 sm:py-36 px-4 sm:px-6">
-      <div className="relative w-full max-w-[1440px] mx-auto">
+      <div className="relative w-full max-w-[1440px] mx-auto flex flex-col gap-16">
         {/* Header */}
-        <Reveal className="text-center mb-14" blur={8}>
-          <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase mb-3">
+        <Reveal className="text-center flex flex-col items-center gap-4" blur={8}>
+          <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase">
             Tu ritual Geneo
           </p>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-ink">
+          <h2 className="text-[clamp(2.25rem,5vw,3.75rem)] font-medium leading-[1.05] tracking-tight text-ink">
             Encontrá <span className="text-geneo">tu ritual</span>
           </h2>
-          <p className="text-muted text-base mt-4 max-w-md mx-auto">
+          <p className="text-muted text-base max-w-md">
             Respondé 2 preguntas y descubrí qué Geneo es para vos.
           </p>
         </Reveal>
@@ -156,33 +156,37 @@ export default function EncontraRitual() {
             </div>
 
             {/* Resultado — bloque magenta */}
-            <div className="relative bg-geneo p-6 sm:p-10 lg:p-12 text-white flex flex-col">
-              <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-white/85">
-                Tu ritual
-              </p>
+            <div className="relative bg-geneo p-6 sm:p-10 lg:p-12 text-white flex flex-col gap-6">
+              {/* Encabezado del resultado: label + nombre + descripción, agrupados */}
+              <div className="flex flex-col gap-1">
+                <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-white/85">
+                  Tu ritual
+                </p>
 
-              <div className="h-[3.5rem] sm:h-20 mt-1">
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={ritual.nombre}
-                    initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, y: -16, filter: "blur(6px)" }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-4xl sm:text-6xl font-medium leading-none tracking-tight text-white"
-                  >
-                    {ritual.nombre}
-                  </motion.p>
-                </AnimatePresence>
+                <div className="h-[3.5rem] sm:h-20">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={ritual.nombre}
+                      initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, y: -16, filter: "blur(6px)" }}
+                      transition={{ type: "spring", stiffness: 200, damping: 26 }}
+                      className="text-[clamp(2.25rem,6vw,3.75rem)] font-medium leading-none tracking-tight text-white"
+                    >
+                      {ritual.nombre}
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
+
+                <p className="text-white/85 text-sm min-h-[2.5rem]">{ritual.desc}</p>
               </div>
 
-              <p className="text-white/85 text-sm mt-1 min-h-[2.5rem]">{ritual.desc}</p>
-
-              <div className="mt-6">
-                <p className="text-[11px] uppercase tracking-wider font-medium text-white/75 mb-2">
+              {/* Recomendado: label + productos + nota, agrupados con gap */}
+              <div className="flex flex-col gap-3">
+                <p className="text-[11px] uppercase tracking-wider font-medium text-white/75">
                   Recomendado para vos
                 </p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2.5">
                   <AnimatePresence mode="popLayout">
                     {ritual.productos.map((p) => (
                       <motion.div
@@ -191,7 +195,7 @@ export default function EncontraRitual() {
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 30 }}
                         className="flex items-center gap-2.5"
                       >
                         <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center shrink-0">
@@ -202,16 +206,16 @@ export default function EncontraRitual() {
                     ))}
                   </AnimatePresence>
                 </div>
+
+                {notar && (
+                  <p className="text-xs text-white/75">
+                    Vas a notar primero:{" "}
+                    <span className="font-medium text-white">{notar.toLowerCase()}</span>.
+                  </p>
+                )}
               </div>
 
-              {notar && (
-                <p className="text-xs text-white/75 mt-4">
-                  Vas a notar primero:{" "}
-                  <span className="font-medium text-white">{notar.toLowerCase()}</span>.
-                </p>
-              )}
-
-              <div className="flex gap-2 mt-auto pt-6 border-t border-white/20">
+              <div className="flex gap-2 mt-auto pt-8 border-t border-white/15">
                 {timeline.map((step, i) => (
                   <div key={step.dias} className="flex flex-col items-center flex-1 gap-1">
                     {i === 0 ? (
@@ -231,17 +235,17 @@ export default function EncontraRitual() {
 
               <a
                 href="#rituales"
-                className="group mt-6 bg-white text-geneo w-full h-12 rounded-full flex items-center justify-center gap-2 font-medium text-sm hover:bg-white/90 transition-colors duration-300"
+                className="group bg-white text-geneo w-full h-12 rounded-full flex items-center justify-center gap-2 font-medium text-sm hover:bg-white/90 active:bg-white/90 transition-colors duration-300"
               >
                 Ver mi ritual
-                <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-1" />
               </a>
             </div>
           </div>
         </Reveal>
 
         {/* Trust badges — bento blanco flotante */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mt-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           {badges.map((b, i) => {
             const Icono = b.icono;
             return (
@@ -250,9 +254,9 @@ export default function EncontraRitual() {
                   <span className="w-10 h-10 rounded-full bg-geneo/8 flex items-center justify-center">
                     <Icono className="text-geneo" size={18} aria-hidden="true" />
                   </span>
-                  <div>
+                  <div className="flex flex-col gap-1">
                     <p className="text-sm font-medium text-ink">{b.titulo}</p>
-                    <p className="text-xs text-muted leading-snug mt-1">{b.subtitulo}</p>
+                    <p className="text-xs text-muted leading-snug">{b.subtitulo}</p>
                   </div>
                 </div>
               </Reveal>

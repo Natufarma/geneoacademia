@@ -2,6 +2,7 @@
 
 @theme {
   --color-geneo: #E6005C;     /* acento de marca (uso medido, estilo Noora) */
+  --color-geneo-dark: #8A0038; /* geneo oscurecido para degradados de marca */
   --color-surface: #FCFAFB;   /* casi blanco (apenas un susurro cálido) */
   --color-paper: #FFFFFF;     /* tarjetas blancas */
   --color-ink: #16161A;       /* casi negro */
