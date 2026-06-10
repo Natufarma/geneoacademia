@@ -42,9 +42,9 @@ export default function Hero() {
         </div>
       </Parallax>
 
-      <div className="relative z-10 px-6 pt-24 pb-16 md:pt-32 md:pb-24 w-full max-w-[1440px] mx-auto">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-medium leading-[1.05] tracking-tight text-ink">
+      <div className="relative z-10 px-6 sm:px-8 lg:px-10 pt-24 pb-16 md:pt-32 md:pb-24 w-full">
+        <div className="max-w-3xl flex flex-col gap-7 sm:gap-9">
+          <h1 className="text-[clamp(2.25rem,6vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-ink">
             <Reveal as="span" className="block" blur={8} y={20}>
               La belleza empieza adentro
             </Reveal>
@@ -55,7 +55,7 @@ export default function Hero() {
           </h1>
 
           <Reveal delay={0.3}>
-            <p className="mt-7 text-muted text-base md:text-lg leading-relaxed max-w-md">
+            <p className="text-muted text-base md:text-lg leading-relaxed max-w-md">
               Nutrí tu piel desde adentro. Resultados que se ven, confianza que se siente.
             </p>
           </Reveal>
@@ -63,17 +63,17 @@ export default function Hero() {
           <Reveal delay={0.38} y={16}>
             <a
               href="#ritual-finder"
-              className="group inline-flex items-center gap-2 mt-9 bg-geneo text-white rounded-full pl-7 pr-6 py-3.5 font-medium text-sm hover:bg-[#c70050] transition-colors duration-300 ease-out"
+              className="group inline-flex items-center gap-2 bg-geneo text-white rounded-full pl-7 pr-6 py-3.5 font-medium text-sm hover:bg-geneo-hover active:bg-geneo-hover transition-colors duration-300 ease-out"
             >
               Encontrá tu ritual
               <ArrowRight
                 size={17}
-                className="transition-transform duration-300 ease-out group-hover:translate-x-1"
+                className="transition-transform duration-300 ease-out group-hover:translate-x-1 group-active:translate-x-1"
               />
             </a>
           </Reveal>
 
-          <div className="flex flex-col sm:flex-row sm:items-stretch mt-8 sm:mt-14 border-t border-ink/15 pt-6 gap-6 sm:gap-0">
+          <div className="flex flex-col sm:flex-row sm:items-stretch border-t border-ink/15 pt-6 gap-6 sm:gap-0">
             {badges.map((b, i) => (
               <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
                 <div className="flex items-center gap-3">
