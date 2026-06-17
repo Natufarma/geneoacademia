@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import NuestrosRituales from "@/components/NuestrosRituales";
 import Rituales from "@/components/Rituales";
 import EncontraRitual from "@/components/EncontraRitual";
 import Timeline from "@/components/Timeline";
@@ -23,6 +24,9 @@ export default function Home() {
           {/* Spacer: mantiene el Hero fijo y VISIBLE (el intro lo revela limpio
               acá) antes de que Productos empiece a deslizarse por encima. */}
           <div className="h-[100svh]" aria-hidden />
+          {/* Grilla de productos (vista rápida estilo mockup) antes de las
+              secciones grandes. Opaca (bg-surface) → cubre el Hero al scrollear. */}
+          <NuestrosRituales />
           <Rituales />
         </div>
         <EncontraRitual />
