@@ -8,9 +8,10 @@ import Reveal from "@/components/Reveal";
  * sección detallada (#rituales). Usa las imágenes de producto existentes.
  */
 const productos = [
-  { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/rit-piel.webp" },
-  { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/rit-beauty.webp" },
-  { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/rit-45.webp" },
+  { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/prod-piel.webp" },
+  { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/prod-beauty.webp" },
+  { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/prod-45.webp" },
+  // TODO: reemplazar por prod-solar.webp (pouch naranja oficial) cuando esté el archivo
   { nombre: "Solar", beneficio: "Bronceado saludable desde adentro.", img: "/img/rit-solar.webp" },
 ];
 
@@ -34,13 +35,13 @@ export default function NuestrosRituales() {
                 href="#rituales"
                 className="group flex flex-col gap-4 bg-paper rounded-3xl shadow-soft p-4 hover:shadow-card hover:-translate-y-1 transition-all duration-300 h-full"
               >
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-surface">
+                <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface">
                   <Image
                     src={p.img}
                     alt={`Geneo ${p.nombre}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover"
+                    className="object-contain p-5 transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5 px-1 pb-1">
