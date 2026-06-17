@@ -24,11 +24,10 @@ export default function Home() {
           {/* Spacer: mantiene el Hero fijo y VISIBLE (el intro lo revela limpio
               acá) antes de que Productos empiece a deslizarse por encima. */}
           <div className="h-[100svh]" aria-hidden />
-          {/* Grilla de productos (vista rápida estilo mockup) antes de las
-              secciones grandes. Opaca (bg-surface) → cubre el Hero al scrollear. */}
-          <NuestrosRituales />
           <Rituales />
         </div>
+        {/* Grilla NUESTROS RITUALES debajo de las secciones grandes de producto */}
+        <NuestrosRituales />
         <EncontraRitual />
         <Timeline />
         <Ciencia />
