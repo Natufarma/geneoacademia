@@ -44,7 +44,7 @@ export default function BannerSuscripcion() {
               Comunidad Geneo
             </div>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium text-white leading-[1.05] tracking-tight">
+            <h2 className="uppercase text-3xl sm:text-4xl md:text-5xl font-medium text-white leading-[1.05] tracking-tight">
               Tu ritual, <span className="text-white/75">sin interrupciones</span>
             </h2>
             <p className="text-white/90 text-base mt-4 max-w-md">

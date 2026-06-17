@@ -49,7 +49,7 @@ export default function Timeline() {
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto">
         <Reveal blur={8}>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium leading-[1.1] tracking-tight max-w-2xl text-white">
+          <h2 className="uppercase text-3xl sm:text-4xl md:text-5xl font-medium leading-[1.1] tracking-tight max-w-2xl text-white">
             Tu piel no cambia de un día para otro,{" "}
             <span className="text-white/85">pero sí cambia con constancia.</span>
           </h2>

@@ -31,7 +31,7 @@ export default function DondeComprar() {
       <div className="max-w-[1440px] mx-auto">
         {/* Encabezado + CTA */}
         <Reveal className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-medium text-ink tracking-tight text-center sm:text-left">
+          <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium text-ink tracking-tight text-center sm:text-left">
             ¿Dónde <span className="text-geneo">comprar?</span>
           </h2>
           <a

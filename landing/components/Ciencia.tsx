@@ -69,7 +69,7 @@ export default function Ciencia() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Columna texto + compuestos destacados */}
           <Reveal>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-ink">
+            <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-ink">
               Ciencia que nutre <span className="text-geneo">tu piel.</span>
             </h2>
             <p className="text-muted mt-5 leading-relaxed max-w-md">

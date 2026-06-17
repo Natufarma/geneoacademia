@@ -34,7 +34,7 @@ export default function GaleriaMujeres() {
         <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase mb-3">
           Mujeres Geneo
         </p>
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-ink">
+        <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-ink">
           La belleza tiene <span className="text-geneo">muchas caras</span>
         </h2>
       </Reveal>

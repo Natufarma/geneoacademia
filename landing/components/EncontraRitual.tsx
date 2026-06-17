@@ -120,7 +120,7 @@ export default function EncontraRitual() {
           <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase">
             Tu ritual Geneo
           </p>
-          <h2 className="text-[clamp(2.25rem,5vw,3.75rem)] font-medium leading-[1.05] tracking-tight text-ink">
+          <h2 className="uppercase text-[clamp(2.25rem,5vw,3.75rem)] font-medium leading-[1.05] tracking-tight text-ink">
             Encontrá <span className="text-geneo">tu ritual</span>
           </h2>
           <p className="text-muted text-base max-w-md">
