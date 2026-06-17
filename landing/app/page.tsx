@@ -26,9 +26,9 @@ export default function Home() {
           <div className="h-[100svh]" aria-hidden />
           <Rituales />
         </div>
-        {/* Grilla NUESTROS RITUALES debajo de las secciones grandes de producto */}
-        <NuestrosRituales />
         <EncontraRitual />
+        {/* Grilla NUESTROS RITUALES debajo del quiz */}
+        <NuestrosRituales />
         <Timeline />
         <Ciencia />
         {/* Stack 2 (Carrusel mujeres → Testimonios → Mujeres Geneo) */}
