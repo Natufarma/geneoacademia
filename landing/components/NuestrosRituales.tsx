@@ -11,8 +11,7 @@ const productos = [
   { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/prod-piel.webp" },
   { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/prod-beauty.webp" },
   { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/prod-45.webp" },
-  // TODO: reemplazar por prod-solar.webp (pouch naranja oficial) cuando esté el archivo
-  { nombre: "Solar", beneficio: "Bronceado saludable desde adentro.", img: "/img/rit-solar.webp" },
+  { nombre: "Solar", beneficio: "Bronceado saludable desde adentro.", img: "/img/prod-solar.webp" },
 ];
 
 export default function NuestrosRituales() {
