@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
-import { TIENDA_URL } from "@/lib/site";
 
 /* Imagen de cada producto recomendado (para mostrar el resultado con foto). */
 const prodImg: Record<string, string> = {
@@ -73,13 +72,15 @@ function Paso({
   numero,
   pregunta,
   children,
+  id,
 }: {
   numero: string;
   pregunta: string;
   children: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <div className="bg-paper rounded-3xl shadow-soft p-6 sm:p-7 flex flex-col gap-5 h-full">
+    <div id={id} className="bg-paper rounded-3xl shadow-soft p-6 sm:p-7 flex flex-col gap-5 h-full scroll-mt-28">
       <div className="flex items-center gap-3">
         <span className="text-geneo font-medium text-xl leading-none">{numero}</span>
         <span className="h-px flex-1 bg-line" />
@@ -109,9 +110,7 @@ export default function EncontraRitual() {
             Respondé 2 preguntas y descubrí qué Geneo es para vos.
           </p>
           <a
-            href={TIENDA_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#ritual-pasos"
             className="group inline-flex w-fit items-center gap-2 bg-geneo text-white rounded-full pl-6 pr-5 h-12 font-medium text-sm uppercase tracking-wide hover:bg-geneo-hover active:bg-geneo-hover transition-colors duration-300"
           >
             Comenzar
@@ -121,7 +120,7 @@ export default function EncontraRitual() {
 
         {/* Columna 2 — Paso 01 */}
         <Reveal blur={8} delay={0.08}>
-          <Paso numero="01" pregunta="¿Qué querés potenciar?">
+          <Paso numero="01" pregunta="¿Qué querés potenciar?" id="ritual-pasos">
             {opcionesPotenciar.map((op) => (
               <Pill key={op} label={op} selected={potenciar === op} onClick={() => setPotenciar(op)} />
             ))}
