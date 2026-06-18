@@ -100,8 +100,8 @@ export default function Timeline() {
                   </div>
                   {/* Icono + label + descripción */}
                   <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2">
-                      <nodo.Icon size={18} strokeWidth={1.75} className="text-white shrink-0" aria-hidden="true" />
+                    <div className="flex items-center gap-2.5">
+                      <nodo.Icon size={32} strokeWidth={1.5} className="text-white shrink-0" aria-hidden="true" />
                       <p className="font-semibold text-white text-lg tracking-tight">
                         +<CountUp to={nodo.dias} /> días
                       </p>
