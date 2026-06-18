@@ -8,7 +8,6 @@ import Ciencia from "@/components/Ciencia";
 import Testimonios from "@/components/Testimonios";
 import GaleriaMujeres from "@/components/GaleriaMujeres";
 import CarruselCiencia from "@/components/CarruselCiencia";
-import BannerSuscripcion from "@/components/BannerSuscripcion";
 import DondeComprar from "@/components/DondeComprar";
 import Footer from "@/components/Footer";
 
@@ -42,7 +41,6 @@ export default function Home() {
           <Testimonios />
           <GaleriaMujeres />
         </div>
-        <BannerSuscripcion />
         <DondeComprar />
       </main>
       <Footer />
