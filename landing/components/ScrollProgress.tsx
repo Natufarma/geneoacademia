@@ -18,7 +18,7 @@ export default function ScrollProgress() {
     <motion.div
       aria-hidden="true"
       style={{ scaleX }}
-      className="fixed top-0 left-0 right-0 z-[105] h-[2px] origin-left bg-geneo"
+      className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-[105] h-[2px] origin-left bg-geneo"
     />
   );
 }
