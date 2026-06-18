@@ -14,7 +14,7 @@ const badges: Badge[] = [
 
 export default function Hero() {
   return (
-    <section className="md:sticky md:top-0 z-[10] min-h-[100svh] flex items-end overflow-hidden bg-surface">
+    <section className="sticky top-0 z-[10] min-h-[100svh] flex items-end overflow-hidden bg-surface">
       {/* Fondo full-bleed con parallax (sobreescaneado para no ver bordes).
           Capa base: foto (siempre presente como fallback/poster).
           Capa superior: video en loop, si existe y no hay reduced-motion. */}

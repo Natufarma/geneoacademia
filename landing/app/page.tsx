@@ -22,7 +22,7 @@ export default function Home() {
           <Hero />
           {/* Spacer: mantiene el Hero fijo y VISIBLE (el intro lo revela limpio
               acá) antes de que Productos empiece a deslizarse por encima. */}
-          <div className="hidden md:block h-[100svh]" aria-hidden />
+          <div className="h-[100svh]" aria-hidden />
           <Rituales />
         </div>
         <EncontraRitual />

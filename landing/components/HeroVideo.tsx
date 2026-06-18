@@ -27,7 +27,7 @@ export default function HeroVideo() {
         connection?: { saveData?: boolean; effectiveType?: string };
       }
     ).connection;
-    if (conn?.saveData || conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g") return;
+    if (conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g") return;
     const mq = window.matchMedia("(max-width: 767px)");
     const apply = () => setMode(mq.matches ? "mobile" : "desktop");
     apply();
