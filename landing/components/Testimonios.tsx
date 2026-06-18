@@ -42,7 +42,7 @@ const testimonios = [
 
 export default function Testimonios() {
   return (
-    <section className="sticky top-0 z-[20] min-h-[100svh] flex flex-col justify-center bg-surface py-16 sm:py-36 px-4 sm:px-6">
+    <section className="md:sticky md:top-0 z-[20] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-surface py-16 sm:py-36 px-4 sm:px-6">
       <div className="w-full max-w-[1440px] mx-auto">
         <Reveal>
           <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-ink text-center sm:text-left">

@@ -20,6 +20,14 @@ export default function HeroVideo() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Gama baja / datos: no cargamos el video si el visitante pidió ahorro de
+    // datos o está en una conexión lenta (queda la foto-poster del Hero).
+    const conn = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (conn?.saveData || conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g") return;
     const mq = window.matchMedia("(max-width: 767px)");
     const apply = () => setMode(mq.matches ? "mobile" : "desktop");
     apply();

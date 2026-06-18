@@ -42,12 +42,16 @@ function AnchorScroll() {
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
   const [reduced, setReduced] = useState(false);
+  // En dispositivos táctiles dejamos el scroll NATIVO del SO (más fluido y
+  // liviano en gama baja); el suavizado de Lenis queda solo para wheel/desktop.
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
     const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
     mq.addEventListener("change", handler);
+    setIsTouch(window.matchMedia("(pointer: coarse)").matches);
     return () => mq.removeEventListener("change", handler);
   }, []);
 
@@ -57,7 +61,8 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       options={{
         lerp: 0.07,
         duration: 1.6,
-        smoothWheel: !reduced,
+        smoothWheel: !reduced && !isTouch,
+        syncTouch: false,
         wheelMultiplier: 0.9,
         touchMultiplier: 1.4,
       }}

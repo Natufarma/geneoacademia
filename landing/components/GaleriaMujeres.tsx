@@ -29,7 +29,7 @@ function Card({ src, alt, decorative = false }: { src: string; alt: string; deco
 
 export default function GaleriaMujeres() {
   return (
-    <section className="sticky top-0 z-[30] min-h-[100svh] flex flex-col justify-center bg-white py-16 sm:py-36 overflow-hidden">
+    <section className="md:sticky md:top-0 z-[30] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-white py-16 sm:py-36 overflow-hidden">
       <Reveal blur={8} className="max-w-[1440px] mx-auto px-6 mb-8 sm:mb-12 text-center">
         <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase mb-3">
           Mujeres Geneo

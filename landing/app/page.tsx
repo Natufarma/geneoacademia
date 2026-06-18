@@ -22,7 +22,7 @@ export default function Home() {
           <Hero />
           {/* Spacer: mantiene el Hero fijo y VISIBLE (el intro lo revela limpio
               acá) antes de que Productos empiece a deslizarse por encima. */}
-          <div className="h-[100svh]" aria-hidden />
+          <div className="hidden md:block h-[100svh]" aria-hidden />
           <Rituales />
         </div>
         <EncontraRitual />
@@ -34,7 +34,7 @@ export default function Home() {
         <div className="relative isolate">
           <section
             aria-label="Galería editorial Geneo"
-            className="sticky top-0 z-[10] h-[100svh] overflow-hidden"
+            className="md:sticky md:top-0 z-[10] h-[100svh] overflow-hidden"
           >
             <CarruselCiencia />
           </section>

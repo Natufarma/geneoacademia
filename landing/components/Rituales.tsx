@@ -41,7 +41,7 @@ export default function Rituales() {
         <section
           key={p.nombre}
           id={i === 0 ? "rituales" : undefined}
-          className={`sticky top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden`}
+          className={`md:sticky md:top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden`}
         >
           {/* Imagen full-bleed (o bloque magenta para Solar) */}
           {p.img ? (

@@ -56,7 +56,7 @@ function Pill({
       type="button"
       onClick={onClick}
       whileTap={{ scale: 0.97 }}
-      className={`w-full text-left rounded-full px-5 h-11 text-sm font-medium transition-colors duration-300 cursor-pointer ${
+      className={`w-full text-left rounded-full px-5 min-h-11 py-2.5 text-sm font-medium transition-colors duration-300 cursor-pointer ${
         selected
           ? "bg-geneo text-white"
           : "bg-black/[0.04] text-ink hover:bg-geneo/10 hover:text-geneo"
