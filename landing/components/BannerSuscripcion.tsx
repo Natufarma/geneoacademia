@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Percent, Package, Bell, XCircle, Users, ArrowRight } from "lucide-react";
+import { Percent, Package, Bell, XCircle, ArrowRight } from "lucide-react";
 import ScrollSpinProduct from "@/components/ScrollSpinProduct";
 
 const beneficios = [
@@ -38,12 +38,6 @@ export default function BannerSuscripcion() {
 
           {/* Contenido */}
           <div>
-            {/* Comunidad badge */}
-            <div className="inline-flex items-center gap-2 border border-white/20 text-white px-4 py-2 rounded-full text-xs font-medium tracking-wide mb-5">
-              <Users size={14} className="text-white" />
-              Comunidad Geneo
-            </div>
-
             <h2 className="uppercase text-3xl sm:text-4xl md:text-5xl font-medium text-white leading-[1.05] tracking-tight">
               Tu ritual, <span className="text-white/75">sin interrupciones</span>
             </h2>
@@ -111,7 +105,7 @@ export default function BannerSuscripcion() {
                 aria-live="polite"
                 className="mt-8 border border-white/20 text-white px-6 py-4 rounded-2xl max-w-md text-sm font-medium"
               >
-                ¡Bienvenida a la Comunidad Geneo! 🌸
+                ¡Listo! Ya estás suscrita 🌸
               </div>
             )}
           </div>
