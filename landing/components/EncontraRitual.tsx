@@ -1,10 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import { TIENDA_URL } from "@/lib/site";
+
+/* Imagen de cada producto recomendado (para mostrar el resultado con foto). */
+const prodImg: Record<string, string> = {
+  "Geneo Piel Saludable": "/img/prod-piel.webp",
+  "Geneo Beauty": "/img/prod-beauty.webp",
+  "Geneo 45+": "/img/prod-45.webp",
+  "Geneo Solar": "/img/prod-solar.webp",
+};
 
 /* Cada objetivo mapea a un ritual real con sus productos. El resultado
    se calcula en vivo según lo que elige la persona. */
@@ -167,11 +176,11 @@ export default function EncontraRitual() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                  className="flex items-center gap-2.5"
+                  className="flex items-center gap-3"
                 >
-                  <span className="w-5 h-5 rounded-full bg-geneo/10 flex items-center justify-center shrink-0">
-                    <Check size={12} strokeWidth={3} className="text-geneo" />
-                  </span>
+                  <div className="relative w-12 h-12 shrink-0 rounded-xl bg-paper shadow-soft overflow-hidden">
+                    <Image src={prodImg[p]} alt={p} fill sizes="48px" className="object-contain p-1" />
+                  </div>
                   <span className="text-sm font-medium text-ink">{p}</span>
                 </motion.div>
               ))}
