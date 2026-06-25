@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 /**
  * HeroVideo — video de fondo en loop para el Hero, RESPONSIVE.
  *
- * - Desktop (≥768px): video horizontal 16:9  → /video/hero-loop.{webm,mp4}
- * - Mobile (<768px):  video vertical 9:16     → /video/hero-loop-mobile.{webm,mp4}
+ * - Desktop (≥768px): video horizontal 16:9  → /video/hero-loop.mp4
+ * - Mobile (<768px):  video vertical 9:16     → /video/hero-loop-mobile.mp4
  *
  * Se monta solo si el visitante no pidió `prefers-reduced-motion`. Si el video
  * falla, se oculta y queda la foto-poster que vive debajo en el Hero.
