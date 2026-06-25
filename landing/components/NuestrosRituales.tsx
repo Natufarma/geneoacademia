@@ -8,10 +8,10 @@ import Reveal from "@/components/Reveal";
  * sección detallada (#rituales). Usa las imágenes de producto existentes.
  */
 const productos = [
-  { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/prod-piel.webp" },
-  { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/prod-beauty.webp" },
-  { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/prod-45.webp" },
-  { nombre: "Solar", beneficio: "Bronceado saludable desde adentro.", img: "/img/prod-solar.webp" },
+  { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/grid-piel.webp", scene: true },
+  { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/grid-beauty.webp", scene: true },
+  { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/grid-45.webp", scene: true },
+  { nombre: "Solar", beneficio: "Bronceado saludable desde adentro.", img: "/img/prod-solar.webp", scene: false },
 ];
 
 export default function NuestrosRituales() {
@@ -34,13 +34,15 @@ export default function NuestrosRituales() {
                 href="#rituales"
                 className="group flex flex-col gap-4 bg-paper rounded-3xl shadow-soft p-4 hover:shadow-card hover:-translate-y-1 transition-all duration-300 h-full"
               >
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface">
+                <div className="relative aspect-[3/2] rounded-2xl overflow-hidden bg-surface">
                   <Image
                     src={p.img}
                     alt={`Geneo ${p.nombre}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-contain p-5 transition-transform duration-500 group-hover:scale-105"
+                    className={`transition-transform duration-500 group-hover:scale-105 ${
+                      p.scene ? "object-cover" : "object-contain p-5"
+                    }`}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5 px-1 pb-1">
