@@ -9,24 +9,28 @@ const productos = [
     formula: "COLÁGENO + Q10",
     beneficio: "Glow + Hidratación + Firmeza",
     img: "/img/rit-piel.webp",
+    imgMobile: "/img/rit-piel-mobile.webp",
   },
   {
     nombre: "Beauty",
     formula: "HIALURÓNICO + Q10 + RESVERATROL",
     beneficio: "Piel firme + Pelo fuerte + Uñas saludables",
     img: "/img/rit-beauty.webp",
+    imgMobile: "/img/rit-beauty-mobile.webp",
   },
   {
     nombre: "45+",
     formula: "GENISTEÍNA + HIALURÓNICO",
     beneficio: "Elasticidad + Renovación",
     img: "/img/rit-45.webp",
+    imgMobile: "/img/rit-45-mobile.webp",
   },
   {
     nombre: "Solar",
     formula: "COLÁGENO + CAROTENO + LICOPENO",
     beneficio: "Piel bronceada desde adentro",
     img: "/img/rit-solar.webp",
+    imgMobile: "/img/rit-solar.webp",
   },
 ];
 
@@ -43,19 +47,23 @@ export default function Rituales() {
           id={i === 0 ? "rituales" : undefined}
           className={`sticky top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden`}
         >
-          {/* Imagen full-bleed (o bloque magenta para Solar) */}
-          {p.img ? (
-            <Image
-              src={p.img}
-              alt={`Geneo ${p.nombre}`}
-              fill
-              priority={i === 0}
-              sizes="100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-geneo via-geneo to-geneo-dark" />
-          )}
+          {/* Imagen full-bleed — escena landscape en desktop, vertical 9:16 en mobile */}
+          <Image
+            src={p.img}
+            alt={`Geneo ${p.nombre}`}
+            fill
+            priority={i === 0}
+            sizes="100vw"
+            className="hidden md:block object-cover"
+          />
+          <Image
+            src={p.imgMobile}
+            alt={`Geneo ${p.nombre}`}
+            fill
+            priority={i === 0}
+            sizes="100vw"
+            className="md:hidden object-cover"
+          />
 
           {/* Sin velo: la imagen queda a todo color. La legibilidad del texto
               se resuelve con text-shadow (abajo), no oscureciendo la foto. */}
