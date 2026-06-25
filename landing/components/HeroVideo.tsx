@@ -57,7 +57,6 @@ export default function HeroVideo() {
       onError={() => setFailed(true)}
       className={`absolute inset-0 h-full w-full object-cover ${position} motion-safe:animate-[fadeIn_1.2s_ease-out]`}
     >
-      <source src={`${base}.webm`} type="video/webm" />
       <source src={`${base}.mp4`} type="video/mp4" />
     </video>
   );
