@@ -1,6 +1,6 @@
 import { Building2, ShoppingCart, ShoppingBag, ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
-import { TIENDA_URL } from "@/lib/site";
+import { TIENDA_URL, MERCADOLIBRE_URL } from "@/lib/site";
 
 /* href: si existe, la tarjeta es un link real (con feedback de hover). Si es
    null, es informativa y NO simula ser clickeable. */
@@ -21,7 +21,7 @@ const opciones = [
     icono: ShoppingBag,
     nombre: "Mercado Libre",
     descripcion: "con beneficios exclusivos.",
-    href: null as string | null,
+    href: MERCADOLIBRE_URL as string | null,
   },
 ];
 

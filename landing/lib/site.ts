@@ -26,6 +26,10 @@ export const SITE_DESCRIPTION =
 // Tienda oficial donde se compra el producto.
 export const TIENDA_URL = "https://www.tiendanatufarma.com.ar/colageno/";
 
+// Tienda oficial de Natufarma en Mercado Libre.
+export const MERCADOLIBRE_URL =
+  "https://listado.mercadolibre.com.ar/tienda/natufarma/listado/salud-equipamiento-medico/?tracking_id=e534b9ce-fa7c-4b2f-a7af-7841773a5db2#client=HOME&component_id=menu_corridors&component=menu_corridors&label=Salud+y+Equipamiento+M%C3%A9dico&global_position=1";
+
 // Redes sociales oficiales de Natufarma.
 export const SOCIAL = {
   instagram: "https://www.instagram.com/natufarma_oficial/",
