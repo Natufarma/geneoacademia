@@ -56,10 +56,10 @@ function Pill({
       type="button"
       onClick={onClick}
       whileTap={{ scale: 0.97 }}
-      className={`w-full text-left rounded-full px-5 min-h-11 py-2.5 text-sm font-medium transition-colors duration-300 cursor-pointer ${
+      className={`w-full text-left rounded-full px-5 min-h-11 py-3 text-base font-medium transition-colors duration-300 cursor-pointer ${
         selected
           ? "bg-geneo text-white"
-          : "bg-black/[0.04] text-ink hover:bg-geneo/10 hover:text-geneo"
+          : "bg-black/[0.04] text-ink hover:bg-geneo/10 hover:text-geneo active:bg-geneo/10 active:text-geneo"
       }`}
     >
       {label}
@@ -82,10 +82,10 @@ function Paso({
   return (
     <div id={id} className="bg-paper rounded-3xl shadow-soft p-6 sm:p-7 flex flex-col gap-5 h-full scroll-mt-28">
       <div className="flex items-center gap-3">
-        <span className="text-geneo font-medium text-xl leading-none">{numero}</span>
+        <span className="text-geneo font-medium text-2xl leading-none">{numero}</span>
         <span className="h-px flex-1 bg-line" />
       </div>
-      <p className="font-medium text-ink text-base tracking-tight">{pregunta}</p>
+      <p className="font-medium text-ink text-lg tracking-tight">{pregunta}</p>
       <div className="flex flex-col gap-2.5">{children}</div>
     </div>
   );
@@ -99,14 +99,14 @@ export default function EncontraRitual() {
 
   return (
     <section id="ritual-finder" className="relative z-[30] bg-surface py-16 sm:py-28 px-4 sm:px-6">
-      <div className="relative w-full max-w-[1440px] mx-auto grid gap-8 lg:gap-7 lg:grid-cols-4 items-start">
+      <div className="relative w-full max-w-[1440px] mx-auto grid gap-8 lg:gap-7 lg:grid-cols-4 items-stretch">
 
         {/* Columna 1 — encabezado + CTA */}
         <Reveal className="flex flex-col gap-5" blur={8}>
           <h2 className="uppercase text-[clamp(2rem,3.5vw,3rem)] font-medium leading-[1.05] tracking-tight text-ink">
             Encontrá <span className="text-geneo">tu ritual</span>
           </h2>
-          <p className="text-muted text-base max-w-xs">
+          <p className="text-muted text-base sm:text-lg max-w-xs">
             Respondé 2 preguntas y descubrí qué Geneo es para vos.
           </p>
           <a
@@ -143,7 +143,7 @@ export default function EncontraRitual() {
 
         {/* Columna 4 — resultado en vivo */}
         <Reveal blur={8} delay={0.24} className="flex flex-col gap-5">
-          <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-geneo">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-geneo">
             Tu ritual
           </p>
 
@@ -163,7 +163,7 @@ export default function EncontraRitual() {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <p className="text-[11px] uppercase tracking-wider font-medium text-muted">
+            <p className="text-xs uppercase tracking-wider font-medium text-muted">
               Recomendado para vos
             </p>
             <AnimatePresence mode="popLayout">
@@ -180,12 +180,12 @@ export default function EncontraRitual() {
                   <div className="relative w-12 h-12 shrink-0 rounded-xl bg-paper shadow-soft overflow-hidden">
                     <Image src={prodImg[p]} alt={p} fill sizes="48px" className="object-contain p-1" />
                   </div>
-                  <span className="text-sm font-medium text-ink">{p}</span>
+                  <span className="text-base font-medium text-ink">{p}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
             {notar && (
-              <p className="text-xs text-muted">
+              <p className="text-sm text-muted">
                 Vas a notar primero:{" "}
                 <span className="font-medium text-ink">{notar.toLowerCase()}</span>.
               </p>
@@ -193,15 +193,15 @@ export default function EncontraRitual() {
           </div>
 
           {/* Progresión 20 / 40 / 90 días */}
-          <div className="flex items-center gap-3 border-t border-line pt-5">
+          <div className="flex items-center gap-3 sm:gap-4 border-t border-line pt-5">
             {timeline.map((step, i) => (
-              <div key={step.dias} className="flex items-center gap-3">
-                {i > 0 && <span className="text-geneo font-medium" aria-hidden>+</span>}
+              <div key={step.dias} className="flex items-center gap-3 sm:gap-4">
+                {i > 0 && <span className="text-geneo font-medium text-lg" aria-hidden>+</span>}
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-ink leading-none">
-                    {step.dias} <span className="text-[11px] font-normal text-muted">días</span>
+                  <span className="text-lg sm:text-xl font-semibold text-ink leading-none">
+                    {step.dias} <span className="text-xs font-normal text-muted">días</span>
                   </span>
-                  <span className="text-[11px] text-muted leading-tight mt-0.5">{step.desc}</span>
+                  <span className="text-xs text-muted leading-tight mt-1">{step.desc}</span>
                 </div>
               </div>
             ))}

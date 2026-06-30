@@ -42,7 +42,7 @@ export default function Hero() {
         </div>
       </Parallax>
 
-      <div className="relative z-10 px-6 sm:px-8 lg:px-10 pt-24 pb-16 md:pt-32 md:pb-24 w-full">
+      <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full">
         <div className="max-w-3xl flex flex-col gap-7 sm:gap-9">
           <h1 className="uppercase text-[clamp(2.25rem,6vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-ink">
             <Reveal as="span" className="block" blur={8} y={20}>
@@ -54,7 +54,7 @@ export default function Hero() {
           </h1>
 
           <Reveal delay={0.3}>
-            <p className="text-muted text-base md:text-lg leading-relaxed max-w-md">
+            <p className="text-muted text-lg md:text-xl leading-relaxed max-w-lg">
               Nutrí tu piel desde adentro. Resultados que se ven, confianza que se siente.
             </p>
           </Reveal>
@@ -77,13 +77,13 @@ export default function Hero() {
               <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
                 <div className="flex items-center gap-3">
                   {b.mark ? (
-                    <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-5 w-5 shrink-0" />
+                    <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-6 w-6 shrink-0" />
                   ) : b.Icon ? (
-                    <b.Icon className="text-geneo shrink-0" size={20} aria-hidden="true" />
+                    <b.Icon className="text-geneo shrink-0" size={24} aria-hidden="true" />
                   ) : null}
                   <div>
-                    <p className="text-sm font-medium text-ink">{b.t}</p>
-                    <p className="text-xs text-muted">{b.s}</p>
+                    <p className="text-base font-medium text-ink">{b.t}</p>
+                    <p className="text-sm text-muted">{b.s}</p>
                   </div>
                 </div>
               </Reveal>

@@ -53,7 +53,7 @@ export default function Timeline() {
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto">
         <Reveal blur={8}>
-          <h2 className="uppercase text-3xl sm:text-4xl md:text-5xl font-medium leading-[1.1] tracking-tight max-w-2xl text-white">
+          <h2 className="uppercase text-[clamp(1.875rem,4.5vw,3rem)] font-medium leading-[1.1] tracking-tight max-w-2xl text-white">
             Tu piel no cambia de un día para otro,{" "}
             <span className="text-white/85">pero sí cambia con constancia.</span>
           </h2>
@@ -99,14 +99,14 @@ export default function Timeline() {
                     <span className="absolute inset-0 rounded-full bg-white" />
                   </div>
                   {/* Icono + label + descripción */}
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2.5">
-                      <nodo.Icon size={32} strokeWidth={1.5} className="text-white shrink-0" aria-hidden="true" />
-                      <p className="font-semibold text-white text-lg tracking-tight">
-                        +<CountUp to={nodo.dias} /> días
+                      <nodo.Icon size={38} strokeWidth={1.5} className="text-white shrink-0" aria-hidden="true" />
+                      <p className="font-semibold text-white text-3xl sm:text-4xl tracking-tight leading-none">
+                        +<CountUp to={nodo.dias} /> <span className="text-xl sm:text-2xl font-medium">días</span>
                       </p>
                     </div>
-                    <p className="text-white/90 text-sm max-w-[180px] leading-relaxed">
+                    <p className="text-white/90 text-base max-w-[210px] leading-relaxed">
                       {nodo.descripcion}
                     </p>
                   </div>

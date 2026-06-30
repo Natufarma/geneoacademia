@@ -25,18 +25,11 @@ const productos = [
     img: "/img/rit-45.webp",
     imgMobile: "/img/rit-45-mobile.webp",
   },
-  {
-    nombre: "Solar",
-    formula: "COLÁGENO + CAROTENO + LICOPENO",
-    beneficio: "Piel bronceada desde adentro",
-    img: "/img/rit-solar.webp",
-    imgMobile: "/img/rit-solar.webp",
-  },
 ];
 
 /* z-index progresivo para el apilamiento sticky (cada producto pisa al anterior).
    Clases estáticas para que Tailwind las genere. */
-const zClasses = ["z-[20]", "z-[30]", "z-[40]", "z-[50]"];
+const zClasses = ["z-[20]", "z-[30]", "z-[40]"];
 
 export default function Rituales() {
   return (
@@ -65,30 +58,32 @@ export default function Rituales() {
             className="md:hidden object-cover"
           />
 
-          {/* Sin velo: la imagen queda a todo color. La legibilidad del texto
-              se resuelve con text-shadow (abajo), no oscureciendo la foto. */}
+          {/* Velo lineal desde la izquierda con cuerpo hasta ~la mitad de la
+              imagen: garantiza contraste del texto y se desvanece pasada la
+              mitad, dejando el producto (derecha) con su color real. */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/80 from-0% via-black/45 via-30% to-transparent to-[55%]" />
 
-          {/* Info arriba a la izquierda */}
-          <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pt-20 sm:pt-32">
+          {/* Info abajo a la izquierda */}
+          <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-end pb-16 sm:pb-24 pt-28">
             <Reveal
               blur={10}
               className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_18px_rgba(0,0,0,0.45)]"
             >
-              <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/70">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/80">
                 Nuestros rituales · {String(i + 1).padStart(2, "0")} / {String(productos.length).padStart(2, "0")}
               </p>
 
               {/* Título: fórmula + nombre, agrupados con gap (sin márgenes sueltos) */}
               <div className="flex flex-col gap-2">
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-white/90">
+                <p className="text-sm sm:text-base font-semibold tracking-[0.2em] uppercase text-white/90">
                   {p.formula}
                 </p>
-                <h2 className="text-[clamp(2.25rem,6vw,4.5rem)] font-medium tracking-tight leading-[1.02]">
+                <h2 className="text-[clamp(2.5rem,6.5vw,5rem)] font-medium tracking-tight leading-[1.02]">
                   {p.nombre}
                 </h2>
               </div>
 
-              <p className="text-white/85 text-base sm:text-lg max-w-sm leading-relaxed">
+              <p className="text-white/90 text-lg sm:text-xl max-w-sm leading-relaxed">
                 {p.beneficio}
               </p>
 
