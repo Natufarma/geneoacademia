@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import Parallax from "@/components/Parallax";
+import CompuestosSlider from "@/components/CompuestosSlider";
 
 /* Dos compuestos destacados (los del mockup) con su molécula y descripción
    real, condensada, tomada de geneo.natufarma.com. */
@@ -140,47 +140,9 @@ export default function Ciencia() {
           </Reveal>
         </div>
 
-        {/* Todos los compuestos activos — slider deslizable manual */}
-        <div className="mt-20 flex flex-col gap-6">
-          <div className="flex items-end justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase">
-                Compuestos activos avanzados
-              </p>
-              <h3 className="text-2xl sm:text-3xl font-medium text-ink tracking-tight">
-                Todo lo que nutre tu piel
-              </h3>
-            </div>
-            <span className="flex items-center gap-1 text-muted text-xs font-medium shrink-0">
-              Deslizá <ArrowRight size={14} aria-hidden="true" />
-            </span>
-          </div>
-
-          <div className="-mx-6 px-6 flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*:last-child]:mr-6">
-            {todosLosCompuestos.map((c, i) => (
-              <article
-                key={c.nombre}
-                className="snap-start flex-shrink-0 w-64 sm:w-72 bg-white rounded-3xl shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col"
-              >
-                <div className="relative aspect-square bg-surface">
-                  <Image
-                    src={c.img}
-                    alt={c.nombre}
-                    fill
-                    sizes="288px"
-                    className="object-contain p-6"
-                  />
-                </div>
-                <div className="p-6 flex flex-col gap-2">
-                  <span className="text-geneo font-medium text-sm tracking-widest">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <p className="font-medium text-base text-ink leading-tight tracking-tight">{c.nombre}</p>
-                  <p className="text-muted text-sm leading-relaxed">{c.descripcion}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+        {/* Todos los compuestos activos — slider con rueda de mouse + botones */}
+        <div className="mt-20">
+          <CompuestosSlider compuestos={todosLosCompuestos} />
         </div>
       </div>
     </section>
