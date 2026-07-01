@@ -104,13 +104,6 @@ export default function Rituales() {
                     Próximamente
                   </span>
                 )}
-                {/* min-h-11 = 44px: cumple el touch target mínimo en móvil */}
-                <a
-                  href="#ciencia"
-                  className="group/link inline-flex items-center min-h-11 px-1 text-white text-sm font-medium"
-                >
-                  Conocer más
-                </a>
               </div>
             </Reveal>
           </div>
