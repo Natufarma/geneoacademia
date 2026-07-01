@@ -38,17 +38,18 @@ export default function Intro() {
 
   const { scrollY } = useScroll();
 
-  // El intro se completa en ~0.4 viewport para que el hero quede revelado
-  // limpio mientras está fijo (el spacer le da su tiempo en pantalla).
-  const bgOpacity = useTransform(scrollY, [0, vh * 0.3], [1, 0]);
-  const scale = useTransform(scrollY, [0, vh * 0.42], [1, 0.16]);
-  const y = useTransform(scrollY, [0, vh * 0.42], [0, -vh * 0.42]);
-  const logoOpacity = useTransform(scrollY, [vh * 0.3, vh * 0.42], [1, 0]);
-  const hintOpacity = useTransform(scrollY, [0, vh * 0.12], [1, 0]);
+  // El intro se resuelve rápido (~0.28 viewport): con un poco de scroll el logo
+  // ya se achicó, subió y se desvaneció. Evita tener que "scrollear demasiado".
+  const bgOpacity = useTransform(scrollY, [0, vh * 0.18], [1, 0]);
+  const scale = useTransform(scrollY, [0, vh * 0.28], [1, 0.16]);
+  const y = useTransform(scrollY, [0, vh * 0.28], [0, -vh * 0.42]);
+  const logoOpacity = useTransform(scrollY, [vh * 0.18, vh * 0.28], [1, 0]);
+  const hintOpacity = useTransform(scrollY, [0, vh * 0.08], [1, 0]);
 
+  // Una vez que el intro se fue, NO vuelve: es una entrada de marca de una sola
+  // vez. Así no queda "perdido" al volver al top ni al saltar al final.
   useMotionValueEvent(scrollY, "change", (v) => {
-    if (v > vh * 0.5 && !gone) setGone(true);
-    else if (v <= vh * 0.5 && gone) setGone(false);
+    if (v > vh * 0.3 && !gone) setGone(true);
   });
 
   if (skip || gone) return null;
