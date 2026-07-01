@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import type { CSSProperties } from "react";
+import { Pause, Play } from "lucide-react";
 import Reveal from "@/components/Reveal";
 
 /* Banda full-width de retratos editoriales. Se desliza en loop infinito
@@ -28,6 +32,7 @@ function Card({ src, alt, decorative = false }: { src: string; alt: string; deco
 }
 
 export default function GaleriaMujeres() {
+  const [paused, setPaused] = useState(false);
   return (
     <section className="md:sticky md:top-0 z-[30] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-white py-16 sm:py-36 overflow-hidden">
       <Reveal blur={8} className="max-w-[1440px] mx-auto px-6 mb-8 sm:mb-12 text-center">
@@ -52,7 +57,7 @@ export default function GaleriaMujeres() {
           } as CSSProperties
         }
       >
-        <div className="marquee-track flex w-max">
+        <div className={`marquee-track flex w-max ${paused ? "[animation-play-state:paused]" : ""}`}>
           <div className="flex shrink-0 gap-5 pr-5">
             {fotos.map((f) => (
               <Card key={f.src} src={f.src} alt={f.alt} />
@@ -64,6 +69,20 @@ export default function GaleriaMujeres() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Control de pausa/reproducción (WCAG 2.2.2): el hover no alcanza en táctil. */}
+      <div className="max-w-[1440px] mx-auto px-6 mt-8 flex justify-center">
+        <button
+          type="button"
+          onClick={() => setPaused((p) => !p)}
+          aria-pressed={paused}
+          aria-label={paused ? "Reanudar la galería" : "Pausar la galería"}
+          className="inline-flex items-center gap-2 min-h-11 rounded-full border border-ink/15 px-5 text-sm font-medium text-ink hover:bg-ink hover:text-white transition-colors duration-300"
+        >
+          {paused ? <Play size={15} aria-hidden="true" /> : <Pause size={15} aria-hidden="true" />}
+          {paused ? "Reanudar" : "Pausar"}
+        </button>
       </div>
     </section>
   );

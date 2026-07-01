@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X, ArrowRight } from "lucide-react";
@@ -16,12 +16,52 @@ const socials = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Foco atrapado dentro del diálogo mientras está abierto: mueve el foco al
+  // menú al abrir y hace loop del Tab entre el primer y último elemento.
+  useEffect(() => {
+    if (!open) return;
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const getFocusable = () =>
+      Array.from(
+        overlay.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+    getFocusable()[0]?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const items = getFocusable();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    overlay.addEventListener("keydown", onKeyDown);
+    return () => overlay.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  // Al cerrar, devolvemos el foco al botón que abrió el menú.
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (wasOpen.current && !open) menuButtonRef.current?.focus();
+    wasOpen.current = open;
+  }, [open]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -71,6 +111,7 @@ export default function Navbar() {
               <ShoppingBag size={20} aria-hidden="true" />
             </a>
             <button
+              ref={menuButtonRef}
               onClick={() => setOpen(true)}
               aria-expanded={open}
               aria-controls="nav-overlay"
@@ -88,6 +129,7 @@ export default function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
+            ref={overlayRef}
             id="nav-overlay"
             role="dialog"
             aria-modal="true"

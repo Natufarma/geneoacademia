@@ -46,15 +46,20 @@ function Pill({
   label,
   selected,
   onClick,
+  mode,
 }: {
   label: string;
   selected: boolean;
   onClick: () => void;
+  mode: "radio" | "toggle";
 }) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
+      role={mode === "radio" ? "radio" : undefined}
+      aria-checked={mode === "radio" ? selected : undefined}
+      aria-pressed={mode === "toggle" ? selected : undefined}
       whileTap={{ scale: 0.97 }}
       className={`w-full text-left rounded-full px-5 min-h-11 py-3 text-base font-medium transition-colors duration-300 cursor-pointer ${
         selected
@@ -73,11 +78,13 @@ function Paso({
   pregunta,
   children,
   id,
+  groupRole,
 }: {
   numero: string;
   pregunta: string;
   children: React.ReactNode;
   id?: string;
+  groupRole?: "radiogroup" | "group";
 }) {
   return (
     <div id={id} className="bg-paper rounded-3xl shadow-soft p-6 sm:p-7 flex flex-col gap-5 h-full scroll-mt-28">
@@ -86,7 +93,9 @@ function Paso({
         <span className="h-px flex-1 bg-line" />
       </div>
       <p className="font-medium text-ink text-lg tracking-tight">{pregunta}</p>
-      <div className="flex flex-col gap-2.5">{children}</div>
+      <div className="flex flex-col gap-2.5" role={groupRole} aria-label={groupRole ? pregunta : undefined}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -123,22 +132,23 @@ export default function EncontraRitual() {
 
         {/* Columna 2 — Paso 01 */}
         <Reveal blur={8} delay={0.08}>
-          <Paso numero="01" pregunta="¿Qué querés potenciar?" id="ritual-pasos">
+          <Paso numero="01" pregunta="¿Qué querés potenciar?" id="ritual-pasos" groupRole="radiogroup">
             {opcionesPotenciar.map((op) => (
-              <Pill key={op} label={op} selected={potenciar === op} onClick={() => setPotenciar(op)} />
+              <Pill key={op} label={op} selected={potenciar === op} onClick={() => setPotenciar(op)} mode="radio" />
             ))}
           </Paso>
         </Reveal>
 
         {/* Columna 3 — Paso 02 */}
         <Reveal blur={8} delay={0.16}>
-          <Paso numero="02" pregunta="¿Qué te gustaría notar primero?">
+          <Paso numero="02" pregunta="¿Qué te gustaría notar primero?" groupRole="group">
             {opcionesNotar.map((op) => (
               <Pill
                 key={op}
                 label={op}
                 selected={notar === op}
                 onClick={() => setNotar((prev) => (prev === op ? null : op))}
+                mode="toggle"
               />
             ))}
           </Paso>
@@ -150,7 +160,7 @@ export default function EncontraRitual() {
             Tu ritual
           </p>
 
-          <div className="min-h-[3rem]">
+          <div className="min-h-[3rem]" aria-live="polite" aria-atomic="true">
             <AnimatePresence mode="wait">
               <motion.p
                 key={ritual.nombre}
