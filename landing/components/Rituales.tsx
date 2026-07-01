@@ -58,13 +58,14 @@ export default function Rituales() {
             className="md:hidden object-cover"
           />
 
-          {/* Velo lineal desde la izquierda con cuerpo hasta ~la mitad de la
-              imagen: garantiza contraste del texto y se desvanece pasada la
-              mitad, dejando el producto (derecha) con su color real. */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/80 from-0% via-black/45 via-30% to-transparent to-[55%]" />
+          {/* Velo responsive:
+              - Mobile: desde ARRIBA (texto arriba, imagen vertical protagonista abajo).
+              - Desktop: desde la IZQUIERDA hasta ~la mitad (texto abajo-izq, producto a color a la derecha). */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/70 from-0% via-black/25 via-40% to-transparent to-[62%] md:hidden" />
+          <div className="absolute inset-0 pointer-events-none hidden md:block bg-gradient-to-r from-black/80 from-0% via-black/45 via-30% to-transparent to-[55%]" />
 
-          {/* Info abajo a la izquierda */}
-          <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-end pb-16 sm:pb-24 pt-28">
+          {/* Info: arriba en mobile, abajo-izquierda en desktop */}
+          <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-start md:items-end pt-24 sm:pt-28 pb-16 sm:pb-24">
             <Reveal
               blur={10}
               className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_18px_rgba(0,0,0,0.45)]"
