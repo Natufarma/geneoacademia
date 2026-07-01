@@ -1,8 +1,18 @@
 import Image from "next/image";
+import { Package, Sparkles, FlaskConical, TrendingUp, MapPin, type LucideIcon } from "lucide-react";
 import { InstagramIcon, FacebookIcon, LinkedinIcon } from "@/components/SocialIcons";
 import { SOCIAL, NAV_LINKS } from "@/lib/site";
 
 const NATUFARMA_URL = "https://www.natufarma.com.ar/";
+
+/* Ícono por sección de navegación (solo en el footer, no en el navbar). */
+const NAV_ICONS: Record<string, LucideIcon> = {
+  Productos: Package,
+  Rituales: Sparkles,
+  Ciencia: FlaskConical,
+  Resultados: TrendingUp,
+  "Dónde comprar": MapPin,
+};
 
 const socials = [
   { Icon: InstagramIcon, label: "Instagram", href: SOCIAL.instagram },
@@ -47,15 +57,19 @@ export default function Footer() {
           aria-label="Navegación del sitio"
           className="flex flex-wrap justify-center sm:justify-start gap-x-8 gap-y-3 mt-10"
         >
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="inline-flex items-center min-h-[44px] text-white/80 text-sm font-medium hover:text-white transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const Icon = NAV_ICONS[link.label];
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                className="inline-flex items-center gap-2 min-h-[44px] text-white/80 text-sm font-medium hover:text-white transition-colors"
+              >
+                {Icon && <Icon size={16} className="text-white/60" aria-hidden="true" />}
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Fila inferior: marca madre + legal */}
