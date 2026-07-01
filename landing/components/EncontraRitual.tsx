@@ -192,17 +192,14 @@ export default function EncontraRitual() {
             )}
           </div>
 
-          {/* Progresión 20 / 40 / 90 días */}
-          <div className="flex items-center gap-3 sm:gap-4 border-t border-line pt-5">
-            {timeline.map((step, i) => (
-              <div key={step.dias} className="flex items-center gap-3 sm:gap-4">
-                {i > 0 && <span className="text-geneo font-medium text-xl" aria-hidden>+</span>}
-                <div className="flex flex-col">
-                  <span className="text-xl sm:text-2xl font-semibold text-ink leading-none">
-                    {step.dias} <span className="text-sm font-normal text-muted">días</span>
-                  </span>
-                  <span className="text-sm text-muted leading-tight mt-1">{step.desc}</span>
-                </div>
+          {/* Progresión 20 / 40 / 90 días — cada hito en su propia línea */}
+          <div className="flex flex-col gap-2.5 border-t border-line pt-5">
+            {timeline.map((step) => (
+              <div key={step.dias} className="flex items-baseline gap-2">
+                <span className="text-xl sm:text-2xl font-semibold text-ink leading-none shrink-0">
+                  {step.dias} <span className="text-sm font-normal text-muted">días</span>
+                </span>
+                <span className="text-sm text-muted leading-tight">{step.desc}</span>
               </div>
             ))}
           </div>
