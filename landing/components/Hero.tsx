@@ -50,10 +50,10 @@ export default function Hero() {
       <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full">
         <div className="max-w-3xl flex flex-col gap-7 sm:gap-9">
           <h1 className="uppercase text-[clamp(2.25rem,6vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-ink">
-            <Reveal as="span" className="block" blur={8} y={20}>
+            <Reveal as="span" className="block text-balance" blur={8} y={20}>
               La belleza empieza adentro
             </Reveal>
-            <Reveal as="span" className="block text-geneo" blur={8} y={20} delay={0.1}>
+            <Reveal as="span" className="block text-geneo text-balance" blur={8} y={20} delay={0.1}>
               y se celebra afuera
             </Reveal>
           </h1>
