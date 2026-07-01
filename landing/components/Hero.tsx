@@ -42,6 +42,11 @@ export default function Hero() {
         </div>
       </Parallax>
 
+      {/* Velo claro SOLO en mobile: la foto vertical pone el rostro sobre el
+          texto; este degradado desde la izquierda mantiene legible el texto
+          oscuro sin cambiar el look claro del hero. En desktop no hace falta. */}
+      <div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-r from-white/92 from-0% via-white/58 via-40% to-transparent to-[74%]" />
+
       <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full">
         <div className="max-w-3xl flex flex-col gap-7 sm:gap-9">
           <h1 className="uppercase text-[clamp(2.25rem,6vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-ink">
@@ -54,7 +59,7 @@ export default function Hero() {
           </h1>
 
           <Reveal delay={0.3}>
-            <p className="text-muted text-lg md:text-xl leading-relaxed max-w-lg">
+            <p className="text-muted text-lg md:text-xl leading-relaxed max-w-[16rem] sm:max-w-lg">
               Nutrí tu piel desde adentro. Resultados que se ven, confianza que se siente.
             </p>
           </Reveal>
