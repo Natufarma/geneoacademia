@@ -2,6 +2,7 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useLowPower } from "@/lib/useLowPower";
 
 /**
  * SmoothScroll — capa de scroll con inercia (Lenis), firma del look Framer.
@@ -45,6 +46,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
   // En dispositivos táctiles dejamos el scroll NATIVO del SO (más fluido y
   // liviano en gama baja); el suavizado de Lenis queda solo para wheel/desktop.
   const [isTouch, setIsTouch] = useState(false);
+  const lowPower = useLowPower();
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -54,6 +56,11 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  // Táctil o gama baja: sin Lenis. El scroll es nativo (ya lo era en touch por
+  // syncTouch:false) y los anchors quedan suaves por scroll-behavior +
+  // scroll-padding-top de globals.css. Elimina el loop por-frame de Lenis.
+  if (isTouch || lowPower) return <>{children}</>;
 
   return (
     <ReactLenis

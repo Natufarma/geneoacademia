@@ -28,6 +28,10 @@ export default function HeroVideo() {
       }
     ).connection;
     if (conn?.saveData || conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g") return;
+    // Gama baja (poca RAM / pocos núcleos): nos quedamos con la foto-poster. Un
+    // video en loop detrás del apilado sticky ahoga a los procesadores lentos.
+    const nav2 = navigator as Navigator & { deviceMemory?: number };
+    if ((typeof nav2.deviceMemory === "number" && nav2.deviceMemory <= 4) || (nav2.hardwareConcurrency ?? 8) <= 4) return;
     const mq = window.matchMedia("(max-width: 767px)");
     const apply = () => setMode(mq.matches ? "mobile" : "desktop");
     apply();

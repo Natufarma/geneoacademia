@@ -36,6 +36,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Compensa el navbar fijo cuando el scroll a anclas es nativo (sin Lenis,
+     como en táctil / gama baja). */
+  scroll-padding-top: 5rem;
 }
 
 body {

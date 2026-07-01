@@ -2,6 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useLowPower } from "@/lib/useLowPower";
 
 /**
  * Parallax — desplaza verticalmente su contenido en función del avance del
@@ -20,15 +21,20 @@ export default function Parallax({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+  const lowPower = useLowPower();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
   const y = useTransform(scrollYProgress, [0, 1], [speed, -speed]);
 
+  // En reduced-motion o equipos de bajo poder el parallax queda estático: el
+  // transform por-frame es de los efectos más caros en gama baja.
+  const skip = reduced || lowPower;
+
   return (
     <div ref={ref} className={className}>
-      <motion.div style={reduced ? undefined : { y }} className="h-full w-full">
+      <motion.div style={skip ? undefined : { y }} className="h-full w-full">
         {children}
       </motion.div>
     </div>
