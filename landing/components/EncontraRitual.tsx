@@ -143,7 +143,7 @@ export default function EncontraRitual() {
 
         {/* Columna 4 — resultado en vivo */}
         <Reveal blur={8} delay={0.24} className="flex flex-col gap-5">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-geneo">
+          <p className="text-sm font-semibold tracking-[0.2em] uppercase text-geneo">
             Tu ritual
           </p>
 
@@ -155,7 +155,7 @@ export default function EncontraRitual() {
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
                 transition={{ type: "spring", stiffness: 200, damping: 26 }}
-                className="text-[clamp(2.5rem,5vw,3.5rem)] font-medium leading-none tracking-tight text-geneo"
+                className="text-[clamp(3rem,7vw,3.75rem)] font-medium leading-none tracking-tight text-geneo"
               >
                 {ritual.nombre}
               </motion.p>
@@ -163,7 +163,7 @@ export default function EncontraRitual() {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <p className="text-xs uppercase tracking-wider font-medium text-muted">
+            <p className="text-sm uppercase tracking-wider font-medium text-muted">
               Recomendado para vos
             </p>
             <AnimatePresence mode="popLayout">
@@ -177,10 +177,10 @@ export default function EncontraRitual() {
                   transition={{ type: "spring", stiffness: 320, damping: 30 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="relative w-12 h-12 shrink-0 rounded-xl bg-paper shadow-soft overflow-hidden">
-                    <Image src={prodImg[p]} alt={p} fill sizes="48px" className="object-contain p-1" />
+                  <div className="relative w-14 h-14 shrink-0 rounded-xl bg-paper shadow-soft overflow-hidden">
+                    <Image src={prodImg[p]} alt={p} fill sizes="56px" className="object-contain p-1.5" />
                   </div>
-                  <span className="text-base font-medium text-ink">{p}</span>
+                  <span className="text-lg font-medium text-ink">{p}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -196,12 +196,12 @@ export default function EncontraRitual() {
           <div className="flex items-center gap-3 sm:gap-4 border-t border-line pt-5">
             {timeline.map((step, i) => (
               <div key={step.dias} className="flex items-center gap-3 sm:gap-4">
-                {i > 0 && <span className="text-geneo font-medium text-lg" aria-hidden>+</span>}
+                {i > 0 && <span className="text-geneo font-medium text-xl" aria-hidden>+</span>}
                 <div className="flex flex-col">
-                  <span className="text-lg sm:text-xl font-semibold text-ink leading-none">
-                    {step.dias} <span className="text-xs font-normal text-muted">días</span>
+                  <span className="text-xl sm:text-2xl font-semibold text-ink leading-none">
+                    {step.dias} <span className="text-sm font-normal text-muted">días</span>
                   </span>
-                  <span className="text-xs text-muted leading-tight mt-1">{step.desc}</span>
+                  <span className="text-sm text-muted leading-tight mt-1">{step.desc}</span>
                 </div>
               </div>
             ))}
