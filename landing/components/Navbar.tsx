@@ -105,7 +105,7 @@ export default function Navbar() {
               href={TIENDA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center p-2.5 -m-2.5 text-ink hover:text-geneo transition-colors"
+              className="flex items-center justify-center p-3 -m-3 text-ink hover:text-geneo transition-colors"
               aria-label="Ir a la tienda online"
             >
               <ShoppingBag size={20} aria-hidden="true" />

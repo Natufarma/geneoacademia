@@ -111,7 +111,7 @@ export default function EncontraRitual() {
 
   return (
     <section id="ritual-finder" className="relative z-[30] bg-surface py-16 sm:py-28 px-4 sm:px-6">
-      <div className="relative w-full max-w-[1440px] mx-auto grid gap-8 lg:gap-7 lg:grid-cols-4 items-stretch">
+      <div className="relative w-full max-w-[1440px] mx-auto grid gap-8 lg:gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
 
         {/* Columna 1 — encabezado + CTA */}
         <Reveal className="flex flex-col gap-5" blur={8}>

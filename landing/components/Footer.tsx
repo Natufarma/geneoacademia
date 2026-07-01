@@ -33,7 +33,7 @@ export default function Footer() {
             height={44}
             className="h-9 w-auto"
           />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             {socials.map((s) => {
               const Icon = s.Icon;
               return (

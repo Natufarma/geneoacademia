@@ -88,7 +88,7 @@ export default function CarruselCiencia({ className = "" }: { className?: string
             key={j}
             onClick={() => setIndex(j)}
             aria-label={`Ir a la foto ${j + 1}`}
-            className="p-3 -m-1.5 flex items-center focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full"
+            className="min-h-11 min-w-11 -m-1.5 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full"
           >
             <span
               className={`block h-2 rounded-full transition-all duration-300 ${

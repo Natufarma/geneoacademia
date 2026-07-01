@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 /**
  * Reveal — primitivo de animación de entrada por scroll.
@@ -50,6 +50,15 @@ export default function Reveal({
   const reduced = useReducedMotion();
   const MotionTag = as === "span" ? motion.span : motion.div;
 
+  // En mobile desactivamos el desenfoque de entrada: animar filter:blur dispara
+  // repaint y penaliza a los dispositivos de gama media/baja (transform/opacity
+  // sí son compositados por GPU).
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(max-width: 767px)").matches);
+  }, []);
+  const effectiveBlur = isMobile ? 0 : blur;
+
   // Reduced motion: render sin animación (Framer corre en JS, así que la regla
   // CSS de globals.css no lo alcanza — hay que cortarlo acá explícitamente).
   if (reduced) {
@@ -64,7 +73,7 @@ export default function Reveal({
         opacity: 0,
         y,
         x,
-        filter: blur ? `blur(${blur}px)` : "blur(0px)",
+        filter: effectiveBlur ? `blur(${effectiveBlur}px)` : "blur(0px)",
       }}
       whileInView={{ opacity: 1, y: 0, x: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}

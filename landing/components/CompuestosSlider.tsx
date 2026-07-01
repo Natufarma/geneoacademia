@@ -89,7 +89,7 @@ export default function CompuestosSlider({ compuestos }: { compuestos: Compuesto
               onClick={() => scrollByCards(-1)}
               disabled={!canPrev}
               aria-label="Ver compuestos anteriores"
-              className="w-10 h-10 rounded-full border border-line flex items-center justify-center text-ink hover:bg-geneo hover:text-white hover:border-geneo disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-line disabled:cursor-default transition-colors duration-300 cursor-pointer"
+              className="w-11 h-11 rounded-full border border-line flex items-center justify-center text-ink hover:bg-geneo hover:text-white hover:border-geneo disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-line disabled:cursor-default transition-colors duration-300 cursor-pointer"
             >
               <ChevronLeft size={18} aria-hidden="true" />
             </button>
@@ -98,7 +98,7 @@ export default function CompuestosSlider({ compuestos }: { compuestos: Compuesto
               onClick={() => scrollByCards(1)}
               disabled={!canNext}
               aria-label="Ver más compuestos"
-              className="w-10 h-10 rounded-full border border-line flex items-center justify-center text-ink hover:bg-geneo hover:text-white hover:border-geneo disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-line disabled:cursor-default transition-colors duration-300 cursor-pointer"
+              className="w-11 h-11 rounded-full border border-line flex items-center justify-center text-ink hover:bg-geneo hover:text-white hover:border-geneo disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-line disabled:cursor-default transition-colors duration-300 cursor-pointer"
             >
               <ChevronRight size={18} aria-hidden="true" />
             </button>
