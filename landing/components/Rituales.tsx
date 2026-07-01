@@ -107,10 +107,9 @@ export default function Rituales() {
                 {/* min-h-11 = 44px: cumple el touch target mínimo en móvil */}
                 <a
                   href="#ciencia"
-                  className="group/link inline-flex items-center gap-1.5 min-h-11 px-1 text-white text-sm font-medium"
+                  className="group/link inline-flex items-center min-h-11 px-1 text-white text-sm font-medium"
                 >
                   Conocer más
-                  <ArrowRight size={14} className="transition-transform duration-300 group-hover/link:translate-x-1 group-active/link:translate-x-1" />
                 </a>
               </div>
             </Reveal>
