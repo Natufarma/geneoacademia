@@ -96,6 +96,9 @@ export default function EncontraRitual() {
   const [notar, setNotar] = useState<string | null>(null);
 
   const ritual = rituales[potenciar];
+  // Solar aún no está disponible: si el ritual lo incluye, el CTA no lleva a la
+  // sección de productos (que no tiene Solar), sino que comunica "próximamente".
+  const esProximoLanzamiento = ritual.productos.includes("Geneo Solar");
 
   return (
     <section id="ritual-finder" className="relative z-[30] bg-surface py-16 sm:py-28 px-4 sm:px-6">
@@ -204,13 +207,19 @@ export default function EncontraRitual() {
             ))}
           </div>
 
-          <a
-            href="#rituales"
-            className="group inline-flex w-fit items-center gap-2 bg-geneo text-white rounded-full pl-6 pr-5 h-12 font-medium text-sm uppercase tracking-wide hover:bg-geneo-hover active:bg-geneo-hover transition-colors duration-300"
-          >
-            Ver ritual
-            <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-1" />
-          </a>
+          {esProximoLanzamiento ? (
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-solar/50 text-solar px-6 h-12 font-medium text-sm uppercase tracking-wide">
+              Próximo lanzamiento
+            </span>
+          ) : (
+            <a
+              href="#rituales"
+              className="group inline-flex w-fit items-center gap-2 bg-geneo text-white rounded-full pl-6 pr-5 h-12 font-medium text-sm uppercase tracking-wide hover:bg-geneo-hover active:bg-geneo-hover transition-colors duration-300"
+            >
+              Ver ritual
+              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-1" />
+            </a>
+          )}
         </Reveal>
       </div>
     </section>

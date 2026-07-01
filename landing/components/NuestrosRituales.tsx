@@ -50,7 +50,7 @@ export default function NuestrosRituales() {
                     alt={`Geneo ${p.nombre}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-contain p-5 transition-transform duration-500 group-hover:scale-105 group-active:scale-105"
+                    className={`object-contain p-5 transition-transform duration-500 ${p.href ? "group-hover:scale-105 group-active:scale-105" : ""}`}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5 px-1 pb-1">

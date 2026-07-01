@@ -4,7 +4,7 @@
   --color-geneo: #E6005C;     /* acento de marca (uso medido, estilo Noora) */
   --color-geneo-dark: #8A0038; /* geneo oscurecido para degradados de marca */
   --color-geneo-hover: #C70050; /* geneo para estados hover/active de botones */
-  --color-solar: #FB6E09;      /* naranja del packaging Solar (muestreado del pouch) */
+  --color-solar: #C6540A;      /* naranja Solar oscurecido para pasar contraste AA sobre blanco (base del packaging: #FB6E09) */
   --color-lavanda: #CBBAD8;    /* fondo lavanda suave (sección resultados) */
   --color-rosa-claro: #D58FB8; /* rosa claro (degradado sección resultados) */
   --color-surface: #FCFAFB;   /* casi blanco (apenas un susurro cálido) */

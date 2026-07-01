@@ -25,7 +25,6 @@ export default function Hero() {
             src="/img/hero.webp"
             alt="Mujer disfrutando su ritual Geneo"
             fill
-            priority
             sizes="100vw"
             className="object-cover object-[68%_30%] hidden md:block"
           />

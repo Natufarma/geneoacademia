@@ -45,7 +45,6 @@ export default function Rituales() {
             src={p.img}
             alt={`Geneo ${p.nombre}`}
             fill
-            priority={i === 0}
             sizes="100vw"
             className="hidden md:block object-cover"
           />
