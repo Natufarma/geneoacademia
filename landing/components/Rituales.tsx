@@ -57,12 +57,6 @@ export default function Rituales() {
             className="md:hidden object-cover"
           />
 
-          {/* Velo responsive:
-              - Mobile: desde ARRIBA (texto arriba, imagen vertical protagonista abajo).
-              - Desktop: desde la IZQUIERDA hasta ~la mitad (texto abajo-izq, producto a color a la derecha). */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/70 from-0% via-black/25 via-40% to-transparent to-[62%] md:hidden" />
-          <div className="absolute inset-0 pointer-events-none hidden md:block bg-gradient-to-r from-black/80 from-0% via-black/45 via-30% to-transparent to-[55%]" />
-
           {/* Info: arriba en mobile, abajo-izquierda en desktop */}
           <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-start md:items-end pt-24 sm:pt-28 pb-16 sm:pb-24">
             <Reveal
