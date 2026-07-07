@@ -67,15 +67,9 @@ export default function Rituales() {
                 Nuestros rituales · {String(i + 1).padStart(2, "0")} / {String(productos.length).padStart(2, "0")}
               </p>
 
-              {/* Título: fórmula + nombre, agrupados con gap (sin márgenes sueltos) */}
-              <div className="flex flex-col gap-2">
-                <p className="text-sm sm:text-base font-semibold tracking-[0.2em] uppercase text-white/90">
-                  {p.formula}
-                </p>
-                <h2 className="text-[clamp(2.5rem,6.5vw,5rem)] font-medium tracking-tight leading-[1.02]">
-                  {p.nombre}
-                </h2>
-              </div>
+              <h2 className="text-[clamp(2.5rem,6.5vw,5rem)] font-medium tracking-tight leading-[1.02]">
+                {p.nombre}
+              </h2>
 
               <p className="text-white/90 text-lg sm:text-xl max-w-sm leading-relaxed">
                 {p.beneficio}
@@ -99,6 +93,10 @@ export default function Rituales() {
                   </span>
                 )}
               </div>
+
+              <p className="text-sm sm:text-base font-semibold tracking-[0.2em] uppercase text-white/90">
+                {p.formula}
+              </p>
             </Reveal>
           </div>
         </section>
