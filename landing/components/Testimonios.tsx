@@ -71,7 +71,7 @@ export default function Testimonios() {
             snap-always hacen que cada gesto ENGANCHE en una card (no se van "de
             largo" ni quedan sueltas). Es un contenedor de scroll propio — sin
             position:sticky de por medio, así que snap acá es seguro (no titila). */}
-        <div className="flex gap-5 mt-8 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-5 mt-8 overflow-x-auto touch-pan-x overscroll-x-contain snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* Se excluye la de Solar (aún no está a la venta). */}
           {testimonios.slice(0, 6).map((t, i) => (
             <Reveal key={t.nombre} delay={i * 0.08} className="snap-start snap-always shrink-0 w-[80%] sm:w-[340px] lg:w-[360px]" blur={8}>
