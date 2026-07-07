@@ -32,6 +32,20 @@ const testimonios = [
     foto: "/img/t1.webp",
   },
   {
+    nombre: "Graciela",
+    edad: "54 años",
+    producto: "Geneo 45+",
+    cita: "Con la llegada de la menopausia sentí que mi piel había perdido hidratación y luminosidad. Buscaba un cuidado que fuera más allá de las cremas y encontré Geneo 45+. Hoy forma parte de mi rutina diaria y siento que me ayuda a cuidar mi piel desde adentro, acompañándome en esta nueva etapa.",
+    foto: "/img/t2.webp",
+  },
+  {
+    nombre: "Paula",
+    edad: "37 años",
+    producto: "Geneo Piel Saludable",
+    cita: "En invierno con el frío, en verano con el sol, mi piel siempre parecía seca. Empecé a tomar Geneo Piel Saludable porque buscaba un cuidado desde adentro, y me gustó su fórmula con colágeno y coenzima Q10. Hoy siento mi piel más hidratada y luminosa, ¡en cualquier época del año!",
+    foto: "/img/t3.webp",
+  },
+  {
     nombre: "Marina",
     edad: "29 años",
     producto: "Geneo Solar",
@@ -51,7 +65,8 @@ export default function Testimonios() {
         </Reveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-12 sm:mt-14">
-          {testimonios.slice(0, 3).map((t, i) => (
+          {/* 6 cards (2 filas de 3). Se excluye la de Solar (aún no está a la venta). */}
+          {testimonios.slice(0, 6).map((t, i) => (
             <Reveal key={t.nombre} delay={i * 0.1} className="h-full" blur={8}>
               <div className="h-full bg-white rounded-3xl shadow-soft p-6 sm:p-8 hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
                 <p className="text-geneo text-base" role="img" aria-label="5 de 5 estrellas">★★★★★</p>
