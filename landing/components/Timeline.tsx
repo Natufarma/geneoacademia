@@ -61,14 +61,14 @@ export default function Timeline() {
         </Reveal>
 
         {/* Timeline */}
-        <div ref={lineRef} className="relative mt-16">
+        <div ref={lineRef} className="relative mt-16 lg:max-w-[62%]">
           {/* Línea que se "carga" cuando la sección entra. El trigger lo da el
               contenedor (lineInView), NO la línea de 1px (que el observer no
               detecta). Animamos clip-path: la caja queda full-size y solo se
               revela. reduced-motion → línea estática completa. */}
           {/* Desktop: se dibuja de izquierda a derecha */}
           <motion.div
-            className="hidden md:block absolute top-3 left-0 right-0 h-px bg-white/70"
+            className="hidden lg:block absolute top-3 left-0 right-0 h-px bg-white/70"
             initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
             animate={
               reduced || lineInView
@@ -80,7 +80,7 @@ export default function Timeline() {
 
           {/* Mobile: se dibuja de arriba hacia abajo */}
           <motion.div
-            className="md:hidden absolute top-3 bottom-3 left-3 w-px -translate-x-1/2 bg-white/70"
+            className="lg:hidden absolute top-3 bottom-3 left-3 w-px -translate-x-1/2 bg-white/70"
             initial={reduced ? false : { clipPath: "inset(0 0 100% 0)" }}
             animate={
               reduced || lineInView
@@ -90,12 +90,12 @@ export default function Timeline() {
             transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
           />
 
-          <div className="flex flex-col md:flex-row md:gap-0">
+          <div className="flex flex-col lg:flex-row lg:gap-0">
             {nodos.map((nodo, i) => (
-              <Reveal key={nodo.dias} delay={0.3 + i * 0.15} className="relative flex-1 md:pr-8" blur={6}>
-                <div className="flex flex-row items-start gap-4 md:flex-col md:gap-0 mb-8 md:mb-0">
+              <Reveal key={nodo.dias} delay={0.3 + i * 0.15} className="relative flex-1 lg:pr-8" blur={6}>
+                <div className="flex flex-row items-start gap-4 lg:flex-col lg:gap-0 mb-8 lg:mb-0">
                   {/* Dot con anillo de pulso */}
-                  <div className="relative w-6 h-6 flex-shrink-0 z-10 md:mb-5">
+                  <div className="relative w-6 h-6 flex-shrink-0 z-10 lg:mb-5">
                     <span className="absolute inset-0 rounded-full bg-white/60 pulse-ring" />
                     <span className="absolute inset-0 rounded-full bg-white" />
                   </div>
