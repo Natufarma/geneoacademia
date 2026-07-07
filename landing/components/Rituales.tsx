@@ -94,7 +94,7 @@ export default function Rituales() {
                 )}
               </div>
 
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.75),0_0_16px_rgba(0,0,0,0.6)]">
+              <p className="max-w-sm text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.75),0_0_16px_rgba(0,0,0,0.6)]">
                 {p.formula}
               </p>
             </Reveal>
