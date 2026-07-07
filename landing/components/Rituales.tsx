@@ -54,7 +54,7 @@ export default function Rituales() {
             fill
             priority={i === 0}
             sizes="100vw"
-            className="md:hidden object-contain object-bottom"
+            className="md:hidden object-cover object-bottom"
           />
 
           {/* Velo SUAVE y difuminado solo detrás del texto (izquierda), para
