@@ -108,7 +108,7 @@ export default function CompuestosSlider({ compuestos }: { compuestos: Compuesto
 
       <div
         ref={scroller}
-        className="-mx-6 px-6 flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*:last-child]:mr-6"
+        className="-mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*:last-child]:mr-6 sm:[&>*:last-child]:mr-10 lg:[&>*:last-child]:mr-16"
       >
         {compuestos.map((c, i) => (
           <article

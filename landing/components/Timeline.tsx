@@ -35,7 +35,7 @@ export default function Timeline() {
   return (
     <section
       id="resultados"
-      className="relative z-[40] bg-geneo py-16 sm:py-36 px-6 overflow-hidden"
+      className="relative z-[40] bg-geneo py-16 sm:py-36 overflow-hidden"
     >
       {/* Foto de rostro a la derecha, con parallax y fundida con el magenta */}
       <Parallax speed={50} className="absolute right-0 inset-y-0 w-1/2 pointer-events-none">
@@ -52,7 +52,7 @@ export default function Timeline() {
         </div>
       </Parallax>
 
-      <div className="relative z-10 w-full max-w-[1440px] mx-auto">
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
         <Reveal blur={8}>
           <h2 className="uppercase text-[clamp(1.875rem,4.5vw,3rem)] font-medium leading-[1.1] tracking-tight max-w-2xl text-white">
             Tu piel no cambia de un día para otro,{" "}

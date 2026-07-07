@@ -89,7 +89,7 @@ export default function Navbar() {
           scrolled ? "bg-white shadow-soft" : "bg-transparent"
         }`}
       >
-        <div className="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-center justify-between h-16">
           <a href="#" aria-label="Geneo — inicio" className="flex items-center shrink-0 p-2 -m-2">
             <Image
               src="/img/logo-fuxia.webp"
@@ -142,7 +142,7 @@ export default function Navbar() {
             className="fixed inset-0 z-[110] bg-geneo text-white flex flex-col"
           >
             {/* Top del overlay */}
-            <div className="max-w-[1440px] mx-auto w-full px-6 flex items-center justify-between h-16 shrink-0">
+            <div className="max-w-[1440px] mx-auto w-full px-6 sm:px-10 lg:px-16 flex items-center justify-between h-16 shrink-0">
               <Image
                 src="/img/logo-white.webp"
                 alt="Geneo"
@@ -161,7 +161,7 @@ export default function Navbar() {
             </div>
 
             {/* Links gigantes */}
-            <div className="flex-1 flex flex-col justify-center max-w-[1440px] mx-auto w-full px-6">
+            <div className="flex-1 flex flex-col justify-center max-w-[1440px] mx-auto w-full px-6 sm:px-10 lg:px-16">
               {NAV_LINKS.map((link, i) => (
                 <motion.a
                   key={link.label}
@@ -191,7 +191,7 @@ export default function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.4 }}
-              className="max-w-[1440px] mx-auto w-full px-6 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 shrink-0 border-t border-white/10"
+              className="max-w-[1440px] mx-auto w-full px-6 sm:px-10 lg:px-16 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 shrink-0 border-t border-white/10"
             >
               <a
                 href="#ritual-finder"

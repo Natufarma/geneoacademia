@@ -82,7 +82,7 @@ const todosLosCompuestos = [
 export default function Ciencia() {
   return (
     <section id="ciencia" className="relative z-[50] bg-surface py-16 sm:py-36">
-      <div className="max-w-[1440px] mx-auto px-6">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
 
         {/* Layout principal 2 columnas */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">

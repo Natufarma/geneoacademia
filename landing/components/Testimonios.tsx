@@ -55,8 +55,8 @@ const testimonios = [
 
 export default function Testimonios() {
   return (
-    <section className="md:sticky md:top-0 z-[20] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-surface py-16 sm:py-24 px-4 sm:px-6">
-      <div className="w-full max-w-[1440px] mx-auto">
+    <section className="md:sticky md:top-0 z-[20] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-surface py-16 sm:py-24">
+      <div className="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
         <Reveal>
           <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-ink text-center sm:text-left">
             Ellas ya viven <span className="text-geneo">su ritual</span>
@@ -71,7 +71,7 @@ export default function Testimonios() {
             snap-always hacen que cada gesto ENGANCHE en una card (no se van "de
             largo" ni quedan sueltas). Es un contenedor de scroll propio — sin
             position:sticky de por medio, así que snap acá es seguro (no titila). */}
-        <div className="flex gap-5 mt-8 overflow-x-auto touch-pan-x overscroll-x-contain snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-5 mt-8 overflow-x-auto touch-pan-x overscroll-x-contain snap-x snap-mandatory pb-4 -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* Se excluye la de Solar (aún no está a la venta). */}
           {testimonios.slice(0, 6).map((t, i) => (
             <Reveal key={t.nombre} delay={i * 0.08} className="snap-start snap-always shrink-0 w-[80%] sm:w-[340px] lg:w-[360px]" blur={8}>

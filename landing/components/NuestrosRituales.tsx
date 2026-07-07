@@ -31,9 +31,9 @@ export default function NuestrosRituales() {
   return (
     <section
       id="nuestros-rituales"
-      className="relative z-[15] bg-surface py-16 sm:py-28 px-4 sm:px-6"
+      className="relative z-[15] bg-surface py-16 sm:py-28"
     >
-      <div className="w-full max-w-[1440px] mx-auto flex flex-col gap-10 sm:gap-14">
+      <div className="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col gap-10 sm:gap-14">
         <Reveal blur={8}>
           <h2 className="uppercase text-[clamp(2rem,4vw,3.5rem)] font-medium tracking-tight text-ink">
             Nuestros <span className="text-geneo">rituales</span>

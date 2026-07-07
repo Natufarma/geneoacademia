@@ -27,8 +27,8 @@ const opciones = [
 
 export default function DondeComprar() {
   return (
-    <section id="donde-comprar" className="relative z-[80] bg-surface py-16 sm:py-36 px-4 sm:px-6">
-      <div className="max-w-[1440px] mx-auto">
+    <section id="donde-comprar" className="relative z-[80] bg-surface py-16 sm:py-36">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
         {/* Encabezado + CTA */}
         <Reveal className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium text-ink tracking-tight text-center sm:text-left">

@@ -41,7 +41,7 @@ export default function Hero() {
         </div>
       </Parallax>
 
-      <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full flex flex-col min-h-[100svh] md:min-h-0 justify-between md:justify-end gap-8 md:gap-9">
+      <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full max-w-[1440px] mx-auto flex flex-col min-h-[100svh] md:min-h-0 justify-between md:justify-end gap-8 md:gap-9">
         {/* Texto + CTA: en mobile arriba; en desktop queda agrupado abajo con los badges */}
         <div className="max-w-3xl flex flex-col gap-7 sm:gap-9">
           <h1 className="uppercase text-[clamp(2rem,5.2vw,3.75rem)] font-medium leading-[1.05] tracking-tight text-ink">
