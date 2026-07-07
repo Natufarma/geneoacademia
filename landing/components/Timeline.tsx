@@ -107,7 +107,7 @@ export default function Timeline() {
                         +<CountUp to={nodo.dias} /> <span className="text-xl sm:text-2xl font-medium">días</span>
                       </p>
                     </div>
-                    <p className="text-white/90 text-base max-w-[260px] leading-relaxed">
+                    <p className="text-white/90 text-lg max-w-[280px] leading-relaxed">
                       {nodo.descripcion}
                     </p>
                   </div>
