@@ -20,7 +20,12 @@ export default function Intro() {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // No mostramos la intro en mobile: el splash full-screen es pesado en el
+    // primer viewport del teléfono. En desktop sí queda como entrada de marca.
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(max-width: 767px)").matches
+    ) {
       setSkip(true);
       return;
     }

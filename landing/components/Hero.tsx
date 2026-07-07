@@ -57,7 +57,7 @@ export default function Hero() {
             </Reveal>
           </h1>
 
-          <Reveal delay={0.3}>
+          <Reveal delay={0.3} className="hidden md:block">
             <p className="text-muted text-lg md:text-xl leading-relaxed max-w-[16rem] sm:max-w-lg">
               Nutrí tu piel desde adentro. Resultados que se ven, confianza que se siente.
             </p>
@@ -78,7 +78,7 @@ export default function Hero() {
 
           <div className="flex flex-col sm:flex-row sm:items-stretch border-t border-ink/15 pt-6 gap-6 sm:gap-0">
             {badges.map((b, i) => (
-              <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
+              <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "hidden md:block sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
                 <div className="flex items-center gap-3">
                   {b.mark ? (
                     <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-6 w-6 shrink-0" />
