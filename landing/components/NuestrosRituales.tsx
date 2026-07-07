@@ -5,7 +5,7 @@ import Reveal from "@/components/Reveal";
 /**
  * NuestrosRituales — grilla de 4 productos (estilo mockup), como vista rápida
  * de la línea antes de las secciones grandes y del quiz. Cada card enlaza a la
- * sección detallada (#rituales). Usa las imágenes de producto existentes.
+ * ficha individual del producto en la tienda online. Usa las imágenes de producto existentes.
  */
 /* accent: clase de color del texto de marca por card. La línea Solar es
    naranja, así que su acento difiere del fucsia (text-geneo) del resto.
@@ -21,9 +21,9 @@ type Producto = {
 };
 
 const productos: Producto[] = [
-  { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/prod-piel.webp", accent: "text-geneo", cta: "Conocer más", href: "#rituales" },
-  { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/prod-beauty.webp", accent: "text-geneo", cta: "Conocer más", href: "#rituales" },
-  { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/prod-45.webp", accent: "text-geneo", cta: "Conocer más", href: "#rituales" },
+  { nombre: "Piel saludable", beneficio: "Glow + hidratación + firmeza.", img: "/img/prod-piel.webp", accent: "text-geneo", cta: "Comprá tu ritual", href: "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos/" },
+  { nombre: "Beauty", beneficio: "Pelo fuerte, uñas saludables.", img: "/img/prod-beauty.webp", accent: "text-geneo", cta: "Comprá tu ritual", href: "https://www.tiendanatufarma.com.ar/productos/geneo-beauty-x-30-comprimidos/" },
+  { nombre: "45+", beneficio: "Nutrición para tu piel en cada etapa.", img: "/img/prod-45.webp", accent: "text-geneo", cta: "Comprá tu ritual", href: "https://www.tiendanatufarma.com.ar/productos/geneo-45-x-30-comprimidos/" },
   { nombre: "Solar", beneficio: "Bronceado saludable desde adentro.", img: "/img/prod-solar.webp", accent: "text-solar", cta: "Próximo lanzamiento", href: null },
 ];
 
@@ -75,6 +75,9 @@ export default function NuestrosRituales() {
                 {p.href ? (
                   <a
                     href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Comprar Geneo ${p.nombre} en la tienda online`}
                     className="group flex flex-col gap-4 bg-paper rounded-3xl shadow-soft p-4 hover:shadow-card hover:-translate-y-1 active:shadow-card active:-translate-y-1 transition-all duration-300 h-full"
                   >
                     {inner}
