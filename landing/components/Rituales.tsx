@@ -38,7 +38,7 @@ export default function Rituales() {
         <section
           key={p.nombre}
           id={i === 0 ? "rituales" : undefined}
-          className={`sticky top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden`}
+          className={`sticky top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden bg-[#9E0458] md:bg-transparent`}
         >
           {/* Imagen full-bleed — escena landscape en desktop, vertical 9:16 en mobile */}
           <Image
@@ -54,7 +54,7 @@ export default function Rituales() {
             fill
             priority={i === 0}
             sizes="100vw"
-            className="md:hidden object-cover"
+            className="md:hidden object-contain object-bottom"
           />
 
           {/* Velo SUAVE y difuminado solo detrás del texto (izquierda), para
