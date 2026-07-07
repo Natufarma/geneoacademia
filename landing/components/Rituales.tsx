@@ -57,13 +57,19 @@ export default function Rituales() {
             className="md:hidden object-cover"
           />
 
+          {/* Velo SUAVE y difuminado solo detrás del texto (izquierda), para
+              garantizar legibilidad del blanco sobre las zonas claras de la foto
+              sin oscurecer el resto de la escena. */}
+          <div className="absolute inset-0 pointer-events-none hidden md:block bg-gradient-to-r from-black/55 from-0% via-black/22 via-24% to-transparent to-[50%]" />
+          <div className="absolute inset-0 pointer-events-none md:hidden bg-gradient-to-r from-black/55 from-0% via-black/22 via-45% to-transparent to-[90%]" />
+
           {/* Info: a la izquierda, centrada verticalmente (en el medio de la altura), igual en las 3 */}
           <div className="relative z-10 min-h-[100svh] w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-center justify-start py-24">
             <Reveal
               blur={10}
-              className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_18px_rgba(0,0,0,0.45)]"
+              className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_2px_rgba(0,0,0,0.6),0_2px_22px_rgba(0,0,0,0.5)]"
             >
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/80">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white">
                 Nuestros rituales · {String(i + 1).padStart(2, "0")} / {String(productos.length).padStart(2, "0")}
               </p>
 
@@ -71,7 +77,7 @@ export default function Rituales() {
                 {p.nombre}
               </h2>
 
-              <p className="text-white/90 text-lg sm:text-xl max-w-sm leading-relaxed">
+              <p className="text-white text-lg sm:text-xl max-w-sm leading-relaxed">
                 {p.beneficio}
               </p>
 
