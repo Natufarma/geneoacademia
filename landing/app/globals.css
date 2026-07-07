@@ -41,17 +41,6 @@ html {
   scroll-padding-top: 5rem;
 }
 
-/* Mobile: el scroll es nativo (Lenis está off en táctil), así que un flick
-   fuerte se llevaba puestas las 3 cards sticky de "Nuestros rituales" de una.
-   scroll-snap-stop: always (en cada card, ver Rituales.tsx) frena el impulso y
-   hace que avance de a una card por gesto. proximity lo mantiene suave y no
-   afecta al resto del scroll (solo esas cards son puntos de snap). */
-@media (max-width: 767px) {
-  html {
-    scroll-snap-type: y proximity;
-  }
-}
-
 body {
   background: #ffffff;
   color: #1A1A1A;

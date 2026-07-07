@@ -38,7 +38,7 @@ export default function Rituales() {
         <section
           key={p.nombre}
           id={i === 0 ? "rituales" : undefined}
-          className={`sticky top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden bg-[#9E0458] md:bg-transparent snap-start snap-always`}
+          className={`sticky top-0 ${zClasses[i]} min-h-[100svh] overflow-hidden bg-[#9E0458] md:bg-transparent`}
         >
           {/* Imagen full-bleed — escena landscape en desktop, vertical 9:16 en mobile */}
           <Image
