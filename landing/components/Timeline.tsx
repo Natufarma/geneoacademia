@@ -38,14 +38,14 @@ export default function Timeline() {
       className="relative z-[40] bg-geneo py-16 sm:py-36 px-6 overflow-hidden"
     >
       {/* Foto de rostro a la derecha, con parallax y fundida con el magenta */}
-      <Parallax speed={50} className="absolute right-0 inset-y-0 w-1/2 sm:w-1/2 lg:w-1/2 pointer-events-none">
+      <Parallax speed={50} className="absolute right-0 inset-y-0 w-1/2 pointer-events-none">
         <div className="relative h-full w-full">
           {/* Retrato a color en mobile y desktop (la foto ya trae el magenta de marca) */}
           <Image
             src="/img/timeline-face.webp"
             alt="Piel luminosa tras el ritual Geneo"
             fill
-            sizes="(max-width: 767px) 50vw, 40vw"
+            sizes="50vw"
             className="object-cover object-[center_25%]"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-geneo via-geneo/45 to-transparent" />

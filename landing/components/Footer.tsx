@@ -63,7 +63,7 @@ export default function Footer() {
               <a
                 key={link.label}
                 href={link.href}
-                className="inline-flex items-center gap-2 min-h-[44px] text-white/80 text-sm font-medium hover:text-white transition-colors"
+                className="inline-flex items-center gap-2 min-h-[44px] px-2 -mx-2 text-white/80 text-sm font-medium hover:text-white active:text-white transition-colors"
               >
                 {Icon && <Icon size={16} className="text-white/60" aria-hidden="true" />}
                 {link.label}
@@ -84,7 +84,7 @@ export default function Footer() {
             {/* TODO: reemplazar por <Image src="/img/natufarma-white.webp" .../> cuando esté el logo */}
             <span className="text-sm font-semibold tracking-tight">Natufarma</span>
           </a>
-          <p className="text-white/60 text-xs text-center sm:text-right">
+          <p className="text-white/70 text-sm text-center sm:text-right">
             Suplemento dietario. Consulte a su médico. No reemplaza una dieta equilibrada.
           </p>
         </div>

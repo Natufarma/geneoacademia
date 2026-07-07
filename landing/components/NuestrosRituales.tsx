@@ -57,7 +57,7 @@ export default function NuestrosRituales() {
                   <h3 className={`uppercase ${p.accent} font-semibold text-base tracking-wide`}>
                     {p.nombre}
                   </h3>
-                  <p className="text-muted text-[15px] sm:text-base leading-snug">{p.beneficio}</p>
+                  <p className="text-muted text-base leading-snug">{p.beneficio}</p>
                   <span className={`inline-flex items-center gap-1.5 ${p.accent} text-sm font-semibold uppercase tracking-wide mt-1`}>
                     {p.cta}
                     {p.href && (

@@ -24,7 +24,7 @@ function Card({ src, alt, decorative = false }: { src: string; alt: string; deco
         src={src}
         alt={decorative ? "" : alt}
         fill
-        sizes="(max-width: 640px) 60vw, 375px"
+        sizes="(max-width: 640px) 255px, (max-width: 1024px) 330px, 375px"
         className="object-cover"
       />
     </div>

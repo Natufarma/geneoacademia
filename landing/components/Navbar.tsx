@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ShoppingBag, Menu, X, ArrowRight } from "lucide-react";
 import { InstagramIcon, FacebookIcon, LinkedinIcon } from "@/components/SocialIcons";
 import { SOCIAL, TIENDA_URL, NAV_LINKS } from "@/lib/site";
@@ -16,6 +16,7 @@ const socials = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const reduced = useReducedMotion();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +90,7 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16">
-          <a href="#" aria-label="Geneo — inicio" className="flex items-center shrink-0">
+          <a href="#" aria-label="Geneo — inicio" className="flex items-center shrink-0 p-2 -m-2">
             <Image
               src="/img/logo-fuxia.webp"
               alt="Geneo"
@@ -105,7 +106,7 @@ export default function Navbar() {
               href={TIENDA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center p-3 -m-3 text-ink hover:text-geneo transition-colors"
+              className="flex items-center justify-center p-3 -m-3 text-ink hover:text-geneo active:text-geneo transition-colors"
               aria-label="Ir a la tienda online"
             >
               <ShoppingBag size={20} aria-hidden="true" />
@@ -116,7 +117,7 @@ export default function Navbar() {
               aria-expanded={open}
               aria-controls="nav-overlay"
               aria-label="Abrir menú de navegación"
-              className="group inline-flex items-center gap-2 min-h-[44px] rounded-full border border-ink/15 bg-white/40 backdrop-blur-md pl-4 pr-3.5 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-white hover:border-ink transition-colors duration-300"
+              className="group inline-flex items-center gap-2 min-h-[44px] rounded-full border border-ink/15 bg-white/40 backdrop-blur-md pl-4 pr-3.5 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-white hover:border-ink active:bg-ink active:text-white active:border-ink transition-colors duration-300"
             >
               Menú
               <Menu size={16} aria-hidden="true" />
@@ -134,10 +135,10 @@ export default function Navbar() {
             role="dialog"
             aria-modal="true"
             aria-label="Navegación principal"
-            initial={{ y: "-100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+            initial={reduced ? { opacity: 0 } : { y: "-100%" }}
+            animate={reduced ? { opacity: 1 } : { y: 0 }}
+            exit={reduced ? { opacity: 0 } : { y: "-100%" }}
+            transition={reduced ? { duration: 0.15 } : { duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
             className="fixed inset-0 z-[110] bg-geneo text-white flex flex-col"
           >
             {/* Top del overlay */}
@@ -152,7 +153,7 @@ export default function Navbar() {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Cerrar menú de navegación"
-                className="group inline-flex items-center gap-2 min-h-[44px] rounded-full border border-white/20 pl-4 pr-3.5 py-2 text-sm font-medium text-white hover:bg-white hover:text-ink transition-colors duration-300"
+                className="group inline-flex items-center gap-2 min-h-[44px] rounded-full border border-white/20 pl-4 pr-3.5 py-2 text-sm font-medium text-white hover:bg-white hover:text-ink active:bg-white active:text-ink transition-colors duration-300"
               >
                 Cerrar
                 <X size={16} aria-hidden="true" />
@@ -166,19 +167,19 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, y: 28 }}
+                  initial={reduced ? { opacity: 0 } : { opacity: 0, y: 28 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 + i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  transition={reduced ? { duration: 0.15 } : { delay: 0.25 + i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="group flex items-baseline gap-4 sm:gap-6 py-3 sm:py-4 border-b border-white/10"
                 >
                   <span className="text-xs sm:text-sm font-medium text-white/75 w-7 shrink-0">
                     0{i + 1}
                   </span>
-                  <span className="text-3xl sm:text-6xl md:text-7xl font-medium tracking-tight text-white/90 group-hover:text-white group-hover:translate-x-2 sm:group-hover:translate-x-3 transition-all duration-300 ease-out">
+                  <span className="text-3xl sm:text-6xl md:text-7xl font-medium tracking-tight text-white/90 group-hover:text-white group-hover:translate-x-2 sm:group-hover:translate-x-3 group-active:text-white group-active:translate-x-2 transition-all duration-300 ease-out">
                     {link.label}
                   </span>
                   <ArrowRight
-                    className="ml-auto self-center text-white/0 group-hover:text-white transition-all duration-300 -translate-x-3 group-hover:translate-x-0"
+                    className="hidden sm:block ml-auto self-center text-white/0 group-hover:text-white transition-all duration-300 -translate-x-3 group-hover:translate-x-0"
                     size={28}
                   />
                 </motion.a>
@@ -195,7 +196,7 @@ export default function Navbar() {
               <a
                 href="#ritual-finder"
                 onClick={() => setOpen(false)}
-                className="group inline-flex items-center gap-2 bg-white text-geneo rounded-full pl-6 pr-5 py-3 text-sm font-medium hover:bg-white/90 transition-colors duration-300 w-fit"
+                className="group inline-flex items-center gap-2 bg-white text-geneo rounded-full pl-6 pr-5 py-3 text-sm font-medium hover:bg-white/90 active:bg-white/90 transition-colors duration-300 w-fit"
               >
                 Encontrá tu ritual
                 <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />

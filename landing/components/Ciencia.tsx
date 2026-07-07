@@ -102,7 +102,7 @@ export default function Ciencia() {
               {compuestosDestacados.map((ing) => (
                 <div
                   key={ing.nombre}
-                  className="flex gap-5 items-center bg-white rounded-3xl shadow-soft p-6 hover:shadow-card hover:-translate-y-1 transition-all duration-300"
+                  className="flex gap-5 items-center bg-white rounded-3xl shadow-soft p-6 hover:shadow-card hover:-translate-y-1 active:shadow-card active:-translate-y-1 transition-all duration-300"
                 >
                   <div className="relative w-20 h-20 flex-shrink-0">
                     <Image
@@ -115,7 +115,7 @@ export default function Ciencia() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <p className="font-medium text-base text-ink tracking-tight">{ing.nombre}</p>
-                    <p className="text-muted text-xs leading-relaxed">{ing.descripcion}</p>
+                    <p className="text-muted text-sm sm:text-base leading-relaxed">{ing.descripcion}</p>
                   </div>
                 </div>
               ))}
@@ -131,7 +131,7 @@ export default function Ciencia() {
                     src="/img/ciencia.webp"
                     alt="Mujer sosteniendo Geneo Colágeno & Q-10"
                     fill
-                    sizes="(max-width: 1024px) 90vw, 40vw"
+                    sizes="(max-width: 448px) 90vw, 448px"
                     className="object-cover"
                   />
                 </div>

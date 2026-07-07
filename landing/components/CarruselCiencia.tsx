@@ -33,7 +33,7 @@ export default function CarruselCiencia({ className = "" }: { className?: string
 
   return (
     <div
-      className={`relative w-full h-full min-h-[480px] overflow-hidden ${className}`}
+      className={`relative w-full h-full min-h-[60svh] sm:min-h-[480px] overflow-hidden ${className}`}
     >
       <AnimatePresence>
         <motion.div
@@ -58,14 +58,14 @@ export default function CarruselCiencia({ className = "" }: { className?: string
       <button
         onClick={() => go(-1)}
         aria-label="Foto anterior"
-        className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/80 backdrop-blur-md text-ink flex items-center justify-center hover:bg-white transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-geneo focus-visible:outline-offset-2"
+        className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/80 sm:backdrop-blur-md text-ink flex items-center justify-center hover:bg-white transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-geneo focus-visible:outline-offset-2"
       >
         <ArrowLeft size={18} aria-hidden="true" />
       </button>
       <button
         onClick={() => go(1)}
         aria-label="Foto siguiente"
-        className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/80 backdrop-blur-md text-ink flex items-center justify-center hover:bg-white transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-geneo focus-visible:outline-offset-2"
+        className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/80 sm:backdrop-blur-md text-ink flex items-center justify-center hover:bg-white transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-geneo focus-visible:outline-offset-2"
       >
         <ArrowRight size={18} aria-hidden="true" />
       </button>
@@ -75,7 +75,7 @@ export default function CarruselCiencia({ className = "" }: { className?: string
         <button
           onClick={() => setPaused((p) => !p)}
           aria-label={paused ? "Reproducir presentación automática" : "Pausar presentación automática"}
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 w-11 h-11 rounded-full bg-white/80 backdrop-blur-md text-ink flex items-center justify-center hover:bg-white transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-geneo focus-visible:outline-offset-2"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 w-11 h-11 rounded-full bg-white/80 sm:backdrop-blur-md text-ink flex items-center justify-center hover:bg-white transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-geneo focus-visible:outline-offset-2"
         >
           {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
         </button>

@@ -79,7 +79,7 @@ export default function Hero() {
             <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "hidden md:block sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
               <div className="flex items-center gap-3">
                 {b.mark ? (
-                  <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-6 w-6 shrink-0" />
+                  <Image src={b.mark} alt="Natufarma" width={48} height={48} sizes="24px" className="h-6 w-6 shrink-0" />
                 ) : b.Icon ? (
                   <b.Icon className="text-geneo shrink-0" size={24} aria-hidden="true" />
                 ) : null}

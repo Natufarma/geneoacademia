@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState, type ReactNode } from "react";
+import { useLowPower } from "@/lib/useLowPower";
 
 /**
  * Reveal — primitivo de animación de entrada por scroll.
@@ -48,6 +49,7 @@ export default function Reveal({
   as = "div",
 }: RevealProps) {
   const reduced = useReducedMotion();
+  const lowPower = useLowPower();
   const MotionTag = as === "span" ? motion.span : motion.div;
 
   // En mobile desactivamos el desenfoque de entrada: animar filter:blur dispara
@@ -59,9 +61,10 @@ export default function Reveal({
   }, []);
   const effectiveBlur = isMobile ? 0 : blur;
 
-  // Reduced motion: render sin animación (Framer corre en JS, así que la regla
-  // CSS de globals.css no lo alcanza — hay que cortarlo acá explícitamente).
-  if (reduced) {
+  // Reduced motion o gama baja: render sin animación. Framer corre en JS (rAF),
+  // así que la regla CSS de globals.css no lo alcanza — hay que cortarlo acá.
+  // En gama baja evita correr decenas de springs en paralelo (uno por Reveal).
+  if (reduced || lowPower) {
     const Tag = as;
     return <Tag className={className}>{children}</Tag>;
   }

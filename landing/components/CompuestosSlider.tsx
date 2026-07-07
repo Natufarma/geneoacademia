@@ -113,17 +113,17 @@ export default function CompuestosSlider({ compuestos }: { compuestos: Compuesto
         {compuestos.map((c, i) => (
           <article
             key={c.nombre}
-            className="snap-start flex-shrink-0 w-64 sm:w-72 bg-white rounded-3xl shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col"
+            className="snap-start flex-shrink-0 w-64 sm:w-72 bg-white rounded-3xl shadow-soft hover:shadow-card hover:-translate-y-1 active:shadow-card active:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col"
           >
             <div className="relative aspect-square bg-surface">
-              <Image src={c.img} alt={c.nombre} fill sizes="288px" className="object-contain p-6" />
+              <Image src={c.img} alt={c.nombre} fill sizes="(max-width: 639px) 256px, 288px" className="object-contain p-6" />
             </div>
             <div className="p-6 flex flex-col gap-2">
               <span className="text-geneo font-medium text-sm tracking-widest">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="font-medium text-base text-ink leading-tight tracking-tight">{c.nombre}</p>
-              <p className="text-muted text-sm leading-relaxed">{c.descripcion}</p>
+              <p className="text-muted text-base leading-relaxed">{c.descripcion}</p>
             </div>
           </article>
         ))}

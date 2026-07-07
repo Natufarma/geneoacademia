@@ -73,7 +73,7 @@ export default function Testimonios() {
           {/* Se excluye la de Solar (aún no está a la venta). */}
           {testimonios.slice(0, 6).map((t, i) => (
             <Reveal key={t.nombre} delay={i * 0.08} className="snap-start shrink-0 w-[80%] sm:w-[340px] lg:w-[360px]" blur={8}>
-              <div className="h-full bg-white rounded-3xl shadow-soft p-6 sm:p-8 hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
+              <div className="h-full bg-white rounded-3xl shadow-soft p-6 sm:p-8 hover:shadow-card hover:-translate-y-1 active:shadow-card active:-translate-y-1 transition-all duration-300 flex flex-col">
                 <p className="text-geneo text-base" role="img" aria-label="5 de 5 estrellas">★★★★★</p>
                 <p className="text-ink text-base italic leading-relaxed mt-4 flex-1">
                   &ldquo;{t.cita}&rdquo;
