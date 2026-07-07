@@ -94,7 +94,7 @@ export default function Rituales() {
                 )}
               </div>
 
-              <p className="text-sm sm:text-base font-semibold tracking-[0.2em] uppercase text-white/90">
+              <p className="self-start w-fit max-w-full bg-black/35 backdrop-blur-sm rounded-lg px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-white [text-shadow:none]">
                 {p.formula}
               </p>
             </Reveal>
