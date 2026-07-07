@@ -73,8 +73,8 @@ export default function CompuestosSlider({ compuestos }: { compuestos: Compuesto
           <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase">
             Compuestos activos avanzados
           </p>
-          <h3 className="text-2xl sm:text-3xl font-medium text-ink tracking-tight">
-            Todo lo que nutre tu piel
+          <h3 className="uppercase text-2xl sm:text-3xl font-medium text-ink tracking-tight">
+            Conocé todos los ingredientes de nuestra línea Geneo
           </h3>
         </div>
 

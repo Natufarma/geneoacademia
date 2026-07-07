@@ -93,8 +93,8 @@ export default function Ciencia() {
                 Ciencia que nutre <span className="text-geneo">tu piel.</span>
               </h2>
               <p className="text-muted leading-relaxed max-w-md">
-                Fórmulas avanzadas con colágeno hidrolizado y coenzima Q10 para
-                resultados reales y visibles.
+                Fórmulas nutricosméticas avanzadas, desarrolladas sobre evidencia
+                científica para cuidar tu belleza desde adentro.
               </p>
             </div>
 
