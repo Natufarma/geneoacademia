@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
-import { SOCIAL } from "@/lib/site";
 
 const testimonios = [
   {
@@ -100,16 +99,6 @@ export default function Testimonios() {
             </Reveal>
           ))}
         </div>
-
-        <a
-          href={SOCIAL.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group inline-flex items-center gap-1.5 text-geneo font-medium text-sm mt-12 mx-auto sm:mx-0 w-fit"
-        >
-          Ver más en Instagram
-          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-        </a>
       </div>
     </section>
   );
