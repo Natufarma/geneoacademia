@@ -64,7 +64,7 @@ export default function Rituales() {
           <div className="absolute inset-0 pointer-events-none md:hidden bg-gradient-to-r from-black/55 from-0% via-black/22 via-45% to-transparent to-[90%]" />
 
           {/* Info: a la izquierda, centrada verticalmente (en el medio de la altura), igual en las 3 */}
-          <div className="relative z-10 min-h-[100svh] w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-center justify-start py-24">
+          <div className="relative z-10 min-h-[100svh] w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-start md:items-center justify-start pt-28 pb-24 md:py-24">
             <Reveal
               blur={10}
               className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_2px_rgba(0,0,0,0.6),0_2px_22px_rgba(0,0,0,0.5)]"
