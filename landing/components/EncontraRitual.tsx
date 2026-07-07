@@ -28,12 +28,23 @@ type Objetivo = (typeof opcionesPotenciar)[number];
 
 const opcionesNotar = ["Hidratación", "Más energía", "Piel más lisa", "Uñas más fuertes"];
 
-const rituales: Record<Objetivo, { nombre: string; productos: string[] }> = {
-  "Glow y luminosidad": { nombre: "Glow", productos: ["Geneo Piel Saludable", "Geneo Beauty"] },
-  "Firmeza y elasticidad": { nombre: "Firmeza", productos: ["Geneo Piel Saludable", "Geneo 45+"] },
-  "Pelo y uñas": { nombre: "Fuerza", productos: ["Geneo Beauty"] },
+/* Links de la tienda online (producto individual o pack combo x2). */
+const TIENDA = {
+  beauty: "https://www.tiendanatufarma.com.ar/productos/geneo-beauty-x-30-comprimidos/",
+  piel: "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos/",
+  mas45: "https://www.tiendanatufarma.com.ar/productos/geneo-45-x-30-comprimidos/",
+  comboPiel45:
+    "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos-geneo-45-x-30-comprimidos-pack-promocion-x-2-unidades/",
+  comboPielBeauty:
+    "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos-geneo-beauty-x-30-comprimidos-pack-promocion-x-2-unidades/",
+} as const;
+
+const rituales: Record<Objetivo, { nombre: string; productos: string[]; url?: string }> = {
+  "Glow y luminosidad": { nombre: "Glow", productos: ["Geneo Piel Saludable", "Geneo Beauty"], url: TIENDA.comboPielBeauty },
+  "Firmeza y elasticidad": { nombre: "Firmeza", productos: ["Geneo Piel Saludable", "Geneo 45+"], url: TIENDA.comboPiel45 },
+  "Pelo y uñas": { nombre: "Fuerza", productos: ["Geneo Beauty"], url: TIENDA.beauty },
   Bronceado: { nombre: "Sol", productos: ["Geneo Solar"] },
-  "Nueva etapa 45+": { nombre: "Renovación", productos: ["Geneo 45+", "Geneo Piel Saludable"] },
+  "Nueva etapa 45+": { nombre: "Renovación", productos: ["Geneo 45+", "Geneo Piel Saludable"], url: TIENDA.comboPiel45 },
 };
 
 const timeline = [
@@ -223,10 +234,13 @@ export default function EncontraRitual() {
             </span>
           ) : (
             <a
-              href="#rituales"
+              href={ritual.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Comprar el ritual ${ritual.nombre} en la tienda online`}
               className="group inline-flex w-fit items-center gap-2 bg-geneo text-white rounded-full pl-6 pr-5 h-12 font-medium text-sm uppercase tracking-wide hover:bg-geneo-hover active:bg-geneo-hover transition-colors duration-300"
             >
-              Ver ritual
+              Comprá tu ritual
               <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-1" />
             </a>
           )}
