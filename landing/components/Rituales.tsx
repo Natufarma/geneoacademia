@@ -81,6 +81,10 @@ export default function Rituales() {
                 {p.beneficio}
               </p>
 
+              <p className="max-w-sm text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.75),0_0_16px_rgba(0,0,0,0.6)]">
+                {p.formula}
+              </p>
+
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 {p.img ? (
                   <a
@@ -99,10 +103,6 @@ export default function Rituales() {
                   </span>
                 )}
               </div>
-
-              <p className="max-w-sm text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.75),0_0_16px_rgba(0,0,0,0.6)]">
-                {p.formula}
-              </p>
             </Reveal>
           </div>
         </section>
