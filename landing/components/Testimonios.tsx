@@ -56,7 +56,7 @@ const testimonios = [
 
 export default function Testimonios() {
   return (
-    <section className="md:sticky md:top-0 z-[20] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-surface py-16 sm:py-36 px-4 sm:px-6">
+    <section className="md:sticky md:top-0 z-[20] min-h-0 md:min-h-[100svh] flex flex-col justify-center bg-surface py-16 sm:py-24 px-4 sm:px-6">
       <div className="w-full max-w-[1440px] mx-auto">
         <Reveal>
           <h2 className="uppercase text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-ink text-center sm:text-left">
@@ -64,10 +64,16 @@ export default function Testimonios() {
           </h2>
         </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-12 sm:mt-14">
-          {/* 6 cards (2 filas de 3). Se excluye la de Solar (aún no está a la venta). */}
+        <p className="mt-3 flex items-center gap-1.5 text-muted text-sm justify-center sm:justify-start">
+          Deslizá para ver todas <span aria-hidden="true">→</span>
+        </p>
+
+        {/* Una sola fila con scroll horizontal: entra dentro del panel sticky y no
+            genera una segunda fila que quede tapada por el panel que se apila encima. */}
+        <div className="flex gap-5 mt-8 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Se excluye la de Solar (aún no está a la venta). */}
           {testimonios.slice(0, 6).map((t, i) => (
-            <Reveal key={t.nombre} delay={i * 0.1} className="h-full" blur={8}>
+            <Reveal key={t.nombre} delay={i * 0.08} className="snap-start shrink-0 w-[80%] sm:w-[340px] lg:w-[360px]" blur={8}>
               <div className="h-full bg-white rounded-3xl shadow-soft p-6 sm:p-8 hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
                 <p className="text-geneo text-base" role="img" aria-label="5 de 5 estrellas">★★★★★</p>
                 <p className="text-ink text-base italic leading-relaxed mt-4 flex-1">
