@@ -41,12 +41,8 @@ export default function Hero() {
         </div>
       </Parallax>
 
-      {/* Velo claro SOLO en mobile: la foto vertical pone el rostro sobre el
-          texto; este degradado desde la izquierda mantiene legible el texto
-          oscuro sin cambiar el look claro del hero. En desktop no hace falta. */}
-      <div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-r from-white/92 from-0% via-white/58 via-40% to-transparent to-[74%]" />
-
-      <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full">
+      <div className="relative z-10 px-6 sm:px-10 lg:px-16 pt-28 pb-20 md:pt-36 md:pb-28 w-full flex flex-col min-h-[100svh] md:min-h-0 justify-between md:justify-end gap-8 md:gap-9">
+        {/* Texto + CTA: en mobile arriba; en desktop queda agrupado abajo con los badges */}
         <div className="max-w-3xl flex flex-col gap-7 sm:gap-9">
           <h1 className="uppercase text-[clamp(2rem,5.2vw,3.75rem)] font-medium leading-[1.05] tracking-tight text-ink">
             <Reveal as="span" className="block text-balance" blur={8} y={20}>
@@ -75,24 +71,25 @@ export default function Hero() {
               />
             </a>
           </Reveal>
+        </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-stretch border-t border-ink/15 pt-6 gap-6 sm:gap-0">
-            {badges.map((b, i) => (
-              <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "hidden md:block sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
-                <div className="flex items-center gap-3">
-                  {b.mark ? (
-                    <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-6 w-6 shrink-0" />
-                  ) : b.Icon ? (
-                    <b.Icon className="text-geneo shrink-0" size={24} aria-hidden="true" />
-                  ) : null}
-                  <div>
-                    <p className="text-base font-medium text-ink">{b.t}</p>
-                    <p className="text-sm text-muted">{b.s}</p>
-                  </div>
+        {/* Badges: en mobile solo Natufarma pegado abajo; en desktop la fila completa */}
+        <div className="max-w-3xl flex flex-col sm:flex-row sm:items-stretch border-t border-ink/15 pt-6 gap-6 sm:gap-0">
+          {badges.map((b, i) => (
+            <Reveal key={b.t} delay={0.45 + i * 0.08} y={14} className={i > 0 ? "hidden md:block sm:border-l sm:border-ink/15 sm:pl-6 sm:ml-6" : ""}>
+              <div className="flex items-center gap-3">
+                {b.mark ? (
+                  <Image src={b.mark} alt="Natufarma" width={236} height={236} className="h-6 w-6 shrink-0" />
+                ) : b.Icon ? (
+                  <b.Icon className="text-geneo shrink-0" size={24} aria-hidden="true" />
+                ) : null}
+                <div>
+                  <p className="text-base font-medium text-ink">{b.t}</p>
+                  <p className="text-sm text-muted">{b.s}</p>
                 </div>
-              </Reveal>
-            ))}
-          </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
