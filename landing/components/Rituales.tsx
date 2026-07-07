@@ -57,11 +57,11 @@ export default function Rituales() {
             className="md:hidden object-cover"
           />
 
-          {/* Info: centrada en el medio de la card, igual en las 3 */}
-          <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-center justify-center py-24">
+          {/* Info: a la izquierda, centrada verticalmente (en el medio de la altura), igual en las 3 */}
+          <div className="relative z-10 h-full w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-center justify-start py-24">
             <Reveal
               blur={10}
-              className="max-w-lg text-white flex flex-col items-center text-center gap-5 [text-shadow:0_1px_18px_rgba(0,0,0,0.45)]"
+              className="max-w-lg text-white flex flex-col gap-5 [text-shadow:0_1px_18px_rgba(0,0,0,0.45)]"
             >
               <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/80">
                 Nuestros rituales · {String(i + 1).padStart(2, "0")} / {String(productos.length).padStart(2, "0")}
@@ -81,7 +81,7 @@ export default function Rituales() {
                 {p.beneficio}
               </p>
 
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 {p.img ? (
                   <a
                     href={TIENDA_URL}
