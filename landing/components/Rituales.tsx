@@ -59,9 +59,9 @@ export default function Rituales() {
 
           {/* Velo SUAVE y difuminado solo detrás del texto (izquierda), para
               garantizar legibilidad del blanco sobre las zonas claras de la foto
-              sin oscurecer el resto de la escena. */}
+              sin oscurecer el resto de la escena. Solo en desktop: en mobile la
+              foto va 100% limpia (la legibilidad la resuelve el text-shadow). */}
           <div className="absolute inset-0 pointer-events-none hidden md:block bg-gradient-to-r from-black/55 from-0% via-black/22 via-24% to-transparent to-[50%]" />
-          <div className="absolute inset-0 pointer-events-none md:hidden bg-gradient-to-r from-black/55 from-0% via-black/22 via-45% to-transparent to-[90%]" />
 
           {/* Info: a la izquierda, centrada verticalmente (en el medio de la altura), igual en las 3 */}
           <div className="relative z-10 min-h-[100svh] w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex items-start md:items-center justify-start pt-28 pb-24 md:py-24">
