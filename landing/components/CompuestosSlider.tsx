@@ -71,10 +71,10 @@ export default function CompuestosSlider({ compuestos }: { compuestos: Compuesto
       <div className="flex items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-xs font-semibold tracking-[0.2em] text-geneo uppercase">
-            Todo lo que nutre tu piel
+            Conocé todos los ingredientes de nuestra línea Geneo
           </p>
           <h3 className="text-2xl sm:text-3xl font-medium text-ink tracking-tight">
-            Conocé todos los ingredientes de nuestra línea Geneo
+            Todo lo que nutre tu piel
           </h3>
         </div>
 
