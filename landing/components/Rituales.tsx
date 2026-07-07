@@ -13,14 +13,14 @@ const productos = [
   },
   {
     nombre: "Beauty",
-    formula: "HIALURÓNICO + Q10 + RESVERATROL",
+    formula: "L-CISTINA + HIALURÓNICO + RESVERATROL + Q10 + VIT. Y MINERALES",
     beneficio: "Piel firme + Pelo fuerte + Uñas saludables",
     img: "/img/rit-beauty.webp",
     imgMobile: "/img/rit-beauty-mobile.webp",
   },
   {
     nombre: "45+",
-    formula: "GENISTEÍNA + HIALURÓNICO",
+    formula: "ISOFLAVONAS DE SOJA ENRIQUECIDAS EN GENISTEÍNA + HIALURÓNICO + VIT. C",
     beneficio: "Elasticidad + Renovación",
     img: "/img/rit-45.webp",
     imgMobile: "/img/rit-45-mobile.webp",
