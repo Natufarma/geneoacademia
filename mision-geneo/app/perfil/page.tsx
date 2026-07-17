@@ -1,0 +1,188 @@
+"use client";
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Award, CheckCircle2, Circle, Gift, LogOut, Package, User } from "lucide-react";
+import AppShell from "@/components/AppShell";
+import { MISSIONS } from "@/lib/missions";
+import { getLevel } from "@/lib/levels";
+import { getPharmacy } from "@/lib/pharmacies";
+import { getReward } from "@/lib/rewards";
+import { useApp } from "@/lib/store";
+
+export default function Perfil() {
+  return (
+    <AppShell>
+      <PerfilContent />
+    </AppShell>
+  );
+}
+
+function PerfilContent() {
+  const { user, progress, points, redemptions, isSpecialist, reset } = useApp();
+  const pharmacy = user ? getPharmacy(user.pharmacyId) : undefined;
+  const level = getLevel(points);
+  const completedCount = MISSIONS.filter((m) => progress[m.slug]).length;
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Tarjeta de identidad */}
+      <motion.section
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        className="bg-paper rounded-3xl shadow-card p-6 flex flex-col items-center text-center gap-3"
+      >
+        <span className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-geneo to-geneo-dark text-white">
+          <User size={34} />
+        </span>
+        <div className="flex flex-col gap-0.5">
+          <h1 className="text-ink font-extrabold text-xl tracking-tight">{user?.name}</h1>
+          <p className="text-muted text-sm">{pharmacy?.name}</p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-geneo text-geneo font-bold text-xs uppercase tracking-wide px-4 py-1.5">
+          {isSpecialist && <Award size={14} />}
+          {level.name} · Nivel {level.n}
+        </span>
+
+        <div className="mt-2 grid grid-cols-2 gap-3 w-full">
+          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3">
+            <p className="text-geneo font-extrabold text-xl leading-none">{points}</p>
+            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide mt-1">
+              Mis puntos
+            </p>
+          </div>
+          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3">
+            <p className="text-geneo font-extrabold text-xl leading-none">
+              {completedCount}/{MISSIONS.length}
+            </p>
+            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide mt-1">
+              Misiones
+            </p>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Historial de misiones */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-ink font-bold text-lg tracking-tight">Historial de misiones</h2>
+        <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
+          {MISSIONS.map((m) => {
+            const done = progress[m.slug];
+            return (
+              <div key={m.slug} className="flex items-center gap-3 px-5 py-3.5">
+                {done ? (
+                  <CheckCircle2 size={19} className="text-geneo shrink-0" />
+                ) : (
+                  <Circle size={19} className="text-line shrink-0" />
+                )}
+                <span className="flex-1 min-w-0">
+                  <span className={`block text-sm font-semibold leading-tight ${done ? "text-ink" : "text-soft"}`}>
+                    Misión {m.order} · {m.short}
+                  </span>
+                  {done && (
+                    <span className="block text-soft text-xs mt-0.5">
+                      {new Date(done.completedAt).toLocaleDateString("es-AR")}
+                    </span>
+                  )}
+                </span>
+                <span className={`text-sm font-extrabold shrink-0 ${done ? "text-geneo" : "text-soft"}`}>
+                  {done ? `+${done.score}` : `+${m.pointsTotal}`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Premios canjeados */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-ink font-bold text-lg tracking-tight">Premios canjeados</h2>
+        {isSpecialist || redemptions.length > 0 ? (
+          <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
+            {isSpecialist && (
+              <div className="flex items-center gap-3 px-5 py-3.5">
+                <Package size={19} className="text-geneo shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-semibold text-ink leading-tight">
+                    Pack de muestras Geneo 45+
+                  </span>
+                  <span className="block text-soft text-xs mt-0.5">
+                    Premio inmediato · En camino a tu farmacia
+                  </span>
+                </span>
+              </div>
+            )}
+            {redemptions.map((r) => {
+              const reward = getReward(r.rewardId);
+              if (!reward) return null;
+              return (
+                <div key={r.rewardId} className="flex items-center gap-3 px-5 py-3.5">
+                  <Gift size={19} className="text-geneo shrink-0" />
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-semibold text-ink leading-tight">
+                      {reward.name}
+                    </span>
+                    <span className="block text-soft text-xs mt-0.5">
+                      {new Date(r.redeemedAt).toLocaleDateString("es-AR")} · Pendiente de entrega en
+                      tu farmacia
+                    </span>
+                  </span>
+                  <span className="text-geneo text-sm font-extrabold shrink-0">
+                    −{reward.points}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
+            Todavía no canjeaste premios.{" "}
+            <Link href="/recompensas" className="text-geneo font-bold underline underline-offset-2">
+              Mirá el catálogo
+            </Link>
+            .
+          </p>
+        )}
+      </section>
+
+      {/* Certificados */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-ink font-bold text-lg tracking-tight">Certificados</h2>
+        {isSpecialist ? (
+          <Link
+            href="/certificado"
+            className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4 hover:shadow-card transition-shadow"
+          >
+            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
+              <Award size={20} />
+            </span>
+            <span className="flex-1">
+              <span className="block text-ink font-bold text-sm">Especialista Geneo</span>
+              <span className="block text-muted text-xs mt-0.5">Ver y descargar</span>
+            </span>
+          </Link>
+        ) : (
+          <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
+            Completá las 6 misiones para desbloquear tu certificado de{" "}
+            <strong className="text-geneo">Especialista Geneo</strong>.
+          </p>
+        )}
+      </section>
+
+      {/* Reiniciar demo */}
+      <button
+        type="button"
+        onClick={() => {
+          if (window.confirm("¿Reiniciar el demo? Se borra el progreso de este teléfono.")) {
+            reset();
+          }
+        }}
+        className="inline-flex items-center justify-center gap-2 min-h-11 text-soft hover:text-muted text-xs font-semibold uppercase tracking-wide transition-colors"
+      >
+        <LogOut size={14} />
+        Reiniciar demo
+      </button>
+    </div>
+  );
+}

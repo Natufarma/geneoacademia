@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/* Sistema visual portado de la landing Geneo (misma paleta y sombras) +
+   tokens propios de la app Misión Geneo. */
+@theme {
+  --color-geneo: #e6005c; /* magenta de marca */
+  --color-geneo-dark: #8a0038; /* degradados de marca */
+  --color-geneo-hover: #c70050; /* hover/active de botones */
+  --color-solar: #c6540a; /* naranja Solar (contraste AA) */
+  --color-rosa-suave: #fbe8f1; /* chips y fondos rosados suaves (mockups Lakhu) */
+  --color-rosa-claro: #d58fb8; /* rosa medio para degradados */
+  --color-surface: #fcfafb; /* fondo casi blanco */
+  --color-paper: #ffffff; /* tarjetas blancas */
+  --color-ink: #16161a; /* casi negro */
+  --color-muted: #56565b; /* texto secundario */
+  --color-soft: #a6a6ac; /* gris claro */
+  --color-line: #e7e6e2; /* hairline sutil */
+  --color-oro: #d7a021; /* ranking: 1º puesto */
+  --color-plata: #9ca3af; /* ranking: 2º puesto */
+  --color-bronce: #b07a4b; /* ranking: 3º puesto */
+  --font-sans: var(--font-montserrat);
+
+  --shadow-soft: 0 1px 3px rgb(17 17 17 / 0.04), 0 10px 30px -16px rgb(17 17 17 / 0.12);
+  --shadow-card: 0 2px 8px rgb(17 17 17 / 0.05), 0 26px 55px -24px rgb(17 17 17 / 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-geneo);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-surface);
+  color: #1a1a1a;
+  overflow-x: clip;
+  /* Look de app: sin selección azul del navegador ni highlight de tap */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ───────────────────────── Keyframes ───────────────────────── */
+
+/* Caída de papelitos en la celebración de misión completada. */
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--confetti-drift, 0px), 105vh, 0) rotate(var(--confetti-spin, 540deg));
+    opacity: 0.9;
+  }
+}
+
+/* Respiración suave para halos decorativos. */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.8;
+  }
+}
+
+/* Sacudida horizontal para respuesta incorrecta. */
+@keyframes shake-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.confetti-piece {
+  animation: confetti-fall var(--confetti-duration, 3s) ease-in var(--confetti-delay, 0s) forwards;
+  will-change: transform;
+}
+.anim-breathe {
+  animation: breathe 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.anim-shake {
+  animation: shake-x 0.4s ease-in-out;
+}
+
+/* ───────────────────────── Certificado imprimible ─────────────────────────
+   Al imprimir/guardar como PDF, solo queda el certificado en la hoja. */
+@media print {
+  body {
+    background: #ffffff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .confetti-piece,
+  .anim-breathe {
+    animation: none !important;
+  }
+}
