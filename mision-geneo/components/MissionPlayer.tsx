@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Check, ArrowRight, Star, Award } from "lucide-react";
+import { X, Check, ArrowRight, Lock, Star, Award } from "lucide-react";
 import Confetti from "@/components/Confetti";
 import { MISSIONS, getMission, stepPoints, type Mission, type StepContent, type StepMatch, type StepQuiz } from "@/lib/missions";
 import { getPharmacy } from "@/lib/pharmacies";
@@ -19,7 +19,7 @@ import { useApp } from "@/lib/store";
 export default function MissionPlayer({ slug }: { slug: string }) {
   const mission = getMission(slug);
   const router = useRouter();
-  const { user, progress, completeMission, points } = useApp();
+  const { user, progress, completeMission, points, isSpecialist } = useApp();
   const [stepIndex, setStepIndex] = useState(0);
   const [finished, setFinished] = useState(false);
 
@@ -30,6 +30,33 @@ export default function MissionPlayer({ slug }: { slug: string }) {
         <Link
           href="/misiones"
           className="inline-flex min-h-11 items-center text-geneo font-semibold underline"
+        >
+          Volver a mis misiones
+        </Link>
+      </div>
+    );
+  }
+
+  // Gate de la Academia: la prueba avanzada exige ser Especialista, incluso
+  // entrando por URL directa. La guía de estudio, en cambio, es libre.
+  if (mission.advanced && !isSpecialist) {
+    return (
+      <div className="min-h-dvh flex flex-col items-center justify-center gap-4 bg-surface px-6 text-center">
+        <span className="flex items-center justify-center w-14 h-14 rounded-full bg-rosa-suave text-geneo">
+          <Lock size={24} />
+        </span>
+        <p className="text-ink font-bold text-lg">
+          Esta prueba se desbloquea al completar las 6 misiones.
+        </p>
+        <Link
+          href="/academia/activos"
+          className="inline-flex min-h-11 items-center text-geneo font-semibold underline"
+        >
+          Mientras tanto, repasá la guía de activos
+        </Link>
+        <Link
+          href="/misiones"
+          className="inline-flex min-h-11 items-center text-muted font-semibold underline"
         >
           Volver a mis misiones
         </Link>
@@ -72,7 +99,7 @@ export default function MissionPlayer({ slug }: { slug: string }) {
             type="button"
             onClick={() => router.push("/misiones")}
             aria-label="Salir de la misión"
-            className="flex items-center justify-center w-11 h-11 -m-1 shrink-0 text-muted hover:text-ink transition-colors"
+            className="flex items-center justify-center w-11 h-11 -m-1 shrink-0 text-muted hover:text-ink active:text-ink transition-colors"
           >
             <span className="flex items-center justify-center w-9 h-9 rounded-full bg-paper shadow-soft">
               <X size={18} />
@@ -98,6 +125,14 @@ export default function MissionPlayer({ slug }: { slug: string }) {
           <h1 className="text-ink font-extrabold text-2xl tracking-tight leading-tight">
             {mission.title}
           </h1>
+          {mission.advanced && (
+            <Link
+              href="/academia/activos"
+              className="self-start inline-block py-3 -my-3 text-geneo text-sm font-semibold underline underline-offset-2"
+            >
+              Repasá la guía de activos
+            </Link>
+          )}
         </div>
 
         <AnimatePresence mode="wait">
@@ -206,7 +241,7 @@ function QuizStep({ step, onNext, isLast }: { step: StepQuiz; onNext: () => void
                   ? "border-geneo bg-rosa-suave text-geneo"
                   : isWrong
                     ? "anim-shake border-line bg-surface text-soft line-through"
-                    : "border-line bg-surface text-ink hover:border-geneo/50"
+                    : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
               }`}
             >
               {opt.label}
@@ -295,7 +330,7 @@ function MatchStep({ step, onNext, isLast }: { step: StepMatch; onNext: () => vo
                     ? "border-geneo/30 bg-rosa-suave/60 text-geneo/60"
                     : isSelected
                       ? "border-geneo bg-rosa-suave text-geneo"
-                      : "border-line bg-surface text-ink hover:border-geneo/50"
+                      : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
                 }`}
               >
                 {pair.left}
@@ -324,7 +359,7 @@ function MatchStep({ step, onNext, isLast }: { step: StepMatch; onNext: () => vo
                       ? "anim-shake border-geneo/60 bg-surface text-ink"
                       : selectedLeft === null
                         ? "border-line bg-surface text-soft"
-                        : "border-line bg-surface text-ink hover:border-geneo/50"
+                        : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
                 }`}
               >
                 {pair.right}

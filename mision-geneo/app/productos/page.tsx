@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { BookOpen, ChevronRight } from "lucide-react";
 import AppShell from "@/components/AppShell";
 
 /**
@@ -99,11 +101,11 @@ export default function Productos() {
                   className="object-contain p-3"
                 />
               </div>
-              <div className="px-1 pb-1">
+              <div className="px-1 pb-1 flex flex-col gap-1">
                 <h2 className={`uppercase ${p.accent} font-bold text-sm tracking-wide`}>
                   {p.nombre}
                 </h2>
-                <p className="text-muted text-[13px] leading-snug mt-1">{p.beneficio}</p>
+                <p className="text-muted text-[13px] leading-snug">{p.beneficio}</p>
               </div>
             </motion.article>
           ))}
@@ -120,14 +122,29 @@ export default function Productos() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.2 + i * 0.07 }}
-              className="bg-paper rounded-3xl shadow-soft px-5 py-4"
+              className="bg-paper rounded-3xl shadow-soft px-5 py-4 flex flex-col gap-1"
             >
               <p className="text-geneo font-bold text-sm uppercase tracking-wide">{r.nombre}</p>
-              <p className="text-ink font-semibold text-sm mt-0.5">{r.combo}</p>
-              <p className="text-muted text-[13px] leading-snug mt-1">{r.para}</p>
+              <p className="text-ink font-semibold text-sm">{r.combo}</p>
+              <p className="text-muted text-[13px] leading-snug">{r.para}</p>
             </motion.article>
           ))}
         </section>
+
+        {/* Acceso a la guía de estudio de la Academia */}
+        <Link
+          href="/academia/activos"
+          className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4 hover:shadow-card active:shadow-card transition-shadow"
+        >
+          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
+            <BookOpen size={20} />
+          </span>
+          <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+            <span className="text-ink font-bold text-sm">¿Qué hay adentro de cada fórmula?</span>
+            <span className="text-muted text-xs">Estudiá los activos en la Academia Geneo.</span>
+          </span>
+          <ChevronRight size={18} className="text-geneo shrink-0" />
+        </Link>
 
         <p className="text-soft text-xs leading-relaxed text-center px-4">
           La constancia es la clave: los resultados se construyen a los 20, 40 y
