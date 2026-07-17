@@ -54,6 +54,12 @@ export type Mission = {
   description: string;
   pointsTotal: number;
   steps: MissionStep[];
+  /**
+   * Misión de la Academia Geneo (etapa 2): se desbloquea al ser Especialista,
+   * suma puntos al histórico y al saldo, pero NO cuenta para el certificado
+   * ni para TOTAL_POINTS (el viaje core sigue siendo de 980 pts).
+   */
+  advanced?: boolean;
 };
 
 /** Suma de puntos obtenibles en un paso (0 para contenido). */
@@ -300,8 +306,108 @@ export const MISSIONS: Mission[] = [
   },
 ];
 
+/**
+ * Academia Geneo — misiones avanzadas post-certificado. Todo el contenido
+ * está tomado de los textos reales de la landing (Ciencia.tsx: mecanismos de
+ * los 9 activos; Rituales.tsx: fórmulas por producto; EncontraRitual.tsx:
+ * combos de rituales). No inventar datos que no estén en la web.
+ */
+export const ADVANCED_MISSIONS: Mission[] = [
+  {
+    slug: "activos-avanzado",
+    order: 7,
+    advanced: true,
+    title: "Ciencia de los activos",
+    short: "Activos",
+    description: "Nivel experto: fórmulas, mecanismos y combinaciones.",
+    pointsTotal: 300,
+    steps: [
+      {
+        type: "content",
+        title: "Bienvenida al nivel experto",
+        body: "Este es el nivel experto. Acá no alcanza con saber qué hace cada producto: vas a demostrar qué activo lo hace posible y por qué. Repasá las tres fórmulas antes de empezar:",
+        bullets: [
+          "PIEL SALUDABLE — Colágeno hidrolizado + Coenzima Q10.",
+          "BEAUTY — L-cistina + Ácido hialurónico + Resveratrol + Q10 + vitaminas y minerales.",
+          "45+ — Isoflavonas de soja enriquecidas en genisteína + Ácido hialurónico + Vitamina C.",
+        ],
+      },
+      {
+        type: "quiz",
+        question: "¿Qué activo diferencia la fórmula de 45+ de la de Piel Saludable?",
+        options: [
+          { label: "Isoflavonas de soja (genisteína)", correct: true },
+          { label: "Colágeno hidrolizado" },
+          { label: "Coenzima Q10" },
+          { label: "L-cistina" },
+        ],
+        points: 50,
+        feedback:
+          "45+ suma genisteína, ácido hialurónico y vitamina C; Piel Saludable se apoya en colágeno + Q10.",
+      },
+      {
+        type: "quiz",
+        question: "¿Por qué la genisteína es clave a partir de los 45 años?",
+        options: [
+          {
+            label:
+              "Los estrógenos que regulan la piel caen desde los 45: la genisteína mejora su estructura y estimula el ácido hialurónico",
+            correct: true,
+          },
+          { label: "Aporta colágeno directo a la dermis" },
+          { label: "Actúa como pigmentante natural de la piel" },
+          { label: "Es el principal componente de la queratina" },
+        ],
+        points: 50,
+        feedback:
+          "Exacto: compensa la caída de estrógenos mejorando las propiedades estructurales de la piel.",
+      },
+      {
+        type: "match",
+        prompt: "Nivel experto: uní cada activo con su mecanismo real:",
+        pairs: [
+          { left: "Resveratrol", right: "Polifenol de las uvas negras: elimina radicales libres" },
+          { left: "Vitamina C", right: "Participa en la síntesis de colágeno y da luminosidad" },
+          { left: "Licopeno", right: "Potencia el betacaroteno y protege frente a los rayos UV" },
+          { left: "Ácido hialurónico", right: "Hidratante y lubricante: aporta volumen y densidad" },
+        ],
+        pointsPerPair: 25,
+      },
+      {
+        type: "quiz",
+        context: "Una clienta busca firmeza y elasticidad, y quiere el ritual completo.",
+        question: "Según el ritual Firmeza, ¿qué combinación le recomendás?",
+        options: [
+          { label: "Piel Saludable + 45+", correct: true },
+          { label: "Piel Saludable + Beauty" },
+          { label: "Beauty + Solar" },
+          { label: "Solo Beauty" },
+        ],
+        points: 50,
+        feedback:
+          "El ritual Firmeza combina Piel Saludable + 45+. Piel Saludable + Beauty es el ritual Glow.",
+      },
+      {
+        type: "quiz",
+        question: "¿Qué activo comparten las fórmulas de Piel Saludable y Beauty?",
+        options: [
+          { label: "Coenzima Q10", correct: true },
+          { label: "Colágeno hidrolizado" },
+          { label: "Ácido hialurónico" },
+          { label: "Resveratrol" },
+        ],
+        points: 50,
+        feedback:
+          "La Q10 está en ambas: energía celular y acción antioxidante. El colágeno es exclusivo de Piel Saludable.",
+      },
+    ],
+  },
+];
+
 export const TOTAL_POINTS = MISSIONS.reduce((acc, m) => acc + m.pointsTotal, 0);
 
 export function getMission(slug: string): Mission | undefined {
-  return MISSIONS.find((m) => m.slug === slug);
+  return (
+    MISSIONS.find((m) => m.slug === slug) ?? ADVANCED_MISSIONS.find((m) => m.slug === slug)
+  );
 }

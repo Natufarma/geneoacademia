@@ -27,7 +27,10 @@ export default function MissionPlayer({ slug }: { slug: string }) {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center gap-4 bg-surface px-6">
         <p className="text-ink font-bold text-lg text-center">Esa misión no existe.</p>
-        <Link href="/misiones" className="text-geneo font-semibold underline">
+        <Link
+          href="/misiones"
+          className="inline-flex min-h-11 items-center text-geneo font-semibold underline"
+        >
           Volver a mis misiones
         </Link>
       </div>
@@ -88,11 +91,11 @@ export default function MissionPlayer({ slug }: { slug: string }) {
           </span>
         </header>
 
-        <div>
+        <div className="flex flex-col gap-1">
           <p className="text-geneo text-[11px] font-bold uppercase tracking-widest">
-            Misión {mission.order} · {mission.short}
+            {mission.advanced ? `Academia Geneo · Avanzada` : `Misión ${mission.order} · ${mission.short}`}
           </p>
-          <h1 className="text-ink font-extrabold text-2xl tracking-tight leading-tight mt-1">
+          <h1 className="text-ink font-extrabold text-2xl tracking-tight leading-tight">
             {mission.title}
           </h1>
         </div>
@@ -368,7 +371,11 @@ function MissionComplete({
   progress: Record<string, unknown>;
   pharmacyName?: string;
 }) {
-  const allDone = MISSIONS.every((m) => Boolean(progress[m.slug]));
+  const coreDone = MISSIONS.every((m) => Boolean(progress[m.slug]));
+  // La celebración de Especialista (premio inmediato + certificado) es solo
+  // para el cierre del viaje core: las misiones de Academia tienen la suya.
+  const allDone = coreDone && !mission.advanced;
+  const isAdvanced = Boolean(mission.advanced);
 
   return (
     <div className="min-h-dvh bg-gradient-to-br from-geneo to-geneo-dark text-white flex items-center justify-center px-6">
@@ -390,26 +397,32 @@ function MissionComplete({
 
         <div className="flex flex-col gap-2">
           <h1 className="font-extrabold text-3xl tracking-tight leading-tight">
-            {allDone ? "¡Sos una ESPECIALISTA GENEO!" : "¡MISIÓN COMPLETADA!"}
+            {allDone
+              ? "¡Sos una ESPECIALISTA GENEO!"
+              : isAdvanced
+                ? "¡NIVEL EXPERTO SUPERADO!"
+                : "¡MISIÓN COMPLETADA!"}
           </h1>
           <p className="text-white/85 text-base leading-relaxed">
             {allDone
               ? "Completaste el viaje entero. Tu certificado te espera."
-              : `Terminaste “${mission.title}”.`}
+              : isAdvanced
+                ? `Superaste “${mission.title}”. Ahora dominás la ciencia Geneo como nadie.`
+                : `Terminaste “${mission.title}”.`}
           </p>
         </div>
 
         <div className="flex items-center gap-6 bg-white/10 rounded-3xl px-8 py-4">
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             <span className="font-extrabold text-2xl leading-none">+{mission.pointsTotal}</span>
-            <span className="text-white/75 text-xs font-semibold uppercase tracking-wide mt-1">
+            <span className="text-white/75 text-xs font-semibold uppercase tracking-wide">
               esta misión
             </span>
           </div>
           <div className="w-px h-10 bg-white/25" aria-hidden="true" />
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             <span className="font-extrabold text-2xl leading-none">{totalPoints}</span>
-            <span className="text-white/75 text-xs font-semibold uppercase tracking-wide mt-1">
+            <span className="text-white/75 text-xs font-semibold uppercase tracking-wide">
               puntaje total
             </span>
           </div>
@@ -426,21 +439,21 @@ function MissionComplete({
             <span className="relative w-14 h-14 rounded-2xl bg-white/90 overflow-hidden shrink-0">
               <Image src="/img/prod-45.webp" alt="Geneo 45+" fill className="object-contain p-1" />
             </span>
-            <span className="flex-1 min-w-0">
+            <span className="flex-1 min-w-0 flex flex-col gap-1">
               <span className="block text-white/75 text-[10px] font-bold uppercase tracking-widest">
                 Tu premio inmediato
               </span>
-              <span className="block font-bold text-sm leading-tight mt-0.5">
+              <span className="block font-bold text-sm leading-tight">
                 Pack de muestras Geneo 45+
               </span>
-              <span className="block text-white/85 text-xs mt-1">
+              <span className="block text-white/85 text-xs">
                 Envío sin cargo · En camino a {pharmacyName ?? "tu farmacia"}
               </span>
             </span>
           </motion.div>
         )}
 
-        <div className="flex flex-col gap-3 w-full mt-2">
+        <div className="flex flex-col gap-3 w-full">
           {allDone && (
             <Link
               href="/certificado"
@@ -450,13 +463,22 @@ function MissionComplete({
               <Award size={18} />
             </Link>
           )}
+          {isAdvanced && (
+            <Link
+              href="/recompensas"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-geneo font-bold uppercase tracking-wide text-sm px-6 py-4"
+            >
+              Canjeá tus puntos
+              <Star size={18} />
+            </Link>
+          )}
           <Link
             href="/misiones"
             className={`w-full inline-flex items-center justify-center gap-2 rounded-full font-bold uppercase tracking-wide text-sm px-6 py-4 ${
-              allDone ? "text-white/90 underline underline-offset-4" : "bg-white text-geneo"
+              allDone || isAdvanced ? "text-white/90 underline underline-offset-4" : "bg-white text-geneo"
             }`}
           >
-            {allDone ? "Volver a mis misiones" : "Seguir mi viaje"}
+            {allDone || isAdvanced ? "Volver a mis misiones" : "Seguir mi viaje"}
           </Link>
         </div>
       </motion.div>

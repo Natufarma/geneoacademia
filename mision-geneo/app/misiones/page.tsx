@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Check, Lock, ChevronRight, Award, Gift } from "lucide-react";
+import { Check, Lock, ChevronRight, Award, Gift, GraduationCap } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import ProgressRing from "@/components/ProgressRing";
 import SorteoBanner from "@/components/SorteoBanner";
-import { MISSIONS, TOTAL_POINTS } from "@/lib/missions";
+import { ADVANCED_MISSIONS, MISSIONS, TOTAL_POINTS } from "@/lib/missions";
 import { getLevel, getNextLevel } from "@/lib/levels";
 import { getPharmacy } from "@/lib/pharmacies";
 import { useApp } from "@/lib/store";
@@ -46,7 +46,7 @@ function MisionesContent() {
         <div className="p-5 flex items-center gap-5">
           <ProgressRing value={points} max={TOTAL_POINTS}>
             <span className="text-geneo font-extrabold text-xl leading-none">{points}</span>
-            <span className="text-muted text-[10px] font-semibold uppercase tracking-wide mt-0.5">
+            <span className="text-muted text-[10px] font-semibold uppercase tracking-wide">
               puntos
             </span>
           </ProgressRing>
@@ -115,11 +115,11 @@ function MisionesContent() {
 
           const card = (
             <div
-              className={`flex items-center gap-4 rounded-3xl px-4 py-4 transition-all ${
+              className={`flex items-center gap-4 rounded-3xl px-4 py-4 transition-colors ${
                 done
                   ? "bg-rosa-suave/60"
                   : available
-                    ? "bg-paper shadow-card hover:-translate-y-0.5 active:-translate-y-0.5"
+                    ? "bg-paper shadow-card"
                     : "bg-paper/60 opacity-60"
               }`}
             >
@@ -134,14 +134,105 @@ function MisionesContent() {
               >
                 {done ? <Check size={20} strokeWidth={3} /> : locked ? <Lock size={17} /> : m.order}
               </span>
-              <span className="flex-1 min-w-0">
+              <span className="flex-1 min-w-0 flex flex-col gap-0.5">
                 <span className="block text-[10px] font-bold uppercase tracking-widest text-soft">
                   Misión {m.order} · {m.short}
                 </span>
                 <span className={`block font-bold leading-tight ${done ? "text-geneo" : "text-ink"}`}>
                   {m.title}
                 </span>
-                <span className="block text-muted text-sm leading-snug mt-0.5">{m.description}</span>
+                <span className="block text-muted text-sm leading-snug">{m.description}</span>
+              </span>
+              <span className="flex flex-col items-end gap-1 shrink-0">
+                <span className={`text-sm font-extrabold ${done ? "text-geneo" : "text-soft"}`}>
+                  +{m.pointsTotal}
+                </span>
+                {available && <ChevronRight size={18} className="text-geneo" />}
+              </span>
+            </div>
+          );
+
+          return (
+            <motion.div
+              key={m.slug}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                transition: { type: "spring", stiffness: 260, damping: 28, delay: i * 0.06 },
+              }}
+              whileHover={available ? { y: -2 } : undefined}
+              whileTap={available ? { y: -2 } : undefined}
+              transition={{ type: "spring", stiffness: 260, damping: 28 }}
+            >
+              {locked ? (
+                card
+              ) : (
+                <Link
+                  href={`/mision/${m.slug}`}
+                  aria-label={`${done ? "Repasar" : "Empezar"} misión ${m.order}: ${m.title}`}
+                >
+                  {card}
+                </Link>
+              )}
+            </motion.div>
+          );
+        })}
+      </section>
+
+      {/* Academia Geneo — misiones avanzadas (etapa 2 de la propuesta) */}
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-ink font-bold text-lg tracking-tight">
+            Academia Geneo <span className="text-geneo">· Seguí aprendiendo</span>
+          </h2>
+          <p className="text-muted text-sm leading-snug">
+            Contenido avanzado para ir más allá del certificado.
+          </p>
+        </div>
+
+        {ADVANCED_MISSIONS.map((m, i) => {
+          const done = Boolean(progress[m.slug]);
+          const available = !done && isSpecialist;
+          const locked = !done && !available;
+
+          const card = (
+            <div
+              className={`flex items-center gap-4 rounded-3xl px-4 py-4 transition-colors ${
+                done
+                  ? "bg-rosa-suave/60"
+                  : available
+                    ? "bg-paper shadow-card"
+                    : "bg-paper/60 opacity-60"
+              }`}
+            >
+              <span
+                className={`flex items-center justify-center w-11 h-11 rounded-full shrink-0 ${
+                  done
+                    ? "bg-geneo text-white"
+                    : available
+                      ? "bg-rosa-suave text-geneo"
+                      : "bg-line text-soft"
+                }`}
+              >
+                {done ? (
+                  <Check size={20} strokeWidth={3} />
+                ) : locked ? (
+                  <Lock size={17} />
+                ) : (
+                  <GraduationCap size={20} />
+                )}
+              </span>
+              <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className="block text-[10px] font-bold uppercase tracking-widest text-geneo">
+                  Academia · Avanzada
+                </span>
+                <span className={`block font-bold leading-tight ${done ? "text-geneo" : "text-ink"}`}>
+                  {m.title}
+                </span>
+                <span className="block text-muted text-sm leading-snug">
+                  {locked ? "Completá las 6 misiones para desbloquearla." : m.description}
+                </span>
               </span>
               <span className="flex flex-col items-end gap-1 shrink-0">
                 <span className={`text-sm font-extrabold ${done ? "text-geneo" : "text-soft"}`}>
@@ -157,14 +248,14 @@ function MisionesContent() {
               key={m.slug}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 260, damping: 28, delay: i * 0.06 }}
+              transition={{ type: "spring", stiffness: 260, damping: 28, delay: (MISSIONS.length + i) * 0.06 }}
             >
               {locked ? (
                 card
               ) : (
                 <Link
                   href={`/mision/${m.slug}`}
-                  aria-label={`${done ? "Repasar" : "Empezar"} misión ${m.order}: ${m.title}`}
+                  aria-label={`${done ? "Repasar" : "Empezar"} misión avanzada: ${m.title}`}
                 >
                   {card}
                 </Link>

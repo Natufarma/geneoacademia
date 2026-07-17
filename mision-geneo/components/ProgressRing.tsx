@@ -48,7 +48,7 @@ export default function ProgressRing({
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center gap-0.5">
         {children}
       </div>
     </div>

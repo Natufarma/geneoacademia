@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Award, CheckCircle2, Circle, Gift, LogOut, Package, User } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { MISSIONS } from "@/lib/missions";
+import { ADVANCED_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { getPharmacy } from "@/lib/pharmacies";
 import { getReward } from "@/lib/rewards";
@@ -45,18 +45,18 @@ function PerfilContent() {
           {level.name} · Nivel {level.n}
         </span>
 
-        <div className="mt-2 grid grid-cols-2 gap-3 w-full">
-          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3">
+        <div className="grid grid-cols-2 gap-3 w-full">
+          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3 flex flex-col gap-1">
             <p className="text-geneo font-extrabold text-xl leading-none">{points}</p>
-            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide mt-1">
+            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
               Mis puntos
             </p>
           </div>
-          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3">
+          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3 flex flex-col gap-1">
             <p className="text-geneo font-extrabold text-xl leading-none">
               {completedCount}/{MISSIONS.length}
             </p>
-            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide mt-1">
+            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
               Misiones
             </p>
           </div>
@@ -76,12 +76,37 @@ function PerfilContent() {
                 ) : (
                   <Circle size={19} className="text-line shrink-0" />
                 )}
-                <span className="flex-1 min-w-0">
+                <span className="flex-1 min-w-0 flex flex-col gap-0.5">
                   <span className={`block text-sm font-semibold leading-tight ${done ? "text-ink" : "text-soft"}`}>
                     Misión {m.order} · {m.short}
                   </span>
                   {done && (
-                    <span className="block text-soft text-xs mt-0.5">
+                    <span className="block text-soft text-xs">
+                      {new Date(done.completedAt).toLocaleDateString("es-AR")}
+                    </span>
+                  )}
+                </span>
+                <span className={`text-sm font-extrabold shrink-0 ${done ? "text-geneo" : "text-soft"}`}>
+                  {done ? `+${done.score}` : `+${m.pointsTotal}`}
+                </span>
+              </div>
+            );
+          })}
+          {ADVANCED_MISSIONS.map((m) => {
+            const done = progress[m.slug];
+            return (
+              <div key={m.slug} className="flex items-center gap-3 px-5 py-3.5">
+                {done ? (
+                  <CheckCircle2 size={19} className="text-geneo shrink-0" />
+                ) : (
+                  <Circle size={19} className="text-line shrink-0" />
+                )}
+                <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <span className={`block text-sm font-semibold leading-tight ${done ? "text-ink" : "text-soft"}`}>
+                    Academia · {m.short}
+                  </span>
+                  {done && (
+                    <span className="block text-soft text-xs">
                       {new Date(done.completedAt).toLocaleDateString("es-AR")}
                     </span>
                   )}
@@ -103,11 +128,11 @@ function PerfilContent() {
             {isSpecialist && (
               <div className="flex items-center gap-3 px-5 py-3.5">
                 <Package size={19} className="text-geneo shrink-0" />
-                <span className="flex-1 min-w-0">
+                <span className="flex-1 min-w-0 flex flex-col gap-0.5">
                   <span className="block text-sm font-semibold text-ink leading-tight">
                     Pack de muestras Geneo 45+
                   </span>
-                  <span className="block text-soft text-xs mt-0.5">
+                  <span className="block text-soft text-xs">
                     Premio inmediato · En camino a tu farmacia
                   </span>
                 </span>
@@ -119,11 +144,11 @@ function PerfilContent() {
               return (
                 <div key={r.rewardId} className="flex items-center gap-3 px-5 py-3.5">
                   <Gift size={19} className="text-geneo shrink-0" />
-                  <span className="flex-1 min-w-0">
+                  <span className="flex-1 min-w-0 flex flex-col gap-0.5">
                     <span className="block text-sm font-semibold text-ink leading-tight">
                       {reward.name}
                     </span>
-                    <span className="block text-soft text-xs mt-0.5">
+                    <span className="block text-soft text-xs">
                       {new Date(r.redeemedAt).toLocaleDateString("es-AR")} · Pendiente de entrega en
                       tu farmacia
                     </span>
@@ -138,7 +163,10 @@ function PerfilContent() {
         ) : (
           <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
             Todavía no canjeaste premios.{" "}
-            <Link href="/recompensas" className="text-geneo font-bold underline underline-offset-2">
+            <Link
+              href="/recompensas"
+              className="text-geneo font-bold underline underline-offset-2 inline-block py-3 -my-3"
+            >
               Mirá el catálogo
             </Link>
             .
@@ -157,9 +185,9 @@ function PerfilContent() {
             <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
               <Award size={20} />
             </span>
-            <span className="flex-1">
+            <span className="flex-1 flex flex-col gap-0.5">
               <span className="block text-ink font-bold text-sm">Especialista Geneo</span>
-              <span className="block text-muted text-xs mt-0.5">Ver y descargar</span>
+              <span className="block text-muted text-xs">Ver y descargar</span>
             </span>
           </Link>
         ) : (
