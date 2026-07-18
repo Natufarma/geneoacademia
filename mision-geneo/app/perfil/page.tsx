@@ -4,7 +4,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Award, CheckCircle2, Circle, Gift, LogOut, Package, User } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { ADVANCED_MISSIONS, MISSIONS } from "@/lib/missions";
+import LevelsLadder from "@/components/LevelsLadder";
+import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { getPharmacy } from "@/lib/pharmacies";
 import { getReward } from "@/lib/rewards";
@@ -63,6 +64,12 @@ function PerfilContent() {
         </div>
       </motion.section>
 
+      {/* Niveles de Especialista (Academia, etapa 2) */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-ink font-bold text-lg tracking-tight">Tus niveles</h2>
+        <LevelsLadder points={points} />
+      </section>
+
       {/* Historial de misiones */}
       <section className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Historial de misiones</h2>
@@ -104,6 +111,31 @@ function PerfilContent() {
                 <span className="flex-1 min-w-0 flex flex-col gap-0.5">
                   <span className={`block text-sm font-semibold leading-tight ${done ? "text-ink" : "text-soft"}`}>
                     Academia · {m.short}
+                  </span>
+                  {done && (
+                    <span className="block text-soft text-xs">
+                      {new Date(done.completedAt).toLocaleDateString("es-AR")}
+                    </span>
+                  )}
+                </span>
+                <span className={`text-sm font-extrabold shrink-0 ${done ? "text-geneo" : "text-soft"}`}>
+                  {done ? `+${done.score}` : `+${m.pointsTotal}`}
+                </span>
+              </div>
+            );
+          })}
+          {CAMPAIGN_MISSIONS.map((m) => {
+            const done = progress[m.slug];
+            return (
+              <div key={m.slug} className="flex items-center gap-3 px-5 py-3.5">
+                {done ? (
+                  <CheckCircle2 size={19} className="text-geneo shrink-0" />
+                ) : (
+                  <Circle size={19} className="text-line shrink-0" />
+                )}
+                <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <span className={`block text-sm font-semibold leading-tight ${done ? "text-ink" : "text-soft"}`}>
+                    Campaña · {m.season}
                   </span>
                   {done && (
                     <span className="block text-soft text-xs">

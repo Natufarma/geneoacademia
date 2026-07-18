@@ -60,6 +60,14 @@ export type Mission = {
    * ni para TOTAL_POINTS (el viaje core sigue siendo de 980 pts).
    */
   advanced?: boolean;
+  /**
+   * Campaña de temporada (Academia, etapa 2): contenido rotativo que Natufarma
+   * publica cada temporada. Abierta a todos (no exige ser Especialista), suma
+   * puntos al histórico y al saldo, pero tampoco cuenta para el certificado.
+   */
+  campaign?: boolean;
+  /** Rótulo de la temporada de la campaña (ej. "Beauty", "Verano"). */
+  season?: string;
 };
 
 /** Suma de puntos obtenibles en un paso (0 para contenido). */
@@ -404,10 +412,98 @@ export const ADVANCED_MISSIONS: Mission[] = [
   },
 ];
 
+/**
+ * Campañas de temporada — Academia Geneo (etapa 2). Contenido rotativo que
+ * demuestra que la plataforma escala: cada temporada Natufarma publica una
+ * campaña nueva. Abiertas a todos (no exigen ser Especialista) y suman puntos,
+ * pero no afectan el certificado ni TOTAL_POINTS. Contenido tomado de la
+ * landing: fórmula Beauty (Rituales.tsx) y mecanismos de sus activos
+ * (Ciencia.tsx). No inventar datos que no estén publicados.
+ */
+export const CAMPAIGN_MISSIONS: Mission[] = [
+  {
+    slug: "campana-beauty",
+    order: 8,
+    campaign: true,
+    season: "Beauty",
+    title: "Misión Beauty: pelo y uñas",
+    short: "Beauty",
+    description: "Nueva campaña: reforzá lo que sabés de la línea Beauty.",
+    pointsTotal: 250,
+    steps: [
+      {
+        type: "content",
+        title: "Geneo Beauty, de adentro hacia afuera",
+        body: "Beauty está pensado para quienes buscan pelo más fuerte y uñas saludables. Su fórmula combina activos que trabajan la queratina, la hidratación y la protección antioxidante:",
+        bullets: [
+          "L-cistina — constituyente de la queratina del pelo, piel y uñas.",
+          "Ácido hialurónico — hidratación, volumen y densidad.",
+          "Resveratrol + Coenzima Q10 — acción antioxidante.",
+          "Vitaminas y minerales — complemento de la fórmula.",
+        ],
+      },
+      {
+        type: "quiz",
+        context: "Una clienta te dice que se le cae el pelo y tiene las uñas quebradizas.",
+        question: "¿Para qué necesidad está pensado Geneo Beauty?",
+        options: [
+          { label: "Pelo más fuerte y uñas saludables", correct: true },
+          { label: "Preparar la piel para el sol" },
+          { label: "Acompañar los cambios de la piel en la menopausia" },
+          { label: "Un bronceado más intenso" },
+        ],
+        points: 60,
+        feedback: "¡Exacto! Beauty apunta a la fuerza del pelo y la salud de las uñas.",
+      },
+      {
+        type: "quiz",
+        question:
+          "¿Qué activo de Beauty es el principal constituyente de la queratina del pelo, la piel y las uñas?",
+        options: [
+          { label: "L-cistina", correct: true },
+          { label: "Resveratrol" },
+          { label: "Coenzima Q10" },
+          { label: "Ácido hialurónico" },
+        ],
+        points: 60,
+        feedback:
+          "¡Bien! La L-cistina es un aminoácido azufrado que participa en la síntesis de la queratina y se asocia a mayor densidad del pelo.",
+      },
+      {
+        type: "match",
+        prompt: "Uní cada activo de la fórmula Beauty con su función:",
+        pairs: [
+          { left: "L-cistina", right: "Queratina del pelo, piel y uñas" },
+          { left: "Ácido hialurónico", right: "Hidratación, volumen y densidad" },
+          { left: "Resveratrol", right: "Antioxidante: elimina radicales libres" },
+          { left: "Coenzima Q10", right: "Energía celular y acción antioxidante" },
+        ],
+        pointsPerPair: 25,
+      },
+      {
+        type: "quiz",
+        context: "Tu clienta quiere pelo y uñas fuertes y, además, más luminosidad en la piel.",
+        question: "¿Qué ritual le armás?",
+        options: [
+          { label: "Ritual Glow: Piel Saludable + Beauty", correct: true },
+          { label: "Ritual Firmeza: Piel Saludable + 45+" },
+          { label: "Solo Solar" },
+          { label: "Solo 45+" },
+        ],
+        points: 30,
+        feedback:
+          "¡Eso! El ritual Glow combina Piel Saludable + Beauty: luminosidad de la piel más fuerza del pelo y las uñas.",
+      },
+    ],
+  },
+];
+
 export const TOTAL_POINTS = MISSIONS.reduce((acc, m) => acc + m.pointsTotal, 0);
 
 export function getMission(slug: string): Mission | undefined {
   return (
-    MISSIONS.find((m) => m.slug === slug) ?? ADVANCED_MISSIONS.find((m) => m.slug === slug)
+    MISSIONS.find((m) => m.slug === slug) ??
+    ADVANCED_MISSIONS.find((m) => m.slug === slug) ??
+    CAMPAIGN_MISSIONS.find((m) => m.slug === slug)
   );
 }

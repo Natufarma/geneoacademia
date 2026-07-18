@@ -120,7 +120,11 @@ export default function MissionPlayer({ slug }: { slug: string }) {
 
         <div className="flex flex-col gap-1">
           <p className="text-geneo text-[11px] font-bold uppercase tracking-widest">
-            {mission.advanced ? `Academia Geneo · Avanzada` : `Misión ${mission.order} · ${mission.short}`}
+            {mission.advanced
+              ? `Academia Geneo · Avanzada`
+              : mission.campaign
+                ? `Campaña · ${mission.season}`
+                : `Misión ${mission.order} · ${mission.short}`}
           </p>
           <h1 className="text-ink font-extrabold text-2xl tracking-tight leading-tight">
             {mission.title}
@@ -408,9 +412,11 @@ function MissionComplete({
 }) {
   const coreDone = MISSIONS.every((m) => Boolean(progress[m.slug]));
   // La celebración de Especialista (premio inmediato + certificado) es solo
-  // para el cierre del viaje core: las misiones de Academia tienen la suya.
-  const allDone = coreDone && !mission.advanced;
+  // para el cierre del viaje core: las misiones de Academia y las campañas
+  // tienen la suya.
+  const allDone = coreDone && !mission.advanced && !mission.campaign;
   const isAdvanced = Boolean(mission.advanced);
+  const isCampaign = Boolean(mission.campaign);
 
   return (
     <div className="min-h-dvh bg-gradient-to-br from-geneo to-geneo-dark text-white flex items-center justify-center px-6">
@@ -436,14 +442,18 @@ function MissionComplete({
               ? "¡Sos una ESPECIALISTA GENEO!"
               : isAdvanced
                 ? "¡NIVEL EXPERTO SUPERADO!"
-                : "¡MISIÓN COMPLETADA!"}
+                : isCampaign
+                  ? "¡CAMPAÑA COMPLETADA!"
+                  : "¡MISIÓN COMPLETADA!"}
           </h1>
           <p className="text-white/85 text-base leading-relaxed">
             {allDone
               ? "Completaste el viaje entero. Tu certificado te espera."
               : isAdvanced
                 ? `Superaste “${mission.title}”. Ahora dominás la ciencia Geneo como nadie.`
-                : `Terminaste “${mission.title}”.`}
+                : isCampaign
+                  ? `Sumaste la campaña “${mission.title}”. Atenta a las próximas de temporada.`
+                  : `Terminaste “${mission.title}”.`}
           </p>
         </div>
 
@@ -498,7 +508,7 @@ function MissionComplete({
               <Award size={18} />
             </Link>
           )}
-          {isAdvanced && (
+          {(isAdvanced || isCampaign) && (
             <Link
               href="/recompensas"
               className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-geneo font-bold uppercase tracking-wide text-sm px-6 py-4"
@@ -510,10 +520,12 @@ function MissionComplete({
           <Link
             href="/misiones"
             className={`w-full inline-flex items-center justify-center gap-2 rounded-full font-bold uppercase tracking-wide text-sm px-6 py-4 ${
-              allDone || isAdvanced ? "text-white/90 underline underline-offset-4" : "bg-white text-geneo"
+              allDone || isAdvanced || isCampaign
+                ? "text-white/90 underline underline-offset-4"
+                : "bg-white text-geneo"
             }`}
           >
-            {allDone || isAdvanced ? "Volver a mis misiones" : "Seguir mi viaje"}
+            {allDone || isAdvanced || isCampaign ? "Volver a mis misiones" : "Seguir mi viaje"}
           </Link>
         </div>
       </motion.div>

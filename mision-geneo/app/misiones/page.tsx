@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Check, Lock, ChevronRight, Award, BookOpen, Gift, GraduationCap } from "lucide-react";
+import { Check, Lock, ChevronRight, Award, BookOpen, Gift, GraduationCap, Sparkles } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import ProgressRing from "@/components/ProgressRing";
 import SorteoBanner from "@/components/SorteoBanner";
-import { ADVANCED_MISSIONS, MISSIONS, TOTAL_POINTS } from "@/lib/missions";
+import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS, TOTAL_POINTS } from "@/lib/missions";
 import { getLevel, getNextLevel } from "@/lib/levels";
 import { getPharmacy } from "@/lib/pharmacies";
 import { useApp } from "@/lib/store";
@@ -175,6 +175,74 @@ function MisionesContent() {
                   {card}
                 </Link>
               )}
+            </motion.div>
+          );
+        })}
+      </section>
+
+      {/* Campañas de temporada — Academia (etapa 2): contenido rotativo nuevo */}
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-ink font-bold text-lg tracking-tight">
+            Campañas <span className="text-geneo">de temporada</span>
+          </h2>
+          <p className="text-muted text-sm leading-snug">
+            Contenido nuevo cada temporada. Sumá puntos extra sin esperar.
+          </p>
+        </div>
+
+        {CAMPAIGN_MISSIONS.map((m, i) => {
+          const done = Boolean(progress[m.slug]);
+
+          return (
+            <motion.div
+              key={m.slug}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                transition: { type: "spring", stiffness: 260, damping: 28, delay: i * 0.06 },
+              }}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 260, damping: 28 }}
+            >
+              <Link
+                href={`/mision/${m.slug}`}
+                aria-label={`${done ? "Repasar" : "Empezar"} campaña: ${m.title}`}
+              >
+                <span className="flex items-center gap-4 rounded-3xl px-4 py-4 bg-paper shadow-card transition-colors">
+                  <span
+                    className={`flex items-center justify-center w-11 h-11 rounded-full shrink-0 ${
+                      done ? "bg-geneo text-white" : "bg-rosa-suave text-geneo"
+                    }`}
+                  >
+                    {done ? <Check size={20} strokeWidth={3} /> : <Sparkles size={20} />}
+                  </span>
+                  <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <span className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-geneo">
+                        Campaña · {m.season}
+                      </span>
+                      {!done && (
+                        <span className="rounded-full bg-geneo text-white text-[9px] font-bold uppercase tracking-wide px-2 py-0.5">
+                          Nuevo
+                        </span>
+                      )}
+                    </span>
+                    <span className={`block font-bold leading-tight ${done ? "text-geneo" : "text-ink"}`}>
+                      {m.title}
+                    </span>
+                    <span className="block text-muted text-sm leading-snug">{m.description}</span>
+                  </span>
+                  <span className="flex flex-col items-end gap-1 shrink-0">
+                    <span className={`text-sm font-extrabold ${done ? "text-geneo" : "text-soft"}`}>
+                      +{m.pointsTotal}
+                    </span>
+                    <ChevronRight size={18} className="text-geneo" />
+                  </span>
+                </span>
+              </Link>
             </motion.div>
           );
         })}
