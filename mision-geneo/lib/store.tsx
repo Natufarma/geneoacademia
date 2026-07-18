@@ -466,6 +466,12 @@ export async function reset() {
   }
   await client.auth.signOut();
   authUserId = null;
+  // El demo arranca de cero de verdad: el onboarding también se vuelve a ver.
+  try {
+    window.localStorage.removeItem("mision-geneo:onboarding-v1");
+  } catch {
+    // localStorage bloqueado: sin drama, solo no se re-muestra el onboarding.
+  }
   setSnapshot(EMPTY_READY(snapshot.pharmacies));
 }
 

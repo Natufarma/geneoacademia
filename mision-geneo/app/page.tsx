@@ -3,8 +3,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Gamepad2, Star, Gift, Eye, EyeOff, MailCheck } from "lucide-react";
+import Onboarding, { ONBOARDING_KEY } from "@/components/Onboarding";
 import { useApp } from "@/lib/store";
 
 const inputClass =
@@ -17,6 +18,21 @@ const inputClass =
 export default function Bienvenida() {
   const { ready, user, pharmacies, register, login } = useApp();
   const router = useRouter();
+
+  // El onboarding se muestra una sola vez por dispositivo (antes del registro).
+  // Lectura perezosa de localStorage: en SSR devuelve false y la página entera
+  // rinde el splash hasta `ready`, así no hay mismatch de hidratación.
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => typeof window !== "undefined" && window.localStorage.getItem(ONBOARDING_KEY) !== "1",
+  );
+  const finishOnboarding = () => {
+    try {
+      window.localStorage.setItem(ONBOARDING_KEY, "1");
+    } catch {
+      // sin localStorage el onboarding simplemente vuelve a verse
+    }
+    setShowOnboarding(false);
+  };
 
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [name, setName] = useState("");
@@ -103,6 +119,10 @@ export default function Bienvenida() {
 
   return (
     <div className="min-h-dvh bg-surface">
+      {/* Overlay de onboarding: sale con fade+lift y revela el registro */}
+      <AnimatePresence>
+        {showOnboarding && <Onboarding key="onboarding" onFinish={finishOnboarding} />}
+      </AnimatePresence>
       <main className="max-w-md mx-auto px-5 py-8 flex flex-col gap-5">
         {/* Hero de bienvenida (estilo lámina 1 "Inicio" de Lakhu) */}
         <motion.section
