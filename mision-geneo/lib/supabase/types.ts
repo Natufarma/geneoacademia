@@ -1,0 +1,103 @@
+/**
+ * Tipos de la base de datos (fase 2). Escritos a mano según supabase/schema.sql.
+ * Si el esquema cambia, actualizar acá (o regenerar con `supabase gen types`).
+ */
+
+export type Role = "employee" | "admin";
+export type RedemptionStatus = "requested" | "approved" | "delivered";
+
+export type PharmacyRow = {
+  id: string;
+  code: string;
+  name: string;
+  city: string | null;
+  active: boolean;
+  created_at: string;
+};
+
+export type ProfileRow = {
+  id: string;
+  pharmacy_id: string | null;
+  name: string;
+  role: Role;
+  created_at: string;
+};
+
+export type MissionProgressRow = {
+  id: string;
+  user_id: string;
+  mission_slug: string;
+  score: number;
+  completed_at: string;
+};
+
+export type RedemptionRow = {
+  id: string;
+  user_id: string;
+  reward_id: string;
+  points: number;
+  status: RedemptionStatus;
+  created_at: string;
+};
+
+export type CertificateRow = {
+  id: string;
+  user_id: string;
+  type: string;
+  issued_at: string;
+};
+
+export type PharmacyPurchaseRow = {
+  id: string;
+  pharmacy_id: string;
+  units: number;
+  amount: number;
+  period: string | null;
+  created_at: string;
+};
+
+/** Shape mínimo que consume @supabase/supabase-js para tipar queries. */
+export type Database = {
+  public: {
+    Tables: {
+      pharmacies: {
+        Row: PharmacyRow;
+        Insert: Partial<PharmacyRow> & Pick<PharmacyRow, "code" | "name">;
+        Update: Partial<PharmacyRow>;
+      };
+      profiles: {
+        Row: ProfileRow;
+        Insert: Pick<ProfileRow, "id" | "name"> & Partial<ProfileRow>;
+        Update: Partial<ProfileRow>;
+      };
+      mission_progress: {
+        Row: MissionProgressRow;
+        Insert: Pick<MissionProgressRow, "user_id" | "mission_slug" | "score"> &
+          Partial<MissionProgressRow>;
+        Update: Partial<MissionProgressRow>;
+      };
+      redemptions: {
+        Row: RedemptionRow;
+        Insert: Pick<RedemptionRow, "user_id" | "reward_id" | "points"> & Partial<RedemptionRow>;
+        Update: Partial<RedemptionRow>;
+      };
+      certificates: {
+        Row: CertificateRow;
+        Insert: Pick<CertificateRow, "user_id"> & Partial<CertificateRow>;
+        Update: Partial<CertificateRow>;
+      };
+      pharmacy_purchases: {
+        Row: PharmacyPurchaseRow;
+        Insert: Pick<PharmacyPurchaseRow, "pharmacy_id"> & Partial<PharmacyPurchaseRow>;
+        Update: Partial<PharmacyPurchaseRow>;
+      };
+    };
+    Views: Record<string, never>;
+    Functions: {
+      is_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+    };
+  };
+};
