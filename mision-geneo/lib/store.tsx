@@ -177,6 +177,15 @@ export function redeem(rewardId: string): boolean {
   return ok;
 }
 
+/**
+ * Cierra la sesión: vuelve al registro pero CONSERVA el progreso y los canjes
+ * guardados (como un logout real: si volvés a entrar, seguís donde estabas).
+ * Para borrar todo, usar reset().
+ */
+export function logout() {
+  mutate((prev) => ({ ...prev, user: null }));
+}
+
 /** Reinicia el demo completo: usuario, progreso y canjes. */
 export function reset() {
   mutate(() => EMPTY);
@@ -186,10 +195,11 @@ export type AppState = Snapshot & {
   register: typeof register;
   completeMission: typeof completeMission;
   redeem: typeof redeem;
+  logout: typeof logout;
   reset: typeof reset;
 };
 
 export function useApp(): AppState {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  return { ...snap, register, completeMission, redeem, reset };
+  return { ...snap, register, completeMission, redeem, logout, reset };
 }

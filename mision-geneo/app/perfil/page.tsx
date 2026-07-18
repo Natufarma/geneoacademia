@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Award, CheckCircle2, Circle, Gift, LogOut, Package, User } from "lucide-react";
+import { Award, CheckCircle2, Circle, Gift, LogOut, Package, RotateCcw, User } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
@@ -10,6 +10,14 @@ import { getLevel } from "@/lib/levels";
 import { getPharmacy } from "@/lib/pharmacies";
 import { getReward } from "@/lib/rewards";
 import { useApp } from "@/lib/store";
+
+// Revelado escalonado al entrar en viewport (Ley de Movimiento: spring, sin tween).
+const reveal = {
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-40px" },
+  transition: { type: "spring", stiffness: 260, damping: 28 },
+} as const;
 
 export default function Perfil() {
   return (
@@ -20,7 +28,7 @@ export default function Perfil() {
 }
 
 function PerfilContent() {
-  const { user, progress, points, redemptions, isSpecialist, reset } = useApp();
+  const { user, progress, points, redemptions, isSpecialist, logout, reset } = useApp();
   const pharmacy = user ? getPharmacy(user.pharmacyId) : undefined;
   const level = getLevel(points);
   const completedCount = MISSIONS.filter((m) => progress[m.slug]).length;
@@ -65,13 +73,13 @@ function PerfilContent() {
       </motion.section>
 
       {/* Niveles de Especialista (Academia, etapa 2) */}
-      <section className="flex flex-col gap-3">
+      <motion.section {...reveal} className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Tus niveles</h2>
         <LevelsLadder points={points} />
-      </section>
+      </motion.section>
 
       {/* Historial de misiones */}
-      <section className="flex flex-col gap-3">
+      <motion.section {...reveal} className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Historial de misiones</h2>
         <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
           {MISSIONS.map((m) => {
@@ -150,10 +158,10 @@ function PerfilContent() {
             );
           })}
         </div>
-      </section>
+      </motion.section>
 
       {/* Premios canjeados */}
-      <section className="flex flex-col gap-3">
+      <motion.section {...reveal} className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Premios canjeados</h2>
         {isSpecialist || redemptions.length > 0 ? (
           <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
@@ -204,15 +212,15 @@ function PerfilContent() {
             .
           </p>
         )}
-      </section>
+      </motion.section>
 
       {/* Certificados */}
-      <section className="flex flex-col gap-3">
+      <motion.section {...reveal} className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Certificados</h2>
         {isSpecialist ? (
           <Link
             href="/certificado"
-            className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4 hover:shadow-card transition-shadow"
+            className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4 hover:shadow-card active:shadow-card transition-shadow"
           >
             <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
               <Award size={20} />
@@ -228,21 +236,35 @@ function PerfilContent() {
             <strong className="text-geneo">Especialista Geneo</strong>.
           </p>
         )}
-      </section>
+      </motion.section>
 
-      {/* Reiniciar demo */}
-      <button
-        type="button"
-        onClick={() => {
-          if (window.confirm("¿Reiniciar el demo? Se borra el progreso de este teléfono.")) {
-            reset();
-          }
-        }}
-        className="inline-flex items-center justify-center gap-2 min-h-11 text-soft hover:text-muted text-xs font-semibold uppercase tracking-wide transition-colors"
-      >
-        <LogOut size={14} />
-        Reiniciar demo
-      </button>
+      {/* Sesión */}
+      <motion.div {...reveal} className="flex flex-col items-center gap-3 pt-2">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm("¿Cerrar sesión? Tu progreso queda guardado en este teléfono.")) {
+              logout();
+            }
+          }}
+          className="w-full inline-flex items-center justify-center gap-2 min-h-11 rounded-full border-2 border-line text-muted hover:border-geneo hover:text-geneo active:border-geneo active:text-geneo font-bold uppercase tracking-wide text-sm px-6 py-3 transition-colors"
+        >
+          <LogOut size={16} />
+          Cerrar sesión
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm("¿Reiniciar el demo? Se borra el progreso de este teléfono.")) {
+              reset();
+            }
+          }}
+          className="inline-flex items-center justify-center gap-2 min-h-11 text-soft hover:text-muted active:text-muted text-xs font-semibold uppercase tracking-wide transition-colors"
+        >
+          <RotateCcw size={14} />
+          Reiniciar demo
+        </button>
+      </motion.div>
     </div>
   );
 }
