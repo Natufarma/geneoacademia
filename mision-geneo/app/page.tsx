@@ -129,37 +129,25 @@ export default function Bienvenida() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
-          className="bg-paper rounded-3xl shadow-card overflow-hidden flex flex-col gap-5"
+          className="bg-paper rounded-3xl shadow-card p-6 flex flex-col gap-4"
         >
-          <div className="px-6 pt-6 flex flex-col gap-4">
-            <Image
-              src="/img/logo-fuxia.webp"
-              alt="Geneo"
-              width={104}
-              height={34}
-              priority
-            />
-            <div className="flex flex-col gap-2">
-              <h1 className="text-ink font-extrabold text-3xl leading-tight tracking-tight">
-                ¡Bienvenida!
-                <br />
-                A tu misión
-              </h1>
-              <p className="text-muted text-base leading-relaxed">
-                Convertite en{" "}
-                <strong className="text-ink font-bold">Especialista Beauty Wellness</strong>.
-              </p>
-            </div>
-          </div>
-          <div className="relative aspect-[4/5] w-full">
-            <Image
-              src="/img/bienvenida.webp"
-              alt=""
-              fill
-              sizes="(max-width: 480px) 100vw, 420px"
-              className="object-cover object-top"
-              priority
-            />
+          <Image
+            src="/img/logo-fuxia.webp"
+            alt="Geneo"
+            width={104}
+            height={34}
+            priority
+          />
+          <div className="flex flex-col gap-2">
+            <h1 className="text-ink font-extrabold text-3xl leading-tight tracking-tight">
+              ¡Bienvenida!
+              <br />
+              A tu misión
+            </h1>
+            <p className="text-muted text-base leading-relaxed">
+              Convertite en{" "}
+              <strong className="text-ink font-bold">Especialista Beauty Wellness</strong>.
+            </p>
           </div>
         </motion.section>
 

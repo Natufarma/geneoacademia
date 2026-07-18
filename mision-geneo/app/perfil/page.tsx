@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Award, CheckCircle2, Circle, Gift, LogOut, Package, RotateCcw, User } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
+import InstallButton from "@/components/InstallButton";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { getReward } from "@/lib/rewards";
@@ -249,6 +250,17 @@ function PerfilContent() {
             <strong className="text-geneo">Especialista Geneo</strong>.
           </p>
         )}
+      </motion.section>
+
+      {/* La app (instalar PWA) */}
+      <motion.section {...reveal} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-ink font-bold text-lg tracking-tight">La app</h2>
+          <p className="text-muted text-sm">
+            Instalala en tu teléfono para tenerla a un toque, sin abrir el navegador.
+          </p>
+        </div>
+        <InstallButton />
       </motion.section>
 
       {/* Sesión */}

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import RegisterSW from "@/components/RegisterSW";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -17,10 +18,15 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   icons: {
     icon: [
-      { url: "/img/isotipo.png", sizes: "any" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: { url: "/icon-192.png", sizes: "192x192" },
+    apple: { url: "/apple-icon.png", sizes: "180x180" },
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Misión Geneo",
   },
 };
 
@@ -36,7 +42,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es-AR" className={montserrat.variable}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <RegisterSW />
+      </body>
     </html>
   );
 }
