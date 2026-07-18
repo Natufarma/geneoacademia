@@ -19,3 +19,6 @@ landing/deploy-*.zip
 # Material de scratch (capturas viejas y de debug, no son parte del sitio)
 REFERENCIA/
 Errores/
+
+# Credenciales locales (NO subir a git)
+CREDENCIALES-GENEO-ACADEMIA.md
