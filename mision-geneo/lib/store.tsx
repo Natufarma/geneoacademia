@@ -1,17 +1,22 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { MISSIONS } from "@/lib/missions";
 import { getReward } from "@/lib/rewards";
 
 /**
- * Estado del demo: usuario + progreso, persistido en localStorage y expuesto
- * como store externo vía useSyncExternalStore (sin mismatch de hidratación:
- * el snapshot del servidor es "vacío, no listo" y React re-renderiza con el
- * snapshot real del cliente después de montar).
+ * Estado de la app respaldado en Supabase (fase 2).
  *
- * Toda la persistencia pasa por load/save de este módulo, así en la fase 2
- * se reemplaza por Supabase sin tocar las pantallas.
+ * Auth: sesión ANÓNIMA (cada dispositivo = un usuario real en la base, sin
+ * fricción). El perfil (nombre + farmacia) se crea al registrarse. El progreso,
+ * los canjes y el certificado se guardan en la base central para que el panel
+ * de administrador los pueda ver.
+ *
+ * La API pública `useApp()` es idéntica a la del demo con localStorage, así las
+ * pantallas no cambian de lógica. La persistencia se expone vía
+ * useSyncExternalStore: el snapshot del servidor es "no listo" y el cliente
+ * hidrata con los datos reales de Supabase después de montar.
  */
 
 export type DemoUser = {
@@ -29,38 +34,46 @@ export type Redemption = {
   redeemedAt: string; // ISO
 };
 
-type PersistedState = {
-  v: 1;
-  user: DemoUser | null;
-  progress: Record<string, MissionProgress>;
-  /** Canjes de premios (ausente en datos guardados viejos: migra a []). */
-  redemptions: Redemption[];
+export type PharmacyOption = {
+  id: string;
+  name: string;
 };
 
 type Snapshot = {
-  /** false hasta hidratar desde localStorage (evita mismatch SSR/cliente). */
+  /** false hasta cargar la sesión + datos desde Supabase. */
   ready: boolean;
   user: DemoUser | null;
+  /** Nombre de la farmacia del usuario (resuelto desde la base). */
+  pharmacyName: string | null;
+  /** Farmacias disponibles (para el selector del registro y el ranking). */
+  pharmacies: PharmacyOption[];
   progress: Record<string, MissionProgress>;
-  /**
-   * Puntos GANADOS (acumulado histórico): define nivel, anillo de progreso y
-   * certificado. No baja nunca, ni al canjear premios.
-   */
+  /** Puntos GANADOS (histórico): nivel, anillo, certificado. No baja al canjear. */
   points: number;
-  /** Saldo CANJEABLE: ganados − gastados en canjes. Define qué se puede canjear. */
+  /** Saldo CANJEABLE: ganados − gastados. */
   balance: number;
   redemptions: Redemption[];
-  /** true cuando las 6 misiones están completas. */
+  /** true cuando las 6 misiones core están completas. */
   isSpecialist: boolean;
 };
 
-const STORAGE_KEY = "mision-geneo:v1";
-
-const EMPTY: PersistedState = { v: 1, user: null, progress: {}, redemptions: [] };
+const EMPTY_READY = (pharmacies: PharmacyOption[]): Snapshot => ({
+  ready: true,
+  user: null,
+  pharmacyName: null,
+  pharmacies,
+  progress: {},
+  points: 0,
+  balance: 0,
+  redemptions: [],
+  isSpecialist: false,
+});
 
 const SERVER_SNAPSHOT: Snapshot = {
   ready: false,
   user: null,
+  pharmacyName: null,
+  pharmacies: [],
   progress: {},
   points: 0,
   balance: 0,
@@ -68,57 +81,226 @@ const SERVER_SNAPSHOT: Snapshot = {
   isSpecialist: false,
 };
 
-function load(): PersistedState {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return EMPTY;
-    const parsed = JSON.parse(raw) as PersistedState;
-    if (parsed?.v !== 1) return EMPTY;
-    return { ...EMPTY, ...parsed };
-  } catch {
-    return EMPTY;
-  }
+// ─── Estado del módulo ──────────────────────────────────────────────────────
+
+let snapshot: Snapshot = SERVER_SNAPSHOT;
+let authUserId: string | null = null;
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((l) => l());
 }
 
-function save(state: PersistedState) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // localStorage lleno o bloqueado: el demo sigue funcionando en memoria.
-  }
+function setSnapshot(next: Snapshot) {
+  snapshot = next;
+  emit();
+}
+
+// Cliente Supabase del navegador, instanciado bajo demanda (nunca en build).
+let supabase: ReturnType<typeof createClient> | null = null;
+function sb() {
+  if (!supabase) supabase = createClient();
+  return supabase;
 }
 
 function spentPoints(redemptions: Redemption[]): number {
   return redemptions.reduce((acc, r) => acc + (getReward(r.rewardId)?.points ?? 0), 0);
 }
 
-function computeSnapshot(state: PersistedState): Snapshot {
-  const points = Object.values(state.progress).reduce((acc, p) => acc + p.score, 0);
-  const balance = Math.max(0, points - spentPoints(state.redemptions));
-  const isSpecialist = MISSIONS.every((m) => Boolean(state.progress[m.slug]));
+/** Arma el snapshot logueado desde las filas crudas de la base. */
+function buildSnapshot(
+  profile: { name: string; pharmacy_id: string | null },
+  prog: { mission_slug: string; score: number; completed_at: string }[],
+  reds: { reward_id: string; created_at: string }[],
+  pharmacies: PharmacyOption[],
+): Snapshot {
+  const progress: Record<string, MissionProgress> = {};
+  for (const r of prog) {
+    progress[r.mission_slug] = { score: r.score, completedAt: r.completed_at };
+  }
+  const redemptions: Redemption[] = reds.map((r) => ({
+    rewardId: r.reward_id,
+    redeemedAt: r.created_at,
+  }));
+  const points = Object.values(progress).reduce((acc, p) => acc + p.score, 0);
+  const balance = Math.max(0, points - spentPoints(redemptions));
+  const isSpecialist = MISSIONS.every((m) => Boolean(progress[m.slug]));
+  const pharmacyName =
+    pharmacies.find((p) => p.id === profile.pharmacy_id)?.name ?? null;
+
   return {
     ready: true,
-    user: state.user,
-    progress: state.progress,
+    user: { name: profile.name, pharmacyId: profile.pharmacy_id ?? "" },
+    pharmacyName,
+    pharmacies,
+    progress,
     points,
     balance,
-    redemptions: state.redemptions,
+    redemptions,
     isSpecialist,
   };
 }
 
-let persisted: PersistedState = EMPTY;
-let snapshot: Snapshot = SERVER_SNAPSHOT;
-
-// Hidratación única al cargar el módulo en el navegador (antes del primer render).
-if (typeof window !== "undefined") {
-  persisted = load();
-  snapshot = computeSnapshot(persisted);
+/** Recalcula puntos/saldo/especialista tras un cambio local optimista. */
+function reproject(progress: Record<string, MissionProgress>, redemptions: Redemption[]) {
+  const points = Object.values(progress).reduce((acc, p) => acc + p.score, 0);
+  const balance = Math.max(0, points - spentPoints(redemptions));
+  const isSpecialist = MISSIONS.every((m) => Boolean(progress[m.slug]));
+  setSnapshot({ ...snapshot, progress, redemptions, points, balance, isSpecialist });
+  return { points, balance, isSpecialist };
 }
 
-const listeners = new Set<() => void>();
+async function loadPharmacies(): Promise<PharmacyOption[]> {
+  const { data } = await sb().from("pharmacies").select("id, name").order("name");
+  return data ?? [];
+}
+
+async function loadUser(userId: string, pharmacies: PharmacyOption[]): Promise<Snapshot> {
+  const client = sb();
+  const [{ data: profile }, { data: prog }, { data: reds }] = await Promise.all([
+    client.from("profiles").select("name, pharmacy_id").eq("id", userId).maybeSingle(),
+    client.from("mission_progress").select("mission_slug, score, completed_at").eq("user_id", userId),
+    client.from("redemptions").select("reward_id, created_at").eq("user_id", userId),
+  ]);
+  if (!profile) return EMPTY_READY(pharmacies);
+  return buildSnapshot(profile, prog ?? [], reds ?? [], pharmacies);
+}
+
+// ─── Boot ───────────────────────────────────────────────────────────────────
+
+let initStarted = false;
+
+async function init() {
+  try {
+    const client = sb();
+    // Aseguramos una sesión anónima para poder listar farmacias (RLS exige auth).
+    let {
+      data: { session },
+    } = await client.auth.getSession();
+    if (!session) {
+      const { data } = await client.auth.signInAnonymously();
+      session = data.session;
+    }
+    const pharmacies = await loadPharmacies();
+    if (!session) {
+      setSnapshot(EMPTY_READY(pharmacies));
+      return;
+    }
+    authUserId = session.user.id;
+    setSnapshot(await loadUser(authUserId, pharmacies));
+  } catch {
+    // Ante cualquier fallo (red, config), abrimos en registro sin colgar la app.
+    setSnapshot(EMPTY_READY(snapshot.pharmacies));
+  }
+}
+
+function ensureInit() {
+  if (initStarted || typeof window === "undefined") return;
+  initStarted = true;
+  void init();
+}
+
+// ─── Acciones ────────────────────────────────────────────────────────────────
+
+export async function register(user: DemoUser) {
+  const client = sb();
+  let {
+    data: { session },
+  } = await client.auth.getSession();
+  if (!session) {
+    const { data } = await client.auth.signInAnonymously();
+    session = data.session;
+  }
+  if (!session) return;
+  authUserId = session.user.id;
+  await client.from("profiles").upsert({
+    id: authUserId,
+    name: user.name,
+    pharmacy_id: user.pharmacyId,
+  });
+  const pharmacies = snapshot.pharmacies.length ? snapshot.pharmacies : await loadPharmacies();
+  setSnapshot(await loadUser(authUserId, pharmacies));
+}
+
+export function completeMission(slug: string, score: number) {
+  if (!authUserId || snapshot.progress[slug]) return; // idempotente
+  // Actualización local optimista (la UI no espera la red).
+  const progress = {
+    ...snapshot.progress,
+    [slug]: { score, completedAt: new Date().toISOString() },
+  };
+  const { isSpecialist } = reproject(progress, snapshot.redemptions);
+
+  // Persistencia (fire-and-forget; la tabla es idempotente por unique).
+  const client = sb();
+  void client
+    .from("mission_progress")
+    .upsert(
+      { user_id: authUserId, mission_slug: slug, score },
+      { onConflict: "user_id,mission_slug", ignoreDuplicates: true },
+    );
+  if (isSpecialist) {
+    void client
+      .from("certificates")
+      .upsert(
+        { user_id: authUserId, type: "especialista" },
+        { onConflict: "user_id,type", ignoreDuplicates: true },
+      );
+  }
+}
+
+export function redeem(rewardId: string): boolean {
+  const reward = getReward(rewardId);
+  if (!reward || !authUserId) return false;
+  if (snapshot.redemptions.some((r) => r.rewardId === rewardId)) return false;
+  if (snapshot.balance < reward.points) return false;
+
+  const redemptions = [
+    ...snapshot.redemptions,
+    { rewardId, redeemedAt: new Date().toISOString() },
+  ];
+  reproject(snapshot.progress, redemptions);
+  void sb()
+    .from("redemptions")
+    .insert({ user_id: authUserId, reward_id: rewardId, points: reward.points });
+  return true;
+}
+
+/**
+ * Cierra la sesión en este dispositivo. Con auth anónima NO se puede volver a
+ * la misma sesión: el progreso queda guardado en la base (lo ve el admin) pero
+ * esa persona no vuelve a entrar como el mismo usuario. Vuelve al registro.
+ */
+export async function logout() {
+  await sb().auth.signOut();
+  authUserId = null;
+  initStarted = false;
+  setSnapshot(EMPTY_READY(snapshot.pharmacies));
+  ensureInit(); // nueva sesión anónima para el próximo registro
+}
+
+/** Borra los datos del usuario actual y vuelve al registro (helper de demo). */
+export async function reset() {
+  const client = sb();
+  if (authUserId) {
+    await Promise.all([
+      client.from("mission_progress").delete().eq("user_id", authUserId),
+      client.from("redemptions").delete().eq("user_id", authUserId),
+      client.from("certificates").delete().eq("user_id", authUserId),
+    ]);
+    await client.from("profiles").delete().eq("id", authUserId);
+  }
+  await client.auth.signOut();
+  authUserId = null;
+  initStarted = false;
+  setSnapshot(EMPTY_READY(snapshot.pharmacies));
+  ensureInit();
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 function subscribe(listener: () => void): () => void {
+  ensureInit();
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
@@ -129,66 +311,6 @@ function getSnapshot(): Snapshot {
 
 function getServerSnapshot(): Snapshot {
   return SERVER_SNAPSHOT;
-}
-
-function mutate(updater: (prev: PersistedState) => PersistedState) {
-  persisted = updater(persisted);
-  save(persisted);
-  snapshot = computeSnapshot(persisted);
-  listeners.forEach((l) => l());
-}
-
-export function register(user: DemoUser) {
-  mutate((prev) => ({ ...prev, user }));
-}
-
-export function completeMission(slug: string, score: number) {
-  mutate((prev) => {
-    // Idempotente: una misión ya completada no vuelve a sumar puntos.
-    if (prev.progress[slug]) return prev;
-    return {
-      ...prev,
-      progress: {
-        ...prev.progress,
-        [slug]: { score, completedAt: new Date().toISOString() },
-      },
-    };
-  });
-}
-
-/**
- * Canjea un premio si el saldo alcanza y no fue canjeado antes.
- * Devuelve true si el canje se concretó.
- */
-export function redeem(rewardId: string): boolean {
-  const reward = getReward(rewardId);
-  if (!reward) return false;
-  let ok = false;
-  mutate((prev) => {
-    if (prev.redemptions.some((r) => r.rewardId === rewardId)) return prev;
-    const earned = Object.values(prev.progress).reduce((acc, p) => acc + p.score, 0);
-    if (earned - spentPoints(prev.redemptions) < reward.points) return prev;
-    ok = true;
-    return {
-      ...prev,
-      redemptions: [...prev.redemptions, { rewardId, redeemedAt: new Date().toISOString() }],
-    };
-  });
-  return ok;
-}
-
-/**
- * Cierra la sesión: vuelve al registro pero CONSERVA el progreso y los canjes
- * guardados (como un logout real: si volvés a entrar, seguís donde estabas).
- * Para borrar todo, usar reset().
- */
-export function logout() {
-  mutate((prev) => ({ ...prev, user: null }));
-}
-
-/** Reinicia el demo completo: usuario, progreso y canjes. */
-export function reset() {
-  mutate(() => EMPTY);
 }
 
 export type AppState = Snapshot & {

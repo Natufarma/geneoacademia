@@ -21,7 +21,9 @@ export default function Ranking() {
 }
 
 function RankingContent() {
-  const { user } = useApp();
+  const { pharmacyName } = useApp();
+  // TODO fase 2: agregado real de puntos por farmacia (compras sell-in +
+  // misiones del equipo). Por ahora el ranking usa puntajes de referencia.
   const sorted = [...PHARMACIES].sort((a, b) => b.rankingPoints - a.rankingPoints);
 
   return (
@@ -35,7 +37,7 @@ function RankingContent() {
 
       <ol className="flex flex-col gap-3">
         {sorted.map((p, i) => {
-          const isMine = p.id === user?.pharmacyId;
+          const isMine = p.name === pharmacyName;
           const medal = MEDAL[i];
           return (
             <motion.li

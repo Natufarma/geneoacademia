@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X, Check, ArrowRight, Lock, Star, Award } from "lucide-react";
 import Confetti from "@/components/Confetti";
 import { MISSIONS, getMission, stepPoints, type Mission, type StepContent, type StepMatch, type StepQuiz } from "@/lib/missions";
-import { getPharmacy } from "@/lib/pharmacies";
 import { useApp } from "@/lib/store";
 
 /**
@@ -19,7 +18,7 @@ import { useApp } from "@/lib/store";
 export default function MissionPlayer({ slug }: { slug: string }) {
   const mission = getMission(slug);
   const router = useRouter();
-  const { user, progress, completeMission, points, isSpecialist } = useApp();
+  const { pharmacyName, progress, completeMission, points, isSpecialist } = useApp();
   const [stepIndex, setStepIndex] = useState(0);
   const [finished, setFinished] = useState(false);
 
@@ -84,7 +83,7 @@ export default function MissionPlayer({ slug }: { slug: string }) {
         mission={mission}
         totalPoints={points}
         progress={progress}
-        pharmacyName={user ? getPharmacy(user.pharmacyId)?.name : undefined}
+        pharmacyName={pharmacyName ?? undefined}
       />
     );
   }

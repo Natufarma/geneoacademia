@@ -6,32 +6,39 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Gamepad2, Star, Gift, ArrowRight } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { PHARMACIES } from "@/lib/pharmacies";
 
 /**
- * Bienvenida + registro demo. En producción se llega acá desde el QR de la
- * farmacia (la farmacia viene precargada); en el demo se elige de una lista.
+ * Bienvenida + registro. En producción se llega acá desde el QR de la
+ * farmacia (la farmacia viene precargada); en el demo se elige de la lista
+ * de farmacias que trae la base.
  */
 export default function Bienvenida() {
-  const { ready, user, register } = useApp();
+  const { ready, user, pharmacies, register } = useApp();
   const router = useRouter();
   const [name, setName] = useState("");
   const [pharmacyId, setPharmacyId] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (ready && user) router.replace("/misiones");
   }, [ready, user, router]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const cleanName = name.trim();
     if (!cleanName || !pharmacyId) {
       setError("Completá tu nombre y elegí tu farmacia para empezar.");
       return;
     }
-    register({ name: cleanName, pharmacyId });
-    router.push("/misiones");
+    setSubmitting(true);
+    try {
+      await register({ name: cleanName, pharmacyId });
+      router.push("/misiones");
+    } catch {
+      setError("No pudimos registrarte. Revisá tu conexión e intentá de nuevo.");
+      setSubmitting(false);
+    }
   };
 
   if (!ready || user) {
@@ -134,9 +141,9 @@ export default function Bienvenida() {
               }`}
             >
               <option value="" disabled>
-                Elegí tu farmacia
+                {pharmacies.length ? "Elegí tu farmacia" : "Cargando farmacias…"}
               </option>
-              {PHARMACIES.map((p) => (
+              {pharmacies.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
                 </option>
@@ -152,9 +159,10 @@ export default function Bienvenida() {
 
           <button
             type="submit"
-            className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover text-white font-bold uppercase tracking-wide text-sm px-6 py-4 transition-colors"
+            disabled={submitting}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft text-white font-bold uppercase tracking-wide text-sm px-6 py-4 transition-colors"
           >
-            ¡Aceptá la misión!
+            {submitting ? "Entrando…" : "¡Aceptá la misión!"}
             <ArrowRight size={18} />
           </button>
 

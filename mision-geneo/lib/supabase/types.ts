@@ -56,7 +56,7 @@ export type PharmacyPurchaseRow = {
   created_at: string;
 };
 
-/** Shape mínimo que consume @supabase/supabase-js para tipar queries. */
+/** Shape que consume @supabase/supabase-js para tipar queries. */
 export type Database = {
   public: {
     Tables: {
@@ -64,32 +64,38 @@ export type Database = {
         Row: PharmacyRow;
         Insert: Partial<PharmacyRow> & Pick<PharmacyRow, "code" | "name">;
         Update: Partial<PharmacyRow>;
+        Relationships: [];
       };
       profiles: {
         Row: ProfileRow;
         Insert: Pick<ProfileRow, "id" | "name"> & Partial<ProfileRow>;
         Update: Partial<ProfileRow>;
+        Relationships: [];
       };
       mission_progress: {
         Row: MissionProgressRow;
         Insert: Pick<MissionProgressRow, "user_id" | "mission_slug" | "score"> &
           Partial<MissionProgressRow>;
         Update: Partial<MissionProgressRow>;
+        Relationships: [];
       };
       redemptions: {
         Row: RedemptionRow;
         Insert: Pick<RedemptionRow, "user_id" | "reward_id" | "points"> & Partial<RedemptionRow>;
         Update: Partial<RedemptionRow>;
+        Relationships: [];
       };
       certificates: {
         Row: CertificateRow;
         Insert: Pick<CertificateRow, "user_id"> & Partial<CertificateRow>;
         Update: Partial<CertificateRow>;
+        Relationships: [];
       };
       pharmacy_purchases: {
         Row: PharmacyPurchaseRow;
         Insert: Pick<PharmacyPurchaseRow, "pharmacy_id"> & Partial<PharmacyPurchaseRow>;
         Update: Partial<PharmacyPurchaseRow>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;
@@ -99,5 +105,7 @@ export type Database = {
         Returns: boolean;
       };
     };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };

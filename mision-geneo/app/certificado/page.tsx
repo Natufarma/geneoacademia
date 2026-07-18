@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { Check, Copy, Download, Lock, ArrowRight, Share2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { useApp } from "@/lib/store";
-import { getPharmacy } from "@/lib/pharmacies";
 import { TOTAL_POINTS } from "@/lib/missions";
 
 export default function Certificado() {
@@ -19,8 +18,7 @@ export default function Certificado() {
 }
 
 function CertificadoContent() {
-  const { user, isSpecialist, points } = useApp();
-  const pharmacy = user ? getPharmacy(user.pharmacyId) : undefined;
+  const { user, pharmacyName, isSpecialist, points } = useApp();
 
   if (!isSpecialist) {
     return (
@@ -39,7 +37,7 @@ function CertificadoContent() {
         </div>
         <Link
           href="/misiones"
-          className="inline-flex items-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover text-white font-bold uppercase tracking-wide text-sm px-6 py-3.5 transition-colors"
+          className="inline-flex items-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover text-white font-bold uppercase tracking-wide text-sm px-6 py-3.5 transition-colors"
         >
           Seguir mi viaje
           <ArrowRight size={17} />
@@ -56,9 +54,9 @@ function CertificadoContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="no-print">
+      <header className="no-print flex flex-col gap-1">
         <h1 className="text-ink font-extrabold text-2xl tracking-tight">Tu certificado</h1>
-        <p className="text-muted text-sm mt-1">
+        <p className="text-muted text-sm">
           Descargalo y compartilo con orgullo. #PielSaludable
         </p>
       </header>
@@ -90,7 +88,7 @@ function CertificadoContent() {
             <p className="text-ink font-extrabold text-3xl tracking-tight leading-tight">
               {user?.name}
             </p>
-            <p className="text-muted text-base">{pharmacy?.name}</p>
+            <p className="text-muted text-base">{pharmacyName}</p>
           </div>
 
           <p className="text-muted text-sm leading-relaxed max-w-xs">
@@ -100,18 +98,18 @@ function CertificadoContent() {
           </p>
 
           <div className="flex items-center gap-6 text-sm">
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
               <span className="text-geneo font-extrabold text-lg leading-none">
                 {points} pts
               </span>
-              <span className="text-soft text-[11px] font-semibold uppercase tracking-wide mt-1">
+              <span className="text-soft text-[11px] font-semibold uppercase tracking-wide">
                 de {TOTAL_POINTS}
               </span>
             </div>
             <div className="w-px h-9 bg-line" aria-hidden="true" />
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
               <span className="text-ink font-bold leading-none">{date}</span>
-              <span className="text-soft text-[11px] font-semibold uppercase tracking-wide mt-1">
+              <span className="text-soft text-[11px] font-semibold uppercase tracking-wide">
                 Farmacias Aliadas
               </span>
             </div>
@@ -174,7 +172,7 @@ function ShareButton() {
     <button
       type="button"
       onClick={share}
-      className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-geneo text-geneo hover:bg-rosa-suave/60 font-bold uppercase tracking-wide text-sm px-5 py-4 transition-colors"
+      className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-geneo text-geneo hover:bg-rosa-suave/60 active:bg-rosa-suave/60 font-bold uppercase tracking-wide text-sm px-5 py-4 transition-colors"
     >
       <Share2 size={18} />
       Compartir
@@ -199,7 +197,7 @@ function CopyShareText() {
     <button
       type="button"
       onClick={copy}
-      className="inline-flex items-center justify-center gap-1.5 min-h-11 text-soft hover:text-muted text-xs font-semibold uppercase tracking-wide transition-colors"
+      className="inline-flex items-center justify-center gap-1.5 min-h-11 text-soft hover:text-muted active:text-muted text-xs font-semibold uppercase tracking-wide transition-colors"
     >
       {copied ? (
         <>

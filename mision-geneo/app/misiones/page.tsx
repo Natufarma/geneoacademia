@@ -9,7 +9,6 @@ import ProgressRing from "@/components/ProgressRing";
 import SorteoBanner from "@/components/SorteoBanner";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS, TOTAL_POINTS } from "@/lib/missions";
 import { getLevel, getNextLevel } from "@/lib/levels";
-import { getPharmacy } from "@/lib/pharmacies";
 import { useApp } from "@/lib/store";
 
 export default function Misiones() {
@@ -21,8 +20,7 @@ export default function Misiones() {
 }
 
 function MisionesContent() {
-  const { user, progress, points, balance, isSpecialist } = useApp();
-  const pharmacy = user ? getPharmacy(user.pharmacyId) : undefined;
+  const { user, pharmacyName, progress, points, balance, isSpecialist } = useApp();
   const level = getLevel(points);
   const next = getNextLevel(points);
   const firstName = user?.name.split(" ")[0] ?? "";
@@ -36,7 +34,7 @@ function MisionesContent() {
       <header className="flex items-center justify-between gap-3">
         <div className="flex flex-col">
           <p className="text-ink font-bold text-xl tracking-tight">Hola, {firstName} 👋</p>
-          <p className="text-muted text-sm">{pharmacy?.name}</p>
+          <p className="text-muted text-sm">{pharmacyName}</p>
         </div>
         <Image src="/img/logo-fuxia.webp" alt="Geneo" width={86} height={28} priority />
       </header>

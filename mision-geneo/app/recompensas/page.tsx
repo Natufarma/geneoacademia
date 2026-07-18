@@ -7,7 +7,6 @@ import { Check, Coffee, CupSoda, Package, Sparkles, Star, type LucideIcon } from
 import AppShell from "@/components/AppShell";
 import SorteoBanner from "@/components/SorteoBanner";
 import { REWARDS, getReward, type Reward } from "@/lib/rewards";
-import { getPharmacy } from "@/lib/pharmacies";
 import { useApp } from "@/lib/store";
 
 /** Íconos por premio (no hay fotos del merchandising: cards con glifo de marca). */
@@ -26,8 +25,7 @@ export default function Recompensas() {
 }
 
 function RecompensasContent() {
-  const { user, points, balance, redemptions, isSpecialist, redeem } = useApp();
-  const pharmacy = user ? getPharmacy(user.pharmacyId) : undefined;
+  const { pharmacyName, points, balance, redemptions, isSpecialist, redeem } = useApp();
   const hasPrizes = isSpecialist || redemptions.length > 0;
 
   const onRedeem = (reward: Reward) => {
@@ -38,9 +36,9 @@ function RecompensasContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
+      <header className="flex flex-col gap-1">
         <h1 className="text-ink font-extrabold text-2xl tracking-tight">Recompensas</h1>
-        <p className="text-muted text-sm mt-1">Canjeá tus puntos por premios increíbles.</p>
+        <p className="text-muted text-sm">Canjeá tus puntos por premios increíbles.</p>
       </header>
 
       {/* Saldo */}
@@ -50,18 +48,18 @@ function RecompensasContent() {
         transition={{ type: "spring", stiffness: 260, damping: 28 }}
         className="rounded-3xl bg-gradient-to-br from-geneo to-geneo-dark text-white shadow-card px-6 py-5 flex items-center justify-between gap-4"
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1.5">
           <p className="font-extrabold text-3xl leading-none">{balance} pts</p>
-          <p className="text-white/80 text-xs font-semibold uppercase tracking-wide mt-1.5">
+          <p className="text-white/80 text-xs font-semibold uppercase tracking-wide">
             Saldo canjeable
           </p>
         </div>
-        <div className="text-right">
+        <div className="flex flex-col items-end gap-1 text-right">
           <p className="flex items-center justify-end gap-1.5 text-white/90 text-sm font-bold">
             <Star size={15} className="fill-white/90" />
             {points} pts ganados
           </p>
-          <p className="text-white/70 text-xs leading-snug mt-1 max-w-44">
+          <p className="text-white/70 text-xs leading-snug max-w-44">
             Canjear no baja tu nivel: solo descuenta del saldo.
           </p>
         </div>
@@ -77,15 +75,15 @@ function RecompensasContent() {
                 <span className="relative w-14 h-14 rounded-2xl bg-rosa-suave/60 overflow-hidden shrink-0">
                   <Image src="/img/prod-45.webp" alt="" fill className="object-contain p-1" />
                 </span>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
                   <p className="text-soft text-[10px] font-bold uppercase tracking-widest">
                     Premio inmediato
                   </p>
-                  <p className="text-ink font-bold text-sm leading-tight mt-0.5">
+                  <p className="text-ink font-bold text-sm leading-tight">
                     Pack de muestras Geneo 45+
                   </p>
-                  <p className="text-geneo text-xs font-semibold mt-1">
-                    Envío sin cargo · En camino a {pharmacy?.name}
+                  <p className="text-geneo text-xs font-semibold">
+                    Envío sin cargo · En camino a {pharmacyName}
                   </p>
                 </div>
               </div>
@@ -102,13 +100,13 @@ function RecompensasContent() {
                   <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave/60 text-geneo shrink-0">
                     <Icon size={24} />
                   </span>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex flex-col gap-1">
                     <p className="text-ink font-bold text-sm leading-tight">{reward.name}</p>
-                    <p className="text-soft text-xs mt-0.5">
+                    <p className="text-soft text-xs">
                       Canjeado el {new Date(r.redeemedAt).toLocaleDateString("es-AR")} ·{" "}
                       {reward.points} pts
                     </p>
-                    <p className="text-geneo text-xs font-semibold mt-1">
+                    <p className="text-geneo text-xs font-semibold">
                       Pendiente de entrega en tu farmacia
                     </p>
                   </div>
@@ -141,11 +139,11 @@ function RecompensasContent() {
                 <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave text-geneo shrink-0">
                   <Icon size={24} />
                 </span>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                   <p className="text-ink font-bold text-sm leading-tight">{reward.name}</p>
-                  <p className="text-geneo font-extrabold text-sm mt-0.5">{reward.points} pts</p>
+                  <p className="text-geneo font-extrabold text-sm">{reward.points} pts</p>
                   {!redeemed && !affordable && (
-                    <p className="text-soft text-xs mt-0.5">Te faltan {missing} pts</p>
+                    <p className="text-soft text-xs">Te faltan {missing} pts</p>
                   )}
                 </div>
                 {redeemed ? (
@@ -174,7 +172,10 @@ function RecompensasContent() {
       {!isSpecialist && (
         <p className="text-muted text-sm text-center">
           ¿Querés más puntos?{" "}
-          <Link href="/misiones" className="text-geneo font-bold underline underline-offset-2">
+          <Link
+            href="/misiones"
+            className="text-geneo font-bold underline underline-offset-2 inline-block py-3 -my-3"
+          >
             Completá tus misiones
           </Link>
         </p>

@@ -7,7 +7,6 @@ import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
-import { getPharmacy } from "@/lib/pharmacies";
 import { getReward } from "@/lib/rewards";
 import { useApp } from "@/lib/store";
 
@@ -28,8 +27,7 @@ export default function Perfil() {
 }
 
 function PerfilContent() {
-  const { user, progress, points, redemptions, isSpecialist, logout, reset } = useApp();
-  const pharmacy = user ? getPharmacy(user.pharmacyId) : undefined;
+  const { user, pharmacyName, progress, points, redemptions, isSpecialist, logout, reset } = useApp();
   const level = getLevel(points);
   const completedCount = MISSIONS.filter((m) => progress[m.slug]).length;
 
@@ -47,7 +45,7 @@ function PerfilContent() {
         </span>
         <div className="flex flex-col gap-0.5">
           <h1 className="text-ink font-extrabold text-xl tracking-tight">{user?.name}</h1>
-          <p className="text-muted text-sm">{pharmacy?.name}</p>
+          <p className="text-muted text-sm">{pharmacyName}</p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-geneo text-geneo font-bold text-xs uppercase tracking-wide px-4 py-1.5">
           {isSpecialist && <Award size={14} />}
@@ -243,7 +241,7 @@ function PerfilContent() {
         <button
           type="button"
           onClick={() => {
-            if (window.confirm("¿Cerrar sesión? Tu progreso queda guardado en este teléfono.")) {
+            if (window.confirm("¿Cerrar sesión en este dispositivo? Volvés a la pantalla de inicio.")) {
               logout();
             }
           }}
