@@ -20,6 +20,19 @@ export type ProfileRow = {
   pharmacy_id: string | null;
   name: string;
   role: Role;
+  email: string | null;
+  phone: string | null;
+  created_at: string;
+};
+
+export type DailyAnswerRow = {
+  id: string;
+  user_id: string;
+  /** Día local YYYY-MM-DD (unique junto a user_id). */
+  day: string;
+  question_id: string;
+  correct: boolean;
+  points: number;
   created_at: string;
 };
 
@@ -89,6 +102,13 @@ export type Database = {
         Row: CertificateRow;
         Insert: Pick<CertificateRow, "user_id"> & Partial<CertificateRow>;
         Update: Partial<CertificateRow>;
+        Relationships: [];
+      };
+      daily_answers: {
+        Row: DailyAnswerRow;
+        Insert: Pick<DailyAnswerRow, "user_id" | "day" | "question_id" | "correct" | "points"> &
+          Partial<DailyAnswerRow>;
+        Update: Partial<DailyAnswerRow>;
         Relationships: [];
       };
       pharmacy_purchases: {

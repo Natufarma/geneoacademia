@@ -27,7 +27,8 @@ export default function Perfil() {
 }
 
 function PerfilContent() {
-  const { user, pharmacyName, progress, points, redemptions, isSpecialist, logout, reset } = useApp();
+  const { user, pharmacyName, progress, points, balance, streak, redemptions, isSpecialist, logout, reset } =
+    useApp();
   const level = getLevel(points);
   const completedCount = MISSIONS.filter((m) => progress[m.slug]).length;
 
@@ -65,6 +66,20 @@ function PerfilContent() {
             </p>
             <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
               Misiones
+            </p>
+          </div>
+          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3 flex flex-col gap-1">
+            <p className="text-geneo font-extrabold text-xl leading-none">
+              {streak} {streak === 1 ? "día" : "días"} 🔥
+            </p>
+            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
+              Racha actual
+            </p>
+          </div>
+          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3 flex flex-col gap-1">
+            <p className="text-geneo font-extrabold text-xl leading-none">{balance}</p>
+            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
+              Saldo canjeable
             </p>
           </div>
         </div>
@@ -241,7 +256,7 @@ function PerfilContent() {
         <button
           type="button"
           onClick={() => {
-            if (window.confirm("¿Cerrar sesión en este dispositivo? Volvés a la pantalla de inicio.")) {
+            if (window.confirm("¿Cerrar sesión? Podés volver a entrar con tu email y contraseña.")) {
               logout();
             }
           }}

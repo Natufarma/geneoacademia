@@ -38,6 +38,10 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
             <p className="text-muted text-sm">
               {emp.pharmacyName} · Registrado el {fmtDate(emp.createdAt)}
             </p>
+            <p className="text-muted text-sm truncate">
+              {emp.email ?? "Sin email"}
+              {emp.phone ? ` · ${emp.phone}` : ""}
+            </p>
           </div>
           <div className="ml-auto">
             <CertifiedBadge certified={emp.certified} />
@@ -57,6 +61,11 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
           label="Academia"
           value={emp.advancedDone + emp.campaignsDone}
           hint="Avanzadas + campañas"
+        />
+        <StatCard
+          label="Pregunta del día"
+          value={emp.dailyDays}
+          hint="Días de participación"
         />
       </Reveal>
 

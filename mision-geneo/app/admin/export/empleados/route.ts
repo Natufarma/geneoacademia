@@ -15,6 +15,8 @@ export async function GET() {
   const employees = await getEmployees();
   const header = [
     "Nombre",
+    "Email",
+    "Celular",
     "Farmacia",
     "Nivel",
     "Puntos",
@@ -22,9 +24,12 @@ export async function GET() {
     "Certificado",
     "Fecha certificado",
     "Campañas",
+    "Días pregunta del día",
   ];
   const rows = employees.map((e) => [
     e.name,
+    e.email ?? "",
+    e.phone ?? "",
     e.pharmacyName,
     e.levelName,
     e.points,
@@ -32,6 +37,7 @@ export async function GET() {
     e.certified ? "Sí" : "No",
     e.certifiedAt ? new Date(e.certifiedAt).toLocaleDateString("es-AR") : "",
     e.campaignsDone,
+    e.dailyDays,
   ]);
 
   // BOM (﻿) para que Excel abra bien los acentos.

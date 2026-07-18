@@ -13,7 +13,10 @@ export default function EmployeesTable({ employees }: { employees: EmployeeSumma
     const term = q.trim().toLowerCase();
     if (!term) return employees;
     return employees.filter(
-      (e) => e.name.toLowerCase().includes(term) || e.pharmacyName.toLowerCase().includes(term),
+      (e) =>
+        e.name.toLowerCase().includes(term) ||
+        e.pharmacyName.toLowerCase().includes(term) ||
+        (e.email ?? "").toLowerCase().includes(term),
     );
   }, [q, employees]);
 
@@ -24,19 +27,21 @@ export default function EmployeesTable({ employees }: { employees: EmployeeSumma
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar por nombre o farmacia…"
+          placeholder="Buscar por nombre, email o farmacia…"
           className="w-full min-h-11 rounded-full border-2 border-line bg-paper pl-10 pr-5 text-ink text-sm outline-none focus:border-geneo transition-colors"
         />
       </label>
 
       <div className="overflow-x-auto bg-paper rounded-3xl shadow-soft">
-        <div className="min-w-[760px]">
-          <div className="grid grid-cols-[1.5fr_1.2fr_1fr_auto_auto_auto] gap-4 px-5 py-3 border-b border-line text-soft text-[11px] font-bold uppercase tracking-widest">
+        <div className="min-w-[960px]">
+          <div className="grid grid-cols-[1.3fr_1.4fr_1.1fr_0.9fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-line text-soft text-[11px] font-bold uppercase tracking-widest">
             <span>Empleado</span>
+            <span>Email</span>
             <span>Farmacia</span>
             <span>Nivel</span>
             <span className="text-right">Puntos</span>
             <span className="text-center">Misiones</span>
+            <span className="text-center">Días 🔥</span>
             <span className="text-center">Estado</span>
           </div>
 
@@ -48,15 +53,17 @@ export default function EmployeesTable({ employees }: { employees: EmployeeSumma
                 <Link
                   key={e.id}
                   href={`/admin/empleados/${e.id}`}
-                  className="grid grid-cols-[1.5fr_1.2fr_1fr_auto_auto_auto] gap-4 items-center px-5 py-3.5 hover:bg-rosa-suave/30 active:bg-rosa-suave/30 transition-colors"
+                  className="grid grid-cols-[1.3fr_1.4fr_1.1fr_0.9fr_auto_auto_auto_auto] gap-4 items-center px-5 py-3.5 hover:bg-rosa-suave/30 active:bg-rosa-suave/30 transition-colors"
                 >
                   <span className="text-ink font-semibold text-sm truncate">{e.name}</span>
+                  <span className="text-muted text-sm truncate">{e.email ?? "—"}</span>
                   <span className="text-muted text-sm truncate">{e.pharmacyName}</span>
                   <span className="text-muted text-sm truncate">{e.levelName}</span>
                   <span className="text-geneo font-extrabold text-sm text-right">{e.points}</span>
                   <span className="text-ink text-sm font-semibold text-center">
                     {e.coreDone}/{e.coreTotal}
                   </span>
+                  <span className="text-ink text-sm font-semibold text-center">{e.dailyDays}</span>
                   <span className="flex justify-center">
                     <CertifiedBadge certified={e.certified} />
                   </span>

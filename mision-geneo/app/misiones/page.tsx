@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, Lock, ChevronRight, Award, BookOpen, Gift, GraduationCap, Sparkles } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import DailyQuestion from "@/components/DailyQuestion";
 import ProgressRing from "@/components/ProgressRing";
 import SorteoBanner from "@/components/SorteoBanner";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS, TOTAL_POINTS } from "@/lib/missions";
@@ -72,6 +73,9 @@ function MisionesContent() {
           <ChevronRight size={17} />
         </Link>
       </section>
+
+      {/* Pregunta del día con racha */}
+      <DailyQuestion />
 
       <SorteoBanner compact />
 
