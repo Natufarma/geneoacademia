@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Gamepad2, Star, Gift } from "lucide-react";
 import { useApp } from "@/lib/store";
 
 /**
@@ -85,6 +86,30 @@ export default function Bienvenida() {
             />
           </div>
         </motion.section>
+
+        {/* Cómo funciona */}
+        <motion.ul
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.08 }}
+          className="flex flex-col gap-3"
+        >
+          {[
+            { icon: Gamepad2, text: "Aprendé jugando en pocos minutos." },
+            { icon: Star, text: "Sumá puntos con cada misión." },
+            { icon: Gift, text: "Obtené tu certificado y participá del ranking." },
+          ].map(({ icon: Icon, text }) => (
+            <li
+              key={text}
+              className="flex items-center gap-3.5 bg-paper rounded-2xl shadow-soft px-4 py-3.5"
+            >
+              <span className="flex items-center justify-center w-10 h-10 rounded-full bg-rosa-suave text-geneo shrink-0">
+                <Icon size={20} />
+              </span>
+              <span className="text-ink text-[15px] font-medium leading-snug">{text}</span>
+            </li>
+          ))}
+        </motion.ul>
 
         {/* Registro */}
         <motion.form
