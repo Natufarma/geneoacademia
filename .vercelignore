@@ -1,0 +1,33 @@
+# Qué NO se sube a Vercel al desplegar desde el CLI.
+#
+# El proyecto tiene Root Directory = mision-geneo, pero el CLI igual sube el
+# contexto entero del repo antes de construir. Este repo mezcla la app con
+# material de trabajo pesado (video, fotos de produccion, backups), asi que sin
+# este archivo cada deploy arrastra ~100 MB al pedo — y, peor, falla con EPERM
+# cuando se topa con archivos que tienen atributos extendidos de macOS
+# (com.apple.quarantine en las capturas de WhatsApp de APP/).
+#
+# Los patrones van anclados con "/" a proposito: sin la barra, la sintaxis tipo
+# gitignore matchea en cualquier nivel y "*.jpg" borraria las imagenes de
+# mision-geneo/public, rompiendo la app.
+
+# Material de trabajo y produccion audiovisual
+/APP/
+/Fotos/
+/VIDEO/
+/Logo/
+/REFERENCIA/
+/Errores/
+/Archivos Para Crear Web Con Claude/
+
+# La otra app del repo: este proyecto solo construye mision-geneo
+/landing/
+
+# Backups y documentos sueltos en la raiz
+/*.zip
+/*.pdf
+/*.docx
+/*.jpg
+/*.jpeg
+/*.png
+/*.md
