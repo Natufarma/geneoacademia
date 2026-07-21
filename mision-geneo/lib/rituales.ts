@@ -1,10 +1,14 @@
 /**
  * Rituales combinados (pantalla 10 del mockup "Nuestros rituales"). Cada combo
  * sale de landing/components/EncontraRitual.tsx (rituales reales con sus
- * productos y packs publicados en la tienda). Los productos se referencian por
- * slug para reutilizar sus fotos desde lib/products.ts.
+ * productos). Los productos se referencian por slug para reutilizar sus fotos
+ * y sus fichas (lib/products.ts) desde la propia app.
  *
- * "Verano" usa Solar, que es próximo lanzamiento: por eso queda sin compra.
+ * Esta app es material de consulta para el mostrador: cada ritual enlaza a
+ * las fichas internas de sus productos, no a la tienda online.
+ *
+ * "Verano" usa Solar, que es próximo lanzamiento: por eso queda sin fichas
+ * disponibles para recomendar todavía.
  */
 
 export type Ritual = {
@@ -15,8 +19,6 @@ export type Ritual = {
   /** Para qué necesidad (reformulación de lo publicado). */
   para: string;
   available: boolean;
-  /** Pack combinado en la tienda; null si incluye un producto no disponible. */
-  tiendaUrl: string | null;
 };
 
 export const RITUALES: Ritual[] = [
@@ -26,8 +28,6 @@ export const RITUALES: Ritual[] = [
     productSlugs: ["piel-saludable", "beauty"],
     para: "Luminosidad integral: piel, pelo y uñas.",
     available: true,
-    tiendaUrl:
-      "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos-geneo-beauty-x-30-comprimidos-pack-promocion-x-2-unidades/",
   },
   {
     slug: "renovacion-45",
@@ -35,8 +35,6 @@ export const RITUALES: Ritual[] = [
     productSlugs: ["45", "piel-saludable"],
     para: "Firmeza y elasticidad para acompañar la piel desde los 45.",
     available: true,
-    tiendaUrl:
-      "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos-geneo-45-x-30-comprimidos-pack-promocion-x-2-unidades/",
   },
   {
     slug: "verano",
@@ -44,6 +42,5 @@ export const RITUALES: Ritual[] = [
     productSlugs: ["solar", "piel-saludable"],
     para: "Preparar la piel para el sol y broncear desde adentro.",
     available: false,
-    tiendaUrl: null,
   },
 ];

@@ -2,8 +2,10 @@
  * Los 4 productos de la línea Geneo. Datos tomados EXCLUSIVAMENTE de lo
  * publicado en la web:
  *  - fórmula y beneficio: landing/components/Rituales.tsx
- *  - presentación (formato) y tienda: URLs de tiendanatufarma.com.ar
- *    (landing/components/EncontraRitual.tsx)
+ *  - presentación (formato): landing/components/EncontraRitual.tsx
+ *
+ * Esta app es material de consulta para el mostrador (empleados de farmacia),
+ * no un canal de venta: no incluye enlaces a la tienda online.
  *
  * Los activos de cada producto NO se listan acá: se derivan de lib/actives.ts
  * (ACTIVES[].products) para tener una sola fuente de verdad. Solar no publica
@@ -19,13 +21,12 @@ export type Product = {
   paraQuien: string;
   /** Fórmula publicada; null en Solar (sin composición publicada). */
   formula: string | null;
-  /** Presentación/formato publicado en la tienda; null si no aplica. */
+  /** Presentación/formato publicado; null si no aplica. */
   presentacion: string | null;
   img: string;
   /** Clase de color de marca (Solar va en naranja). */
   accent: string;
   available: boolean;
-  tiendaUrl: string | null;
 };
 
 export const PRODUCTS: Product[] = [
@@ -39,7 +40,6 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-piel.webp",
     accent: "text-geneo",
     available: true,
-    tiendaUrl: "https://www.tiendanatufarma.com.ar/productos/geneo-piel-saludable-x-250-gramos/",
   },
   {
     slug: "beauty",
@@ -51,7 +51,6 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-beauty.webp",
     accent: "text-geneo",
     available: true,
-    tiendaUrl: "https://www.tiendanatufarma.com.ar/productos/geneo-beauty-x-30-comprimidos/",
   },
   {
     slug: "45",
@@ -63,7 +62,6 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-45.webp",
     accent: "text-geneo",
     available: true,
-    tiendaUrl: "https://www.tiendanatufarma.com.ar/productos/geneo-45-x-30-comprimidos/",
   },
   {
     slug: "solar",
@@ -75,7 +73,6 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-solar.webp",
     accent: "text-solar",
     available: false,
-    tiendaUrl: null,
   },
 ];
 

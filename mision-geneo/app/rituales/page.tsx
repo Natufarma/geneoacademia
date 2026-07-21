@@ -10,6 +10,8 @@ import { RITUALES } from "@/lib/rituales";
 import { getProduct } from "@/lib/products";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
+const reveal = { once: true, margin: "-10% 0px" } as const;
+const MotionLink = motion.create(Link);
 
 /**
  * Nuestros rituales (pantalla 10 del mockup): combos de productos con la
@@ -23,7 +25,7 @@ export default function Rituales() {
         <SectionTabs />
 
         <header className="flex flex-col gap-1">
-          <h1 className="text-ink font-extrabold text-2xl tracking-tight">
+          <h1 className="text-ink font-extrabold text-[clamp(1.375rem,0.875rem_+_2.5vw,1.5rem)] leading-snug tracking-tight">
             Nuestros <span className="text-geneo">rituales</span>
           </h1>
           <p className="text-muted text-sm">
@@ -40,8 +42,10 @@ export default function Rituales() {
             return (
               <motion.article
                 key={r.slug}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0, transition: { ...spring, delay: i * 0.07 } }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={reveal}
+                transition={{ ...spring, delay: i * 0.07 }}
                 className="flex flex-col gap-4 bg-paper rounded-3xl shadow-soft p-5"
               >
                 <div className="flex items-center gap-3">
@@ -68,20 +72,26 @@ export default function Rituales() {
                   <p className="text-ink font-semibold text-sm">
                     {productos.map((p) => p.name).join(" + ")}
                   </p>
-                  <p className="text-muted text-[13px] leading-snug">{r.para}</p>
+                  <p className="text-muted text-sm leading-snug">{r.para}</p>
                 </div>
 
-                {r.available && r.tiendaUrl ? (
-                  <a
-                    href={r.tiendaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Ver el ${r.nombre} en la tienda online`}
-                    className="self-start inline-flex items-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover text-white font-bold uppercase tracking-wide text-xs px-5 min-h-11 transition-colors"
-                  >
-                    Ver el pack
-                    <ArrowRight size={15} />
-                  </a>
+                {r.available ? (
+                  <div className="flex flex-wrap gap-2">
+                    {productos.map((p) => (
+                      <MotionLink
+                        key={p.slug}
+                        href={`/productos/${p.slug}`}
+                        aria-label={`Ver ficha de Geneo ${p.name}`}
+                        className="inline-flex items-center gap-1.5 min-h-11 rounded-full bg-geneo text-white font-bold uppercase tracking-wide text-xs px-5"
+                        whileHover={{ backgroundColor: "var(--color-geneo-hover)" }}
+                        whileTap={{ backgroundColor: "var(--color-geneo-hover)" }}
+                        transition={spring}
+                      >
+                        Ver {p.name}
+                        <ArrowRight size={15} />
+                      </MotionLink>
+                    ))}
+                  </div>
                 ) : (
                   <span className="self-start inline-flex items-center rounded-full border-2 border-solar/50 text-solar font-bold uppercase tracking-wide text-xs px-5 min-h-11">
                     Próximo lanzamiento

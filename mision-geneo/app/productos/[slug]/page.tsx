@@ -4,12 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, BookOpen, FlaskConical, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, FlaskConical, Megaphone } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { getProduct } from "@/lib/products";
 import { ACTIVES } from "@/lib/actives";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
+const reveal = { once: true, margin: "-10% 0px" } as const;
+const MotionLink = motion.create(Link);
 
 /**
  * Ficha individual de producto. Los activos se derivan de ACTIVES (única fuente
@@ -51,10 +53,11 @@ export default function ProductoDetalle() {
 
         {/* Hero del producto */}
         <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={reveal}
           transition={spring}
-          className="flex flex-col gap-4 bg-paper rounded-3xl shadow-card p-6"
+          className="flex flex-col gap-4 bg-paper rounded-3xl shadow-card p-5"
         >
           <div className="relative aspect-square w-full max-w-[220px] mx-auto rounded-2xl overflow-hidden bg-surface">
             <Image
@@ -67,23 +70,22 @@ export default function ProductoDetalle() {
             />
           </div>
           <div className="flex flex-col gap-2 text-center">
-            <h1 className={`uppercase ${product.accent} font-extrabold text-2xl tracking-tight`}>
+            <h1
+              className={`uppercase ${product.accent} font-extrabold text-[clamp(1.375rem,0.875rem_+_2.5vw,1.5rem)] leading-snug tracking-tight`}
+            >
               {product.name}
             </h1>
             <p className="text-ink text-base leading-snug">{product.beneficio}</p>
-            {product.presentacion && (
-              <p className="text-soft text-xs font-semibold uppercase tracking-wide">
-                {product.presentacion}
-              </p>
-            )}
           </div>
         </motion.section>
 
         {/* Fórmula */}
         {product.formula && (
           <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0, transition: { ...spring, delay: 0.05 } }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={reveal}
+            transition={{ ...spring, delay: 0.05 }}
             className="flex flex-col gap-2.5 bg-paper rounded-3xl shadow-soft p-5"
           >
             <div className="flex items-center gap-2.5">
@@ -96,21 +98,6 @@ export default function ProductoDetalle() {
           </motion.section>
         )}
 
-        {/* A quién recomendar */}
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0, transition: { ...spring, delay: 0.1 } }}
-          className="flex flex-col gap-2.5 bg-paper rounded-3xl shadow-soft p-5"
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="flex items-center justify-center w-9 h-9 rounded-full bg-rosa-suave text-geneo shrink-0">
-              <UserRound size={17} />
-            </span>
-            <h2 className="text-ink font-bold text-base">A quién recomendárselo</h2>
-          </div>
-          <p className="text-muted text-sm leading-snug">{product.paraQuien}</p>
-        </motion.section>
-
         {/* Activos (derivados de ACTIVES) */}
         {activos.length > 0 && (
           <section className="flex flex-col gap-3">
@@ -118,8 +105,10 @@ export default function ProductoDetalle() {
             {activos.map((a, i) => (
               <motion.article
                 key={a.slug}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0, transition: { ...spring, delay: 0.05 + i * 0.05 } }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={reveal}
+                transition={{ ...spring, delay: 0.05 + i * 0.05 }}
                 className="flex items-start gap-4 bg-paper rounded-3xl shadow-soft p-5"
               >
                 <span className="relative w-16 h-16 shrink-0 rounded-2xl bg-rosa-suave/40 overflow-hidden">
@@ -131,9 +120,12 @@ export default function ProductoDetalle() {
                 </span>
               </motion.article>
             ))}
-            <Link
+            <MotionLink
               href="/academia/activos"
-              className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4 hover:shadow-card active:shadow-card transition-shadow"
+              className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft p-5"
+              whileHover={{ boxShadow: "var(--shadow-card)" }}
+              whileTap={{ boxShadow: "var(--shadow-card)" }}
+              transition={spring}
             >
               <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
                 <BookOpen size={20} />
@@ -143,25 +135,66 @@ export default function ProductoDetalle() {
                 <span className="text-muted text-xs">Guía completa con la ciencia de cada uno.</span>
               </span>
               <ArrowRight size={18} className="text-geneo shrink-0" />
-            </Link>
+            </MotionLink>
           </section>
         )}
 
-        {/* Estado / compra */}
+        {/* Cómo recomendarlo: cierre de la ficha, orientado al mostrador */}
         {product.available ? (
-          product.tiendaUrl && (
-            <a
-              href={product.tiendaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover text-white font-bold uppercase tracking-wide text-sm px-6 py-4 transition-colors"
-            >
-              Ver en la tienda
-              <ArrowRight size={18} />
-            </a>
-          )
+          <motion.section
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={reveal}
+            transition={{ ...spring, delay: 0.2 }}
+            className="flex flex-col gap-4 bg-paper rounded-3xl shadow-card p-5"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="flex items-center justify-center w-9 h-9 rounded-full bg-rosa-suave text-geneo shrink-0">
+                <Megaphone size={17} />
+              </span>
+              <h2 className="text-ink font-bold text-base">Cómo recomendarlo</h2>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <p className="text-soft text-xs font-bold uppercase tracking-widest">
+                Ofrecéselo a
+              </p>
+              <p className="text-muted text-sm leading-snug">{product.paraQuien}</p>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <p className="text-soft text-xs font-bold uppercase tracking-widest">
+                Con qué argumento
+              </p>
+              <p className="text-ink text-sm font-semibold leading-snug">{product.beneficio}</p>
+              {activos.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {activos.map((a) => (
+                    <span
+                      key={a.slug}
+                      className="rounded-full bg-rosa-suave text-geneo text-xs font-semibold px-2.5 py-1"
+                    >
+                      {a.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {product.formula && (
+                <p className="text-soft text-xs leading-snug">Fórmula: {product.formula}</p>
+              )}
+            </div>
+
+            {product.presentacion && (
+              <div className="flex flex-col gap-1.5">
+                <p className="text-soft text-xs font-bold uppercase tracking-widest">
+                  Presentación
+                </p>
+                <p className="text-muted text-sm leading-snug">{product.presentacion}</p>
+              </div>
+            )}
+          </motion.section>
         ) : (
-          <div className="flex flex-col gap-1.5 bg-rosa-suave/50 rounded-3xl px-5 py-4 text-center">
+          <div className="flex flex-col gap-1.5 bg-rosa-suave/50 rounded-3xl p-5 text-center">
             <p className="text-solar font-bold text-sm uppercase tracking-wide">
               Próximo lanzamiento
             </p>
