@@ -2,9 +2,10 @@
 
 import { useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { MISSIONS } from "@/lib/missions";
-import { getReward } from "@/lib/rewards";
-import { DAILY_POINTS, computeStreak, dayKey, questionForToday } from "@/lib/daily";
+import { MISSIONS, getMission } from "@/lib/missions";
+import { getReward, redemptionsSpent } from "@/lib/rewards";
+import { computeStreak, dayKey } from "@/lib/daily";
+import { totalPoints } from "@/lib/ranking";
 
 /**
  * Estado de la app respaldado en Supabase.
@@ -137,11 +138,25 @@ function sb() {
 }
 
 function spentPoints(redemptions: Redemption[]): number {
-  return redemptions.reduce((acc, r) => acc + (getReward(r.rewardId)?.points ?? 0), 0);
+  return redemptionsSpent(redemptions.map((r) => r.rewardId));
 }
 
-function dailyPoints(daily: Record<string, DailyEntry>): number {
-  return Object.values(daily).reduce((acc, d) => acc + d.points, 0);
+/** Helper genérico para llamar los Route Handlers que otorgan puntos server-side. */
+async function postJson<T>(url: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { ok: false, error: (payload as { error?: string }).error ?? "No pudimos completar la operación. Probá de nuevo." };
+    }
+    return { ok: true, data: payload as T };
+  } catch {
+    return { ok: false, error: "No pudimos conectar con el servidor. Revisá tu conexión." };
+  }
 }
 
 /** Traduce errores comunes de Supabase Auth a mensajes en castellano. */
@@ -188,8 +203,7 @@ function buildSnapshot(
   for (const d of dailyRows) {
     daily[d.day] = { questionId: d.question_id, correct: d.correct, points: d.points };
   }
-  const points =
-    Object.values(progress).reduce((acc, p) => acc + p.score, 0) + dailyPoints(daily);
+  const points = totalPoints(Object.values(progress), Object.values(daily));
   const balance = Math.max(0, points - spentPoints(redemptions));
   const isSpecialist = MISSIONS.every((m) => Boolean(progress[m.slug]));
   const pharmacyName =
@@ -218,8 +232,7 @@ function reproject(
   redemptions: Redemption[],
   daily: Record<string, DailyEntry>,
 ) {
-  const points =
-    Object.values(progress).reduce((acc, p) => acc + p.score, 0) + dailyPoints(daily);
+  const points = totalPoints(Object.values(progress), Object.values(daily));
   const balance = Math.max(0, points - spentPoints(redemptions));
   const isSpecialist = MISSIONS.every((m) => Boolean(progress[m.slug]));
   const answeredDays = new Set(Object.keys(daily));
@@ -375,74 +388,132 @@ export async function login(input: LoginInput): Promise<void> {
   setSnapshot(await loadUser(authUserId, pharmacies));
 }
 
-export function completeMission(slug: string, score: number) {
-  if (!authUserId || snapshot.progress[slug]) return; // idempotente
-  // Actualización local optimista (la UI no espera la red).
-  const progress = {
-    ...snapshot.progress,
-    [slug]: { score, completedAt: new Date().toISOString() },
-  };
-  const { isSpecialist } = reproject(progress, snapshot.redemptions, snapshot.daily);
-
-  // Persistencia (fire-and-forget; la tabla es idempotente por unique).
-  const client = sb();
-  void client
-    .from("mission_progress")
-    .upsert(
-      { user_id: authUserId, mission_slug: slug, score },
-      { onConflict: "user_id,mission_slug", ignoreDuplicates: true },
-    );
-  if (isSpecialist) {
-    void client
-      .from("certificates")
-      .upsert(
-        { user_id: authUserId, type: "especialista" },
-        { onConflict: "user_id,type", ignoreDuplicates: true },
-      );
-  }
-}
+export type CompleteMissionResult =
+  | { ok: true; pointsAwarded: number; certificateIssued: boolean }
+  | { ok: false; error: string };
 
 /**
- * Responde la pregunta del día (un intento por día). Participar mantiene la
- * racha; acertar suma DAILY_POINTS. Devuelve el resultado para la UI, o null
- * si ya respondió hoy.
+ * Completa una misión. El PUNTAJE lo decide el servidor (siempre el
+ * `pointsTotal` del catálogo — lib/missions.ts): el cliente solo manda el
+ * `slug`. La actualización local es optimista (la UI no espera la red para
+ * avanzar), pero si el servidor rechaza el pedido (401/400/red caída) se
+ * revierte el estado optimista y se devuelve el error para que la UI lo
+ * muestre — nunca se deja la UI mintiendo sobre puntos que no se guardaron.
  */
-export function answerDaily(optionIndex: number): { correct: boolean; points: number } | null {
-  if (!authUserId || snapshot.answeredToday) return null;
-  const question = questionForToday();
-  const correct = optionIndex === question.correctIndex;
-  const points = correct ? DAILY_POINTS : 0;
-  const today = dayKey();
+export async function completeMission(slug: string): Promise<CompleteMissionResult> {
+  if (!authUserId) return { ok: false, error: "No hay sesión activa." };
+  if (snapshot.progress[slug]) {
+    return { ok: true, pointsAwarded: 0, certificateIssued: false }; // idempotente: ya estaba
+  }
+  const mission = getMission(slug);
+  if (!mission) return { ok: false, error: "Esa misión no existe." };
 
+  const prevSnapshot = snapshot;
+  const optimisticProgress = {
+    ...snapshot.progress,
+    [slug]: { score: mission.pointsTotal, completedAt: new Date().toISOString() },
+  };
+  reproject(optimisticProgress, snapshot.redemptions, snapshot.daily);
+
+  const result = await postJson<{
+    pointsAwarded: number;
+    totalPoints: number;
+    isSpecialist: boolean;
+    certificateIssued: boolean;
+  }>("/api/missions/complete", { slug });
+
+  if (!result.ok) {
+    setSnapshot(prevSnapshot);
+    return result;
+  }
+
+  // Puntaje real: siempre el que devuelve el servidor, nunca el cálculo local.
+  setSnapshot({
+    ...snapshot,
+    points: result.data.totalPoints,
+    balance: Math.max(0, result.data.totalPoints - spentPoints(snapshot.redemptions)),
+    isSpecialist: result.data.isSpecialist,
+  });
+  return {
+    ok: true,
+    pointsAwarded: result.data.pointsAwarded,
+    certificateIssued: result.data.certificateIssued,
+  };
+}
+
+export type AnswerDailyResult =
+  | { ok: true; correct: boolean; points: number; feedback: string; correctIndex: number }
+  | { ok: false; error: string };
+
+/**
+ * Responde la pregunta del día (un intento por día). El servidor recalcula
+ * la pregunta de hoy y compara contra la respuesta correcta — el cliente
+ * nunca sabe si acertó hasta que el servidor lo confirma, así que acá no hay
+ * actualización optimista posible (no hay nada que "adivinar" sin la red).
+ */
+export async function answerDaily(optionIndex: number): Promise<AnswerDailyResult> {
+  if (!authUserId) return { ok: false, error: "No hay sesión activa." };
+  if (snapshot.answeredToday) return { ok: false, error: "Ya respondiste la pregunta de hoy." };
+
+  const result = await postJson<{
+    questionId: string;
+    correct: boolean;
+    points: number;
+    feedback: string;
+    correctIndex: number;
+  }>("/api/daily", { optionIndex });
+
+  if (!result.ok) return result;
+
+  const today = dayKey();
   const daily = {
     ...snapshot.daily,
-    [today]: { questionId: question.id, correct, points },
+    [today]: { questionId: result.data.questionId, correct: result.data.correct, points: result.data.points },
   };
   reproject(snapshot.progress, snapshot.redemptions, daily);
 
-  // unique(user_id, day) hace inocuo el doble submit.
-  void sb().from("daily_answers").upsert(
-    { user_id: authUserId, day: today, question_id: question.id, correct, points },
-    { onConflict: "user_id,day", ignoreDuplicates: true },
-  );
-  return { correct, points };
+  return {
+    ok: true,
+    correct: result.data.correct,
+    points: result.data.points,
+    feedback: result.data.feedback,
+    correctIndex: result.data.correctIndex,
+  };
 }
 
-export function redeem(rewardId: string): boolean {
-  const reward = getReward(rewardId);
-  if (!reward || !authUserId) return false;
-  if (snapshot.redemptions.some((r) => r.rewardId === rewardId)) return false;
-  if (snapshot.balance < reward.points) return false;
+export type RedeemResult = { ok: true; balance: number } | { ok: false; error: string };
 
+/**
+ * Canjea un premio. El saldo se recalcula SIEMPRE server-side (ganados −
+ * gastados); el cliente nunca decide si "alcanza". Optimista para la UI,
+ * revertido si el servidor rechaza.
+ */
+export async function redeem(rewardId: string): Promise<RedeemResult> {
+  const reward = getReward(rewardId);
+  if (!reward || !authUserId) return { ok: false, error: "No hay sesión activa." };
+  if (snapshot.redemptions.some((r) => r.rewardId === rewardId)) {
+    return { ok: false, error: "Ya canjeaste este premio." };
+  }
+  if (snapshot.balance < reward.points) {
+    return { ok: false, error: "No tenés puntos suficientes para este premio." };
+  }
+
+  const prevSnapshot = snapshot;
   const redemptions = [
     ...snapshot.redemptions,
     { rewardId, redeemedAt: new Date().toISOString() },
   ];
   reproject(snapshot.progress, redemptions, snapshot.daily);
-  void sb()
-    .from("redemptions")
-    .insert({ user_id: authUserId, reward_id: rewardId, points: reward.points });
-  return true;
+
+  const result = await postJson<{ balance: number }>("/api/redemptions", { rewardId });
+
+  if (!result.ok) {
+    setSnapshot(prevSnapshot);
+    return result;
+  }
+
+  setSnapshot({ ...snapshot, balance: result.data.balance });
+  return { ok: true, balance: result.data.balance };
 }
 
 /** Cierra la sesión. Con email+contraseña se puede volver a entrar cuando quiera. */

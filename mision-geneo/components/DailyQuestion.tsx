@@ -1,30 +1,94 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Flame, X } from "lucide-react";
-import { DAILY_POINTS, dayKey, questionForToday } from "@/lib/daily";
+import { Check, Flame, Loader2, X } from "lucide-react";
+import { dayKey, type PublicDailyQuestion } from "@/lib/daily";
 import { useApp } from "@/lib/store";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
 
+type LoadState =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ready"; question: PublicDailyQuestion; points: number };
+
+type AnswerResult = { correct: boolean; points: number; feedback: string; correctIndex: number };
+
 /**
- * Card de la pregunta del día (home de misiones). Un intento por día:
- * participar mantiene la racha, acertar suma DAILY_POINTS.
+ * Card de la pregunta del día (home de misiones). El servidor decide TODO:
+ * la pregunta se pide a GET /api/daily (nunca trae la respuesta correcta) y
+ * el resultado se pide a POST /api/daily recién cuando el usuario ya eligió
+ * una opción — por eso hay un estado "submitting" entre el click y el
+ * reveal: no hay nada que adivinar en el cliente.
  */
 export default function DailyQuestion() {
   const { answeredToday, streak, daily, answerDaily } = useApp();
-  const question = questionForToday();
+  const [state, setState] = useState<LoadState>({ status: "loading" });
   const [picked, setPicked] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<AnswerResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/daily")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("request failed");
+        return (await res.json()) as { question: PublicDailyQuestion; points: number };
+      })
+      .then((data) => {
+        if (!cancelled) setState({ status: "ready", question: data.question, points: data.points });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setState({
+            status: "error",
+            message: "No pudimos cargar la pregunta de hoy. Revisá tu conexión.",
+          });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const todayEntry = daily[dayKey()];
-  const justAnswered = picked !== null;
+  const justAnswered = result !== null;
 
-  const onPick = (index: number) => {
-    if (answeredToday || picked !== null) return;
-    const result = answerDaily(index);
-    if (result) setPicked(index);
+  const onPick = async (index: number) => {
+    if (answeredToday || picked !== null || submitting) return;
+    setPicked(index);
+    setSubmitting(true);
+    setError(null);
+    const res = await answerDaily(index);
+    setSubmitting(false);
+    if (!res.ok) {
+      setPicked(null);
+      setError(res.error);
+      return;
+    }
+    setResult(res);
   };
+
+  if (state.status === "loading") {
+    return (
+      <section className="bg-paper rounded-3xl shadow-card p-5 flex items-center justify-center gap-2 text-muted text-sm min-h-24">
+        <Loader2 size={16} className="animate-spin" />
+        Cargando la pregunta de hoy…
+      </section>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <section className="bg-paper rounded-3xl shadow-card p-5 flex flex-col items-center gap-1 text-center">
+        <p className="text-ink font-bold text-sm">{state.message}</p>
+      </section>
+    );
+  }
+
+  const { question, points: dailyPoints } = state;
 
   return (
     <motion.section
@@ -40,7 +104,7 @@ export default function DailyQuestion() {
         <div className="flex-1 min-w-0 flex flex-col gap-0.5">
           <h2 className="text-ink font-bold text-base leading-tight">Pregunta del día</h2>
           <p className="text-muted text-xs">
-            +{DAILY_POINTS} pts por acertar · 1 intento por día
+            +{dailyPoints} pts por acertar · 1 intento por día
           </p>
         </div>
         {streak >= 1 && (
@@ -68,35 +132,44 @@ export default function DailyQuestion() {
           <p className="text-ink font-semibold text-[15px] leading-snug">{question.question}</p>
           <div className="flex flex-col gap-2">
             {question.options.map((option, i) => {
-              const isCorrect = i === question.correctIndex;
               const isPicked = picked === i;
               const revealed = justAnswered;
+              const isCorrectRevealed = revealed && result.correctIndex === i;
               return (
                 <motion.button
                   key={option}
                   type="button"
                   onClick={() => onPick(i)}
-                  disabled={revealed}
+                  disabled={picked !== null}
                   initial={false}
                   animate={{ scale: isPicked ? 1.02 : 1 }}
                   transition={spring}
                   className={`flex items-center justify-between gap-3 min-h-11 rounded-2xl border-2 px-4 py-2.5 text-left text-sm font-semibold transition-colors ${
-                    revealed && isCorrect
+                    isCorrectRevealed
                       ? "border-geneo bg-rosa-suave/60 text-geneo"
                       : revealed && isPicked
                         ? "border-line bg-surface text-soft"
                         : revealed
                           ? "border-line bg-surface text-soft"
-                          : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
+                          : isPicked && submitting
+                            ? "border-geneo/50 bg-surface text-ink"
+                            : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
                   }`}
                 >
                   {option}
-                  {revealed && isCorrect && <Check size={17} strokeWidth={3} className="shrink-0" />}
-                  {revealed && isPicked && !isCorrect && <X size={17} strokeWidth={3} className="shrink-0" />}
+                  {isPicked && submitting && <Loader2 size={16} className="animate-spin shrink-0" />}
+                  {isCorrectRevealed && <Check size={17} strokeWidth={3} className="shrink-0" />}
+                  {revealed && isPicked && !isCorrectRevealed && <X size={17} strokeWidth={3} className="shrink-0" />}
                 </motion.button>
               );
             })}
           </div>
+
+          {error && (
+            <p className="text-geneo text-sm font-semibold" role="alert">
+              {error}
+            </p>
+          )}
 
           {justAnswered && (
             <motion.div
@@ -106,11 +179,11 @@ export default function DailyQuestion() {
               className="flex flex-col gap-1 rounded-2xl bg-rosa-suave/50 px-4 py-3"
             >
               <p className="text-ink font-bold text-sm">
-                {picked === question.correctIndex
-                  ? `¡Correcto! +${DAILY_POINTS} pts 🔥`
+                {result.correct
+                  ? `¡Correcto! +${result.points} pts 🔥`
                   : "Esta vez no fue, pero tu racha sigue viva. 🔥"}
               </p>
-              <p className="text-muted text-sm leading-snug">{question.feedback}</p>
+              <p className="text-muted text-sm leading-snug">{result.feedback}</p>
             </motion.div>
           )}
         </div>

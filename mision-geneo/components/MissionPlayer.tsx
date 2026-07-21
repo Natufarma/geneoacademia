@@ -21,6 +21,8 @@ export default function MissionPlayer({ slug }: { slug: string }) {
   const { pharmacyName, progress, completeMission, points, isSpecialist } = useApp();
   const [stepIndex, setStepIndex] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [completeError, setCompleteError] = useState<string | null>(null);
 
   if (!mission) {
     return (
@@ -66,14 +68,22 @@ export default function MissionPlayer({ slug }: { slug: string }) {
   const step = mission.steps[stepIndex];
   const isLast = stepIndex === mission.steps.length - 1;
 
-  const advance = () => {
+  const advance = async () => {
     if (!isLast) {
       setStepIndex((i) => i + 1);
       return;
     }
-    // Puntaje del demo: misión completada = puntaje total de la misión
-    // (los reintentos no penalizan; el store es idempotente en repasos).
-    completeMission(mission.slug, mission.pointsTotal);
+    if (completing) return; // evita doble submit mientras espera al servidor
+    setCompleting(true);
+    setCompleteError(null);
+    // El puntaje lo decide el servidor (catálogo de lib/missions.ts, nunca un
+    // número que mande el cliente); acá solo mandamos el slug.
+    const result = await completeMission(mission.slug);
+    setCompleting(false);
+    if (!result.ok) {
+      setCompleteError(result.error);
+      return;
+    }
     setFinished(true);
   };
 
@@ -146,15 +156,35 @@ export default function MissionPlayer({ slug }: { slug: string }) {
             exit={{ opacity: 0, x: -24 }}
             transition={{ type: "spring", stiffness: 260, damping: 28 }}
           >
-            {step.type === "content" && <ContentStep step={step} onNext={advance} isLast={isLast} />}
+            {step.type === "content" && (
+              <ContentStep step={step} onNext={advance} isLast={isLast} busy={completing} />
+            )}
             {step.type === "quiz" && (
-              <QuizStep key={`quiz-${stepIndex}`} step={step} onNext={advance} isLast={isLast} />
+              <QuizStep
+                key={`quiz-${stepIndex}`}
+                step={step}
+                onNext={advance}
+                isLast={isLast}
+                busy={completing}
+              />
             )}
             {step.type === "match" && (
-              <MatchStep key={`match-${stepIndex}`} step={step} onNext={advance} isLast={isLast} />
+              <MatchStep
+                key={`match-${stepIndex}`}
+                step={step}
+                onNext={advance}
+                isLast={isLast}
+                busy={completing}
+              />
             )}
           </motion.div>
         </AnimatePresence>
+
+        {completeError && (
+          <p role="alert" className="text-geneo text-sm font-semibold text-center -mt-2">
+            {completeError} Probá de nuevo.
+          </p>
+        )}
       </div>
     </div>
   );
@@ -162,21 +192,41 @@ export default function MissionPlayer({ slug }: { slug: string }) {
 
 /* ───────────────────────── Paso: contenido ───────────────────────── */
 
-function NextButton({ onClick, isLast, disabled }: { onClick: () => void; isLast: boolean; disabled?: boolean }) {
+function NextButton({
+  onClick,
+  isLast,
+  disabled,
+  busy,
+}: {
+  onClick: () => void;
+  isLast: boolean;
+  disabled?: boolean;
+  busy?: boolean;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || busy}
       className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft text-white font-bold uppercase tracking-wide text-sm px-6 py-4 transition-colors"
     >
-      {isLast ? "Completar misión" : "Continuar"}
+      {isLast && busy ? "Guardando…" : isLast ? "Completar misión" : "Continuar"}
       <ArrowRight size={18} />
     </button>
   );
 }
 
-function ContentStep({ step, onNext, isLast }: { step: StepContent; onNext: () => void; isLast: boolean }) {
+function ContentStep({
+  step,
+  onNext,
+  isLast,
+  busy,
+}: {
+  step: StepContent;
+  onNext: () => void;
+  isLast: boolean;
+  busy?: boolean;
+}) {
   return (
     <div className="bg-paper rounded-3xl shadow-card p-6 flex flex-col gap-4">
       {step.image && (
@@ -198,14 +248,24 @@ function ContentStep({ step, onNext, isLast }: { step: StepContent; onNext: () =
           ))}
         </ul>
       )}
-      <NextButton onClick={onNext} isLast={isLast} />
+      <NextButton onClick={onNext} isLast={isLast} busy={busy} />
     </div>
   );
 }
 
 /* ───────────────────────── Paso: quiz ───────────────────────── */
 
-function QuizStep({ step, onNext, isLast }: { step: StepQuiz; onNext: () => void; isLast: boolean }) {
+function QuizStep({
+  step,
+  onNext,
+  isLast,
+  busy,
+}: {
+  step: StepQuiz;
+  onNext: () => void;
+  isLast: boolean;
+  busy?: boolean;
+}) {
   const [chosen, setChosen] = useState<number | null>(null);
   const [wrong, setWrong] = useState<Set<number>>(new Set());
   const solved = chosen !== null && step.options[chosen]?.correct;
@@ -274,14 +334,24 @@ function QuizStep({ step, onNext, isLast }: { step: StepQuiz; onNext: () => void
         )
       )}
 
-      <NextButton onClick={onNext} isLast={isLast} disabled={!solved} />
+      <NextButton onClick={onNext} isLast={isLast} disabled={!solved} busy={busy} />
     </div>
   );
 }
 
 /* ───────────────────────── Paso: match (unir pares) ───────────────────────── */
 
-function MatchStep({ step, onNext, isLast }: { step: StepMatch; onNext: () => void; isLast: boolean }) {
+function MatchStep({
+  step,
+  onNext,
+  isLast,
+  busy,
+}: {
+  step: StepMatch;
+  onNext: () => void;
+  isLast: boolean;
+  busy?: boolean;
+}) {
   // Orden pseudo-aleatorio pero DETERMINISTA de la columna derecha (evita
   // mismatch de hidratación; con 4 pares alcanza para que no quede espejado).
   const rightOrder = useMemo(() => {
@@ -391,7 +461,7 @@ function MatchStep({ step, onNext, isLast }: { step: StepMatch; onNext: () => vo
         )
       )}
 
-      <NextButton onClick={onNext} isLast={isLast} disabled={!done} />
+      <NextButton onClick={onNext} isLast={isLast} disabled={!done} busy={busy} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -27,10 +28,17 @@ export default function Recompensas() {
 function RecompensasContent() {
   const { pharmacyName, points, balance, redemptions, isSpecialist, redeem } = useApp();
   const hasPrizes = isSpecialist || redemptions.length > 0;
+  const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const [redeemError, setRedeemError] = useState<string | null>(null);
 
-  const onRedeem = (reward: Reward) => {
-    if (window.confirm(`¿Canjear ${reward.name} por ${reward.points} pts?`)) {
-      redeem(reward.id);
+  const onRedeem = async (reward: Reward) => {
+    if (!window.confirm(`¿Canjear ${reward.name} por ${reward.points} pts?`)) return;
+    setRedeemError(null);
+    setRedeemingId(reward.id);
+    const result = await redeem(reward.id);
+    setRedeemingId(null);
+    if (!result.ok) {
+      setRedeemError(result.error);
     }
   };
 
@@ -122,12 +130,18 @@ function RecompensasContent() {
         <h2 className="text-ink font-bold text-lg tracking-tight">
           Premios <span className="text-geneo">disponibles</span>
         </h2>
+        {redeemError && (
+          <p role="alert" className="text-geneo text-sm font-semibold text-center">
+            {redeemError}
+          </p>
+        )}
         <div className="flex flex-col gap-3">
           {REWARDS.map((reward, i) => {
             const Icon = REWARD_ICONS[reward.id] ?? Package;
             const redeemed = redemptions.some((r) => r.rewardId === reward.id);
             const affordable = balance >= reward.points;
             const missing = reward.points - balance;
+            const isRedeeming = redeemingId === reward.id;
             return (
               <motion.div
                 key={reward.id}
@@ -155,10 +169,10 @@ function RecompensasContent() {
                   <button
                     type="button"
                     onClick={() => onRedeem(reward)}
-                    disabled={!affordable}
+                    disabled={!affordable || isRedeeming}
                     className="rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft text-white font-bold uppercase tracking-wide text-xs px-5 min-h-11 transition-colors shrink-0"
                   >
-                    Canjear
+                    {isRedeeming ? "Canjeando…" : "Canjear"}
                   </button>
                 )}
               </motion.div>
