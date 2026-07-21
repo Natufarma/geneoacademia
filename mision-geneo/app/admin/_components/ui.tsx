@@ -14,14 +14,16 @@ export function StatCard({
   label,
   value,
   hint,
+  className,
 }: {
   label: string;
   value: ReactNode;
   hint?: string;
+  className?: string;
 }) {
   return (
-    <div className="bg-paper rounded-3xl shadow-soft p-5 flex flex-col gap-1">
-      <p className="text-soft text-[11px] font-bold uppercase tracking-widest">{label}</p>
+    <div className={`bg-paper rounded-3xl shadow-soft p-5 flex flex-col gap-1 ${className ?? ""}`}>
+      <p className="text-soft text-xs font-bold uppercase tracking-widest">{label}</p>
       <p className="text-ink font-extrabold text-3xl leading-none">{value}</p>
       {hint && <p className="text-muted text-xs">{hint}</p>}
     </div>
@@ -31,7 +33,7 @@ export function StatCard({
 export function CertifiedBadge({ certified }: { certified: boolean }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${
         certified ? "bg-rosa-suave text-geneo" : "bg-line/60 text-soft"
       }`}
     >

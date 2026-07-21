@@ -105,6 +105,16 @@ body {
   animation: shake-x 0.4s ease-in-out;
 }
 
+/* Oculta la barra de scroll en carruseles/tablas con scroll horizontal
+   (el snap + gesto táctil ya avisan que hay más contenido). */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ───────────────────────── Certificado imprimible ─────────────────────────
    Al imprimir/guardar como PDF, solo queda el certificado en la hoja. */
 @media print {

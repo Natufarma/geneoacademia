@@ -2,11 +2,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { getReward } from "@/lib/rewards";
+import { getPeriodBounds, pharmacyScore, pointsInPeriod, rankPharmacies, totalPoints } from "@/lib/ranking";
+import type { Period } from "@/lib/ranking";
 
 /**
  * Lecturas del panel de admin (server-only, vía service_role).
  * Las misiones viven en código (lib/missions.ts); la base guarda el progreso
  * por slug. Acá se cruza todo en JS: escala de demo, sin joins pesados.
+ *
+ * El ranking de farmacias usa lib/ranking.ts (misma fórmula que /api/ranking):
+ * top-3 empleados activos del período. `points`/`levelName`/`certified` acá
+ * siguen siendo ACUMULATIVOS (todo el historial) — no confundir con el score
+ * de ranking, que es del mes en curso.
  */
 
 const CORE_SLUGS = new Set(MISSIONS.map((m) => m.slug));
@@ -21,7 +28,10 @@ export type EmployeeSummary = {
   phone: string | null;
   pharmacyId: string | null;
   pharmacyName: string;
+  /** Puntos ACUMULATIVOS (todo el historial): nivel, certificado. */
   points: number;
+  /** Puntos del período de ranking en curso (mes calendario). */
+  periodPoints: number;
   levelName: string;
   levelN: number;
   coreDone: number;
@@ -35,7 +45,7 @@ export type EmployeeSummary = {
   createdAt: string;
 };
 
-type ProgressRow = { user_id: string; mission_slug: string; score: number };
+type ProgressRow = { user_id: string; mission_slug: string; score: number; completed_at: string };
 type CertRow = { user_id: string; issued_at: string };
 type DailyRow = { user_id: string; day: string; points: number };
 
@@ -54,12 +64,13 @@ function summarize(
   progress: ProgressRow[],
   daily: DailyRow[],
   certAt: string | null,
+  period: Period,
 ): EmployeeSummary {
   const mine = progress.filter((p) => p.user_id === profile.id);
   const myDaily = daily.filter((d) => d.user_id === profile.id);
-  // Igual que en la app: puntos = misiones + pregunta del día.
-  const points =
-    mine.reduce((acc, p) => acc + p.score, 0) + myDaily.reduce((acc, d) => acc + d.points, 0);
+  // Igual que en la app: puntos = misiones + pregunta del día (acumulativo).
+  const points = totalPoints(mine, myDaily);
+  const periodPoints = pointsInPeriod(mine, myDaily, period);
   const coreDone = mine.filter((p) => CORE_SLUGS.has(p.mission_slug)).length;
   const advancedDone = mine.filter((p) => ADVANCED_SLUGS.has(p.mission_slug)).length;
   const campaignsDone = mine.filter((p) => CAMPAIGN_SLUGS.has(p.mission_slug)).length;
@@ -72,6 +83,7 @@ function summarize(
     pharmacyId: profile.pharmacy_id,
     pharmacyName: profile.pharmacy_id ? (pharmMap.get(profile.pharmacy_id) ?? "—") : "—",
     points,
+    periodPoints,
     levelName: level.name,
     levelN: level.n,
     coreDone,
@@ -90,7 +102,7 @@ async function fetchAll() {
   const [profilesRes, pharmaciesRes, progressRes, certsRes, dailyRes] = await Promise.all([
     sb.from("profiles").select("id, name, email, phone, pharmacy_id, role, created_at").order("created_at", { ascending: false }),
     sb.from("pharmacies").select("id, name, code, active").order("name"),
-    sb.from("mission_progress").select("user_id, mission_slug, score"),
+    sb.from("mission_progress").select("user_id, mission_slug, score, completed_at"),
     sb.from("certificates").select("user_id, issued_at"),
     sb.from("daily_answers").select("user_id, day, points"),
   ]);
@@ -102,12 +114,13 @@ async function fetchAll() {
   const pharmMap = new Map(pharmacies.map((p) => [p.id, p.name]));
   const certMap = new Map<string, string>();
   for (const c of certs) if (!certMap.has(c.user_id)) certMap.set(c.user_id, c.issued_at);
-  return { profiles, pharmacies, progress, daily, certMap, pharmMap };
+  const period = getPeriodBounds();
+  return { profiles, pharmacies, progress, daily, certMap, pharmMap, period };
 }
 
 export async function getEmployees(): Promise<EmployeeSummary[]> {
-  const { profiles, progress, daily, certMap, pharmMap } = await fetchAll();
-  return profiles.map((p) => summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null));
+  const { profiles, progress, daily, certMap, pharmMap, period } = await fetchAll();
+  return profiles.map((p) => summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null, period));
 }
 
 export type DashboardStats = {
@@ -119,9 +132,9 @@ export type DashboardStats = {
 };
 
 export async function getDashboard(): Promise<DashboardStats> {
-  const { profiles, pharmacies, progress, daily, certMap, pharmMap } = await fetchAll();
+  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period } = await fetchAll();
   const employees = profiles.map((p) =>
-    summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null),
+    summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null, period),
   );
   const certified = employees.filter((e) => e.certified).length;
   return {
@@ -138,59 +151,79 @@ export type PharmacySummary = {
   name: string;
   code: string;
   active: boolean;
+  /** Posición en el ranking de puntaje del período (1-based). */
+  position: number;
+  /** Promedio top-3 de empleados activos del período, redondeado a 1 decimal. */
+  score: number;
+  /** Empleados con >0 puntos en el período en curso. */
+  activeCount: number;
+  /** Empleados registrados en la farmacia (histórico, no depende del período). */
   employees: number;
   certified: number;
-  points: number;
+  /** Suma bruta de los puntos del período de TODOS los empleados (dato crudo, control de integridad). */
+  totalPoints: number;
 };
 
+/** Arma el PharmacySummary de una farmacia a partir de su lista de empleados (sin posición). */
+function summarizePharmacy(
+  ph: { id: string; name: string; code: string; active: boolean },
+  list: EmployeeSummary[],
+): Omit<PharmacySummary, "position"> {
+  const { score, activeCount, totalPoints: totalPts } = pharmacyScore(
+    list.map((e) => e.periodPoints),
+  );
+  return {
+    id: ph.id,
+    name: ph.name,
+    code: ph.code,
+    active: ph.active,
+    score,
+    activeCount,
+    employees: list.length,
+    certified: list.filter((e) => e.certified).length,
+    totalPoints: totalPts,
+  };
+}
+
 export async function getPharmacies(): Promise<PharmacySummary[]> {
-  const { profiles, pharmacies, progress, daily, certMap, pharmMap } = await fetchAll();
+  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period } = await fetchAll();
   const byPharm = new Map<string, EmployeeSummary[]>();
   for (const p of profiles) {
-    const e = summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null);
+    const e = summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null, period);
     if (!e.pharmacyId) continue;
     const list = byPharm.get(e.pharmacyId) ?? [];
     list.push(e);
     byPharm.set(e.pharmacyId, list);
   }
-  return pharmacies
-    .map((ph) => {
-      const list = byPharm.get(ph.id) ?? [];
-      return {
-        id: ph.id,
-        name: ph.name,
-        code: ph.code,
-        active: ph.active,
-        employees: list.length,
-        certified: list.filter((e) => e.certified).length,
-        points: list.reduce((acc, e) => acc + e.points, 0),
-      };
-    })
-    .sort((a, b) => b.points - a.points);
+  const summaries = pharmacies.map((ph) => summarizePharmacy(ph, byPharm.get(ph.id) ?? []));
+  // Mismo criterio de desempate que el ranking público (más activos, luego
+  // alfabético); acá se rankean TODAS las farmacias (incluidas inactivas y
+  // sin activos) para que el admin tenga visibilidad completa.
+  return rankPharmacies(summaries);
 }
 
 export async function getPharmacy(id: string): Promise<{
   pharmacy: PharmacySummary;
   employees: EmployeeSummary[];
 } | null> {
-  const { profiles, pharmacies, progress, daily, certMap, pharmMap } = await fetchAll();
+  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period } = await fetchAll();
   const ph = pharmacies.find((p) => p.id === id);
   if (!ph) return null;
-  const employees = profiles
-    .filter((p) => p.pharmacy_id === id)
-    .map((p) => summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null));
-  return {
-    pharmacy: {
-      id: ph.id,
-      name: ph.name,
-      code: ph.code,
-      active: ph.active,
-      employees: employees.length,
-      certified: employees.filter((e) => e.certified).length,
-      points: employees.reduce((acc, e) => acc + e.points, 0),
-    },
-    employees,
-  };
+
+  const byPharm = new Map<string, EmployeeSummary[]>();
+  for (const p of profiles) {
+    const e = summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null, period);
+    if (!e.pharmacyId) continue;
+    const list = byPharm.get(e.pharmacyId) ?? [];
+    list.push(e);
+    byPharm.set(e.pharmacyId, list);
+  }
+  // Rankea contra TODAS las farmacias para que la posición coincida con la lista.
+  const ranked = rankPharmacies(pharmacies.map((p) => summarizePharmacy(p, byPharm.get(p.id) ?? [])));
+  const pharmacy = ranked.find((p) => p.id === id);
+  if (!pharmacy) return null;
+
+  return { pharmacy, employees: byPharm.get(id) ?? [] };
 }
 
 export type MissionRow = {
@@ -230,11 +263,11 @@ export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
   if (!profile) return null;
 
   const pharmMap = new Map((pharmaciesRes.data ?? []).map((p) => [p.id, p.name]));
-  const progress = (progressRes.data ?? []) as (ProgressRow & { completed_at: string })[];
+  const progress = (progressRes.data ?? []) as ProgressRow[];
   const daily = (dailyRes.data ?? []) as DailyRow[];
   const certAt = certsRes.data?.[0]?.issued_at ?? null;
 
-  const summary = summarize(profile, pharmMap, progress, daily, certAt);
+  const summary = summarize(profile, pharmMap, progress, daily, certAt, getPeriodBounds());
   const progMap = new Map(progress.map((p) => [p.mission_slug, p]));
 
   const groups: [typeof MISSIONS, MissionRow["group"]][] = [
