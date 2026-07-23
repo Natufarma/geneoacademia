@@ -103,6 +103,7 @@ function RecompensasContent() {
                     key={product.slug}
                     type="button"
                     onClick={() => setChosen(product.slug)}
+                    aria-pressed={selected}
                     {...tap}
                     className={`flex flex-row sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border-2 px-3 py-3 sm:py-4 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       selected ? "border-geneo bg-rosa-suave/60" : "border-line bg-paper"
