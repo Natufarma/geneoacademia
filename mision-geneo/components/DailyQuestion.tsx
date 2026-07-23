@@ -88,7 +88,7 @@ export default function DailyQuestion() {
     );
   }
 
-  const { question, points: dailyPoints } = state;
+  const { question } = state;
 
   return (
     <motion.section
@@ -104,7 +104,7 @@ export default function DailyQuestion() {
         <div className="flex-1 min-w-0 flex flex-col gap-0.5">
           <h2 className="text-ink font-bold text-base leading-tight">Pregunta del día</h2>
           <p className="text-muted text-xs">
-            +{dailyPoints} pts por acertar · 1 intento por día
+            Sumá un día a tu racha · 1 intento por día
           </p>
         </div>
         {streak >= 1 && (
@@ -120,7 +120,7 @@ export default function DailyQuestion() {
         <div className="flex flex-col gap-1.5 rounded-2xl bg-rosa-suave/50 px-4 py-3.5">
           <p className="text-ink font-bold text-sm">
             {todayEntry?.correct
-              ? `¡Hoy sumaste ${todayEntry.points} pts! 🔥`
+              ? "¡Respondiste bien hoy! 🔥"
               : "Hoy participaste y tu racha sigue viva. 🔥"}
           </p>
           <p className="text-muted text-sm">
@@ -180,7 +180,7 @@ export default function DailyQuestion() {
             >
               <p className="text-ink font-bold text-sm">
                 {result.correct
-                  ? `¡Correcto! +${result.points} pts 🔥`
+                  ? "¡Correcto! Tu racha sigue creciendo. 🔥"
                   : "Esta vez no fue, pero tu racha sigue viva. 🔥"}
               </p>
               <p className="text-muted text-sm leading-snug">{result.feedback}</p>
