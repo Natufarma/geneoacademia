@@ -11,6 +11,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /** Compara el código ingresado contra VENDOR_SIGNUP_CODE (tiempo constante). */
 export function verifyVendorCode(input: string): boolean {
+  if (typeof input !== "string") return false;
   const code = process.env.VENDOR_SIGNUP_CODE;
   if (!code) return false;
   const a = Buffer.from(input);
