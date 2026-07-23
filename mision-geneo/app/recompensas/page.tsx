@@ -2,20 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Check, Coffee, CupSoda, Package, Sparkles, Star, type LucideIcon } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Check, Lock, Sparkles } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import SorteoBanner from "@/components/SorteoBanner";
-import { REWARDS, getReward, type Reward } from "@/lib/rewards";
+import { PRODUCTS, getProduct } from "@/lib/products";
+import { parseClaim } from "@/lib/prizes";
 import { useApp } from "@/lib/store";
-
-/** Íconos por premio (no hay fotos del merchandising: cards con glifo de marca). */
-const REWARD_ICONS: Record<string, LucideIcon> = {
-  neceser: Sparkles,
-  taza: Coffee,
-  shaker: CupSoda,
-};
 
 export default function Recompensas() {
   return (
@@ -26,174 +19,197 @@ export default function Recompensas() {
 }
 
 function RecompensasContent() {
-  const { pharmacyName, points, balance, redemptions, isSpecialist, redeem } = useApp();
-  const hasPrizes = isSpecialist || redemptions.length > 0;
-  const [redeemingId, setRedeemingId] = useState<string | null>(null);
-  const [redeemError, setRedeemError] = useState<string | null>(null);
+  const { pharmacyName, isSpecialist, academiaDone, redemptions, claimPrize } = useApp();
+  const [claiming, setClaiming] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<{ prizeId: string; message: string } | null>(null);
+  const [chosen, setChosen] = useState<string | null>(null);
+  const reduceMotion = useReducedMotion();
 
-  const onRedeem = async (reward: Reward) => {
-    if (!window.confirm(`¿Canjear ${reward.name} por ${reward.points} pts?`)) return;
-    setRedeemError(null);
-    setRedeemingId(reward.id);
-    const result = await redeem(reward.id);
-    setRedeemingId(null);
-    if (!result.ok) {
-      setRedeemError(result.error);
-    }
+  // Revelado escalonado al entrar en viewport (Ley de Movimiento: spring, sin tween).
+  // Respeta prefers-reduced-motion: sin desplazamiento ni física de resorte.
+  const reveal = reduceMotion
+    ? { initial: { opacity: 0 }, whileInView: { opacity: 1 }, viewport: { once: true } }
+    : {
+        initial: { opacity: 0, y: 30 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, margin: "-40px" },
+        transition: { type: "spring" as const, stiffness: 260, damping: 28 },
+      };
+  const tap = reduceMotion
+    ? {}
+    : { whileTap: { scale: 0.97 }, transition: { type: "spring" as const, stiffness: 400, damping: 30 } };
+
+  const viajeClaim = redemptions.find((r) => parseClaim(r.rewardId)?.prizeId === "viaje-producto");
+  const kitClaimed = redemptions.some((r) => parseClaim(r.rewardId)?.prizeId === "academia-kit");
+  const viajeProduct = viajeClaim
+    ? getProduct(parseClaim(viajeClaim.rewardId)?.productSlug ?? "")
+    : undefined;
+
+  const onClaim = async (prizeId: "viaje-producto" | "academia-kit", productSlug?: string) => {
+    setClaimError(null);
+    setClaiming(prizeId);
+    const res = await claimPrize(prizeId, productSlug);
+    setClaiming(null);
+    if (!res.ok) setClaimError({ prizeId, message: res.error });
   };
 
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-ink font-extrabold text-2xl tracking-tight">Recompensas</h1>
-        <p className="text-muted text-sm">Canjeá tus puntos por premios increíbles.</p>
+        <p className="text-muted text-sm">Los premios que ganás completando misiones.</p>
       </header>
 
-      {/* Saldo */}
-      <motion.section
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 28 }}
-        className="rounded-3xl bg-gradient-to-br from-geneo to-geneo-dark text-white shadow-card px-6 py-5 flex items-center justify-between gap-4"
-      >
-        <div className="flex flex-col gap-1.5">
-          <p className="font-extrabold text-3xl leading-none">{balance} pts</p>
-          <p className="text-white/80 text-xs font-semibold uppercase tracking-wide">
-            Saldo canjeable
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-1 text-right">
-          <p className="flex items-center justify-end gap-1.5 text-white/90 text-sm font-bold">
-            <Star size={15} className="fill-white/90" />
-            {points} pts ganados
-          </p>
-          <p className="text-white/70 text-xs leading-snug max-w-44">
-            Canjear no baja tu nivel: solo descuenta del saldo.
-          </p>
-        </div>
+      {/* Premio del viaje: producto a elección */}
+      <motion.section {...reveal} className="flex flex-col gap-3">
+        <h2 className="text-ink font-bold text-lg tracking-tight">Premio del viaje</h2>
+
+        {viajeClaim ? (
+          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+            <span className="relative w-14 h-14 rounded-2xl bg-rosa-suave/60 overflow-hidden shrink-0">
+              {viajeProduct && (
+                <Image
+                  src={viajeProduct.img}
+                  alt=""
+                  fill
+                  sizes="56px"
+                  className="object-contain p-1"
+                />
+              )}
+            </span>
+            <div className="flex-1 min-w-0 flex flex-col gap-1">
+              <p className="text-soft text-[10px] font-bold uppercase tracking-widest">
+                Producto a elección
+              </p>
+              <p className="text-ink font-bold text-sm leading-tight">
+                {viajeProduct?.name ?? "Producto Geneo"}
+              </p>
+              <p className="text-geneo text-xs font-semibold">
+                Pendiente de entrega en {pharmacyName ?? "tu farmacia"}
+              </p>
+            </div>
+            <Check size={20} className="text-geneo shrink-0" strokeWidth={3} />
+          </div>
+        ) : isSpecialist ? (
+          <div className="flex flex-col gap-3 bg-paper rounded-3xl shadow-card px-5 py-4">
+            <p className="text-muted text-sm">
+              Completaste el viaje. Elegí el producto de la línea Geneo que querés recibir.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {PRODUCTS.filter((p) => p.available !== false).map((product) => {
+                const selected = chosen === product.slug;
+                return (
+                  <motion.button
+                    key={product.slug}
+                    type="button"
+                    onClick={() => setChosen(product.slug)}
+                    {...tap}
+                    className={`flex flex-row sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border-2 px-3 py-3 sm:py-4 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      selected ? "border-geneo bg-rosa-suave/60" : "border-line bg-paper"
+                    }`}
+                  >
+                    <span className="relative w-16 h-16 shrink-0">
+                      <Image src={product.img} alt="" fill sizes="64px" className="object-contain" />
+                    </span>
+                    <span className="text-ink font-bold text-xs text-left sm:text-center leading-tight">
+                      {product.name}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+            <motion.button
+              type="button"
+              onClick={() => chosen && onClaim("viaje-producto", chosen)}
+              disabled={!chosen || claiming === "viaje-producto"}
+              {...tap}
+              className="rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft disabled:hover:bg-line text-white font-bold uppercase tracking-wide text-xs px-6 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            >
+              {claiming === "viaje-producto" ? "Reclamando…" : "Elegir este producto"}
+            </motion.button>
+            {claimError?.prizeId === "viaje-producto" && (
+              <p role="alert" className="text-geneo text-sm font-semibold text-center">
+                {claimError.message}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+            <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-line/40 text-soft shrink-0">
+              <Lock size={22} />
+            </span>
+            <p className="text-muted text-sm leading-snug">
+              Completá el viaje principal para elegir tu producto.
+            </p>
+          </div>
+        )}
       </motion.section>
 
-      {/* Premios obtenidos */}
-      {hasPrizes && (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-ink font-bold text-lg tracking-tight">Tus premios</h2>
-          <div className="flex flex-col gap-3">
-            {isSpecialist && (
-              <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
-                <span className="relative w-14 h-14 rounded-2xl bg-rosa-suave/60 overflow-hidden shrink-0">
-                  <Image src="/img/prod-45.webp" alt="" fill className="object-contain p-1" />
-                </span>
-                <div className="flex-1 min-w-0 flex flex-col gap-1">
-                  <p className="text-soft text-[10px] font-bold uppercase tracking-widest">
-                    Premio inmediato
-                  </p>
-                  <p className="text-ink font-bold text-sm leading-tight">
-                    Pack de muestras Geneo 45+
-                  </p>
-                  <p className="text-geneo text-xs font-semibold">
-                    Envío sin cargo · En camino a {pharmacyName}
-                  </p>
-                </div>
-              </div>
-            )}
-            {redemptions.map((r) => {
-              const reward = getReward(r.rewardId);
-              if (!reward) return null;
-              const Icon = REWARD_ICONS[reward.id] ?? Package;
-              return (
-                <div
-                  key={r.rewardId}
-                  className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4"
-                >
-                  <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave/60 text-geneo shrink-0">
-                    <Icon size={24} />
-                  </span>
-                  <div className="flex-1 min-w-0 flex flex-col gap-1">
-                    <p className="text-ink font-bold text-sm leading-tight">{reward.name}</p>
-                    <p className="text-soft text-xs">
-                      Canjeado el {new Date(r.redeemedAt).toLocaleDateString("es-AR")} ·{" "}
-                      {reward.points} pts
-                    </p>
-                    <p className="text-geneo text-xs font-semibold">
-                      Pendiente de entrega en tu farmacia
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+      {/* Kit de Academia */}
+      <motion.section
+        {...reveal}
+        transition={{ ...reveal.transition, delay: 0.06 }}
+        className="flex flex-col gap-3"
+      >
+        <h2 className="text-ink font-bold text-lg tracking-tight">Kit de Academia</h2>
+
+        {kitClaimed ? (
+          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+            <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave/60 text-geneo shrink-0">
+              <Sparkles size={24} />
+            </span>
+            <div className="flex-1 min-w-0 flex flex-col gap-1">
+              <p className="text-ink font-bold text-sm leading-tight">
+                Kit de merchandising Geneo
+              </p>
+              <p className="text-soft text-xs">Llavero + bolsa + neceser</p>
+              <p className="text-geneo text-xs font-semibold">Pendiente de entrega</p>
+            </div>
+            <Check size={20} className="text-geneo shrink-0" strokeWidth={3} />
           </div>
-        </section>
-      )}
-
-      {/* Catálogo */}
-      <section className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">
-          Premios <span className="text-geneo">disponibles</span>
-        </h2>
-        {redeemError && (
-          <p role="alert" className="text-geneo text-sm font-semibold text-center">
-            {redeemError}
-          </p>
+        ) : academiaDone ? (
+          <div className="flex flex-col gap-3 bg-paper rounded-3xl shadow-card px-5 py-4">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave text-geneo shrink-0">
+                <Sparkles size={24} />
+              </span>
+              <div className="flex-1 min-w-0 flex flex-col gap-1">
+                <p className="text-ink font-bold text-sm leading-tight">
+                  Kit de merchandising Geneo
+                </p>
+                <p className="text-soft text-xs">Llavero + bolsa + neceser</p>
+              </div>
+            </div>
+            <motion.button
+              type="button"
+              onClick={() => onClaim("academia-kit")}
+              disabled={claiming === "academia-kit"}
+              {...tap}
+              className="rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft disabled:hover:bg-line text-white font-bold uppercase tracking-wide text-xs px-6 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            >
+              {claiming === "academia-kit" ? "Reclamando…" : "Reclamar kit"}
+            </motion.button>
+            {claimError?.prizeId === "academia-kit" && (
+              <p role="alert" className="text-geneo text-sm font-semibold text-center">
+                {claimError.message}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+            <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-line/40 text-soft shrink-0">
+              <Lock size={22} />
+            </span>
+            <p className="text-muted text-sm leading-snug">
+              Completá las dos misiones de Academia para tu kit.
+            </p>
+          </div>
         )}
-        <div className="flex flex-col gap-3">
-          {REWARDS.map((reward, i) => {
-            const Icon = REWARD_ICONS[reward.id] ?? Package;
-            const redeemed = redemptions.some((r) => r.rewardId === reward.id);
-            const affordable = balance >= reward.points;
-            const missing = reward.points - balance;
-            const isRedeeming = redeemingId === reward.id;
-            return (
-              <motion.div
-                key={reward.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 28, delay: i * 0.06 }}
-                className="flex items-center gap-4 bg-paper rounded-3xl shadow-card px-5 py-4"
-              >
-                <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave text-geneo shrink-0">
-                  <Icon size={24} />
-                </span>
-                <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                  <p className="text-ink font-bold text-sm leading-tight">{reward.name}</p>
-                  <p className="text-geneo font-extrabold text-sm">{reward.points} pts</p>
-                  {!redeemed && !affordable && (
-                    <p className="text-soft text-xs">Te faltan {missing} pts</p>
-                  )}
-                </div>
-                {redeemed ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-rosa-suave text-geneo font-bold text-xs uppercase tracking-wide px-4 py-2 shrink-0">
-                    <Check size={14} strokeWidth={3} />
-                    Canjeado
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => onRedeem(reward)}
-                    disabled={!affordable || isRedeeming}
-                    className="rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft text-white font-bold uppercase tracking-wide text-xs px-5 min-h-11 transition-colors shrink-0"
-                  >
-                    {isRedeeming ? "Canjeando…" : "Canjear"}
-                  </button>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+      </motion.section>
 
-      <SorteoBanner />
-
-      {!isSpecialist && (
-        <p className="text-muted text-sm text-center">
-          ¿Querés más puntos?{" "}
-          <Link
-            href="/misiones"
-            className="text-geneo font-bold underline underline-offset-2 inline-block py-3 -my-3"
-          >
-            Completá tus misiones
-          </Link>
-        </p>
-      )}
+      <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.12 }}>
+        <SorteoBanner />
+      </motion.div>
     </div>
   );
 }

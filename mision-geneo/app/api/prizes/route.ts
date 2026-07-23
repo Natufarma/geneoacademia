@@ -34,10 +34,11 @@ export async function POST(request: Request) {
   let productSlug: string | undefined;
   if (prizeId === "viaje-producto") {
     const slug = body?.productSlug;
-    if (typeof slug !== "string" || !getProduct(slug)) {
+    const product = typeof slug === "string" ? getProduct(slug) : undefined;
+    if (!product || product.available === false) {
       return NextResponse.json({ error: "Elegí un producto válido de la línea." }, { status: 400 });
     }
-    productSlug = slug;
+    productSlug = product.slug;
   }
 
   const admin = createAdminClient();
@@ -59,7 +60,12 @@ export async function POST(request: Request) {
   }
 
   const rewardId = claimId(prizeId, productSlug);
-  await admin.from("redemptions").insert({ user_id: user.id, reward_id: rewardId, points: 0 });
+  const { error: insertError } = await admin
+    .from("redemptions")
+    .insert({ user_id: user.id, reward_id: rewardId, points: 0 });
+  if (insertError) {
+    return NextResponse.json({ error: "No pudimos registrar el premio." }, { status: 500 });
+  }
 
   return NextResponse.json({ prizeId, rewardId });
 }
