@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MISSIONS, getMission } from "@/lib/missions";
-import { totalPoints } from "@/lib/ranking";
+import { employeePoints } from "@/lib/ranking";
 
 /**
  * Completar una misión: el servidor es la única fuente de verdad del
@@ -67,12 +67,11 @@ export async function POST(request: Request) {
   );
 
   // Releer TODO el progreso del usuario (server-side) para decidir certificado y puntaje.
-  const [{ data: progress }, { data: daily }, { data: existingCert }] = await Promise.all([
+  const [{ data: progress }, { data: existingCert }] = await Promise.all([
     admin
       .from("mission_progress")
       .select("mission_slug, score, completed_at")
       .eq("user_id", user.id),
-    admin.from("daily_answers").select("points").eq("user_id", user.id),
     admin.from("certificates").select("id").eq("user_id", user.id).eq("type", "especialista").maybeSingle(),
   ]);
 
@@ -92,7 +91,7 @@ export async function POST(request: Request) {
     certificateIssued = true;
   }
 
-  const points = totalPoints(progressRows, daily ?? []);
+  const points = employeePoints(progressRows);
 
   return NextResponse.json({
     slug,
