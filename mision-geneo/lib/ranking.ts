@@ -79,6 +79,15 @@ export function totalPoints(
   return missionPts + dailyPts;
 }
 
+/**
+ * Puntos del EMPLEADO (nivel, progreso, premios): SOLO misiones. La pregunta
+ * del día NO cuenta acá — solo alimenta el ranking (ver pointsInPeriod). Esta
+ * es la separación clave del rediseño de premios.
+ */
+export function employeePoints(missionProgress: ScoreLike[]): number {
+  return missionProgress.reduce((acc, p) => acc + p.score, 0);
+}
+
 /** Puntos de un empleado dentro de un período (mes calendario) — para el ranking. */
 export function pointsInPeriod(
   missionProgress: MissionProgressLike[],
