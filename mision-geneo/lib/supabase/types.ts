@@ -3,7 +3,7 @@
  * Si el esquema cambia, actualizar acá (o regenerar con `supabase gen types`).
  */
 
-export type Role = "employee" | "admin";
+export type Role = "employee" | "admin" | "vendor";
 export type RedemptionStatus = "requested" | "approved" | "delivered";
 
 export type PharmacyRow = {
@@ -69,6 +69,12 @@ export type PharmacyPurchaseRow = {
   created_at: string;
 };
 
+export type VendorPharmacyRow = {
+  vendor_id: string;
+  pharmacy_id: string;
+  created_at: string;
+};
+
 /** Shape que consume @supabase/supabase-js para tipar queries. */
 export type Database = {
   public: {
@@ -115,6 +121,13 @@ export type Database = {
         Row: PharmacyPurchaseRow;
         Insert: Pick<PharmacyPurchaseRow, "pharmacy_id"> & Partial<PharmacyPurchaseRow>;
         Update: Partial<PharmacyPurchaseRow>;
+        Relationships: [];
+      };
+      vendor_pharmacies: {
+        Row: VendorPharmacyRow;
+        Insert: Pick<VendorPharmacyRow, "vendor_id" | "pharmacy_id"> &
+          Partial<VendorPharmacyRow>;
+        Update: Partial<VendorPharmacyRow>;
         Relationships: [];
       };
     };
