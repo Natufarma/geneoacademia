@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Award, CheckCircle2, Circle, Gift, LogOut, Package, RotateCcw, User } from "lucide-react";
+import { Award, CheckCircle2, Circle, Gift, LogOut, RotateCcw, User } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import InstallButton from "@/components/InstallButton";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
-import { getReward } from "@/lib/rewards";
+import { claimLabel } from "@/lib/prizes";
 import { useApp } from "@/lib/store";
 
 // Revelado escalonado al entrar en viewport (Ley de Movimiento: spring, sin tween).
@@ -28,7 +28,7 @@ export default function Perfil() {
 }
 
 function PerfilContent() {
-  const { user, pharmacyName, progress, points, balance, streak, redemptions, isSpecialist, logout, reset } =
+  const { user, pharmacyName, progress, points, streak, redemptions, isSpecialist, logout, reset } =
     useApp();
   const level = getLevel(points);
   const completedCount = MISSIONS.filter((m) => progress[m.slug]).length;
@@ -75,12 +75,6 @@ function PerfilContent() {
             </p>
             <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
               Racha actual
-            </p>
-          </div>
-          <div className="rounded-2xl bg-rosa-suave/60 px-4 py-3 flex flex-col gap-1">
-            <p className="text-geneo font-extrabold text-xl leading-none">{balance}</p>
-            <p className="text-muted text-[11px] font-semibold uppercase tracking-wide">
-              Saldo canjeable
             </p>
           </div>
         </div>
@@ -174,49 +168,29 @@ function PerfilContent() {
         </div>
       </motion.section>
 
-      {/* Premios canjeados */}
+      {/* Tus premios */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">Premios canjeados</h2>
-        {isSpecialist || redemptions.length > 0 ? (
+        <h2 className="text-ink font-bold text-lg tracking-tight">Tus premios</h2>
+        {redemptions.length > 0 ? (
           <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
-            {isSpecialist && (
-              <div className="flex items-center gap-3 px-5 py-3.5">
-                <Package size={19} className="text-geneo shrink-0" />
+            {redemptions.map((r) => (
+              <div key={r.rewardId} className="flex items-center gap-3 px-5 py-3.5">
+                <Gift size={19} className="text-geneo shrink-0" />
                 <span className="flex-1 min-w-0 flex flex-col gap-0.5">
                   <span className="block text-sm font-semibold text-ink leading-tight">
-                    Pack de muestras Geneo 45+
+                    {claimLabel(r.rewardId)}
                   </span>
                   <span className="block text-soft text-xs">
-                    Premio inmediato · En camino a tu farmacia
+                    {new Date(r.redeemedAt).toLocaleDateString("es-AR")} · Pendiente de entrega en
+                    tu farmacia
                   </span>
                 </span>
               </div>
-            )}
-            {redemptions.map((r) => {
-              const reward = getReward(r.rewardId);
-              if (!reward) return null;
-              return (
-                <div key={r.rewardId} className="flex items-center gap-3 px-5 py-3.5">
-                  <Gift size={19} className="text-geneo shrink-0" />
-                  <span className="flex-1 min-w-0 flex flex-col gap-0.5">
-                    <span className="block text-sm font-semibold text-ink leading-tight">
-                      {reward.name}
-                    </span>
-                    <span className="block text-soft text-xs">
-                      {new Date(r.redeemedAt).toLocaleDateString("es-AR")} · Pendiente de entrega en
-                      tu farmacia
-                    </span>
-                  </span>
-                  <span className="text-geneo text-sm font-extrabold shrink-0">
-                    −{reward.points}
-                  </span>
-                </div>
-              );
-            })}
+            ))}
           </div>
         ) : (
           <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
-            Todavía no canjeaste premios.{" "}
+            Todavía no ganaste premios.{" "}
             <Link
               href="/recompensas"
               className="text-geneo font-bold underline underline-offset-2 inline-block py-3 -my-3"

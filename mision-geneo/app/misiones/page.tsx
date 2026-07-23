@@ -21,7 +21,7 @@ export default function Misiones() {
 }
 
 function MisionesContent() {
-  const { user, pharmacyName, progress, points, balance, isSpecialist } = useApp();
+  const { user, pharmacyName, progress, points, isSpecialist } = useApp();
   const level = getLevel(points);
   const next = getNextLevel(points);
   const firstName = user?.name.split(" ")[0] ?? "";
@@ -68,8 +68,8 @@ function MisionesContent() {
           className="flex items-center gap-2.5 border-t border-line px-5 py-3.5 text-sm font-bold text-geneo hover:bg-rosa-suave/40 active:bg-rosa-suave/40 rounded-b-3xl transition-colors"
         >
           <Gift size={17} />
-          <span className="flex-1">Canjeá tus puntos</span>
-          <span className="text-muted font-semibold">{balance} pts</span>
+          <span className="flex-1">Mirá los premios</span>
+          <span className="text-muted font-semibold">{points} pts</span>
           <ChevronRight size={17} />
         </Link>
       </section>
