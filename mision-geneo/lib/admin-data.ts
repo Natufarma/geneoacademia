@@ -1,8 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
-import { getReward } from "@/lib/rewards";
-import { getPeriodBounds, pharmacyScore, pointsInPeriod, rankPharmacies, totalPoints } from "@/lib/ranking";
+import { claimLabel } from "@/lib/prizes";
+import { employeePoints, getPeriodBounds, pharmacyScore, pointsInPeriod, rankPharmacies } from "@/lib/ranking";
 import type { Period } from "@/lib/ranking";
 
 /**
@@ -68,8 +68,9 @@ function summarize(
 ): EmployeeSummary {
   const mine = progress.filter((p) => p.user_id === profile.id);
   const myDaily = daily.filter((d) => d.user_id === profile.id);
-  // Igual que en la app: puntos = misiones + pregunta del día (acumulativo).
-  const points = totalPoints(mine, myDaily);
+  // Igual que en la app: puntos = SOLO misiones (acumulativo). La pregunta del
+  // día no suma acá, solo alimenta el ranking del período (pointsInPeriod).
+  const points = employeePoints(mine);
   const periodPoints = pointsInPeriod(mine, myDaily, period);
   const coreDone = mine.filter((p) => CORE_SLUGS.has(p.mission_slug)).length;
   const advancedDone = mine.filter((p) => ADVANCED_SLUGS.has(p.mission_slug)).length;
@@ -291,7 +292,7 @@ export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
   );
 
   const redemptions: RedemptionDetail[] = (redemptionsRes.data ?? []).map((r) => ({
-    rewardName: getReward(r.reward_id)?.name ?? r.reward_id,
+    rewardName: claimLabel(r.reward_id),
     points: r.points,
     status: r.status,
     createdAt: r.created_at,

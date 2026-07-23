@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { MISSIONS, getMission } from "@/lib/missions";
+import { getMission } from "@/lib/missions";
 import { computeStreak, dayKey } from "@/lib/daily";
 import { employeePoints } from "@/lib/ranking";
 import { viajeComplete, academiaComplete } from "@/lib/prizes";
@@ -70,7 +70,8 @@ type Snapshot = {
   /** Farmacias disponibles (para el selector del registro y el ranking). */
   pharmacies: PharmacyOption[];
   progress: Record<string, MissionProgress>;
-  /** Puntos GANADOS (misiones + pregunta del día): nivel, anillo, certificado. */
+  /** Puntos GANADOS (SOLO misiones): nivel, anillo, certificado. La pregunta
+   * del día no suma acá, solo alimenta el ranking de farmacias. */
   points: number;
   redemptions: Redemption[];
   /** true cuando las 6 misiones core están completas. */

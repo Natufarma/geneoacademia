@@ -67,8 +67,9 @@ type DailyAnswerLike = DailyPointsLike & { day: string };
 
 /**
  * Puntos GANADOS de todo el historial (misiones + pregunta del día), sin
- * filtro de período. Es el número que definen nivel de Especialista,
- * certificado y saldo canjeable — ACUMULATIVO, nunca resetea.
+ * filtro de período — ACUMULATIVO, nunca resetea. Usado como base de
+ * `pointsInPeriod` para el ranking (ver más abajo); para el puntaje
+ * individual del empleado (nivel, premios) usar `employeePoints`.
  */
 export function totalPoints(
   missionProgress: ScoreLike[],

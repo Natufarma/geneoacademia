@@ -60,10 +60,19 @@ export function parseClaim(rewardId: string): ParsedClaim | null {
   return { prizeId, productSlug: productSlug ?? null };
 }
 
+/** Etiquetas legacy de la vieja tienda de canje por puntos (lib/rewards.ts,
+ * eliminado). Filas de `redemptions` viejas en producción siguen teniendo
+ * estos reward_id crudos — se mapean acá para no mostrarlos como texto plano. */
+const LEGACY_LABELS: Record<string, string> = {
+  neceser: "Neceser Geneo",
+  taza: "Taza Geneo",
+  shaker: "Shaker Geneo",
+};
+
 /** Etiqueta legible de un claim (reemplaza getReward().name en las vistas). */
 export function claimLabel(rewardId: string): string {
   const parsed = parseClaim(rewardId);
-  if (!parsed) return rewardId;
+  if (!parsed) return LEGACY_LABELS[rewardId] ?? rewardId;
   if (parsed.prizeId === "viaje-producto") {
     const product = parsed.productSlug ? getProduct(parsed.productSlug) : undefined;
     return product ? `Producto a elección: ${product.name}` : "Producto a elección";
