@@ -3,9 +3,9 @@
 import { useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { MISSIONS, getMission } from "@/lib/missions";
-import { getReward, redemptionsSpent } from "@/lib/rewards";
 import { computeStreak, dayKey } from "@/lib/daily";
-import { totalPoints } from "@/lib/ranking";
+import { employeePoints } from "@/lib/ranking";
+import { viajeComplete, academiaComplete } from "@/lib/prizes";
 
 /**
  * Estado de la app respaldado en Supabase.
@@ -72,11 +72,11 @@ type Snapshot = {
   progress: Record<string, MissionProgress>;
   /** Puntos GANADOS (misiones + pregunta del día): nivel, anillo, certificado. */
   points: number;
-  /** Saldo CANJEABLE: ganados − gastados. */
-  balance: number;
   redemptions: Redemption[];
   /** true cuando las 6 misiones core están completas. */
   isSpecialist: boolean;
+  /** true cuando se completaron las dos misiones de Academia (desbloquea el kit). */
+  academiaDone: boolean;
   /** Respuestas de la pregunta del día, por día local YYYY-MM-DD. */
   daily: Record<string, DailyEntry>;
   /** Días consecutivos participando (terminando hoy o ayer). */
@@ -92,9 +92,9 @@ const EMPTY_READY = (pharmacies: PharmacyOption[]): Snapshot => ({
   pharmacies,
   progress: {},
   points: 0,
-  balance: 0,
   redemptions: [],
   isSpecialist: false,
+  academiaDone: false,
   daily: {},
   streak: 0,
   answeredToday: false,
@@ -107,9 +107,9 @@ const SERVER_SNAPSHOT: Snapshot = {
   pharmacies: [],
   progress: {},
   points: 0,
-  balance: 0,
   redemptions: [],
   isSpecialist: false,
+  academiaDone: false,
   daily: {},
   streak: 0,
   answeredToday: false,
@@ -135,10 +135,6 @@ let supabase: ReturnType<typeof createClient> | null = null;
 function sb() {
   if (!supabase) supabase = createClient();
   return supabase;
-}
-
-function spentPoints(redemptions: Redemption[]): number {
-  return redemptionsSpent(redemptions.map((r) => r.rewardId));
 }
 
 /** Helper genérico para llamar los Route Handlers que otorgan puntos server-side. */
@@ -203,9 +199,10 @@ function buildSnapshot(
   for (const d of dailyRows) {
     daily[d.day] = { questionId: d.question_id, correct: d.correct, points: d.points };
   }
-  const points = totalPoints(Object.values(progress), Object.values(daily));
-  const balance = Math.max(0, points - spentPoints(redemptions));
-  const isSpecialist = MISSIONS.every((m) => Boolean(progress[m.slug]));
+  const points = employeePoints(Object.values(progress));
+  const completedSlugs = new Set(Object.keys(progress));
+  const isSpecialist = viajeComplete(completedSlugs);
+  const academiaDone = academiaComplete(completedSlugs);
   const pharmacyName =
     pharmacies.find((p) => p.id === profile.pharmacy_id)?.name ?? null;
   const answeredDays = new Set(Object.keys(daily));
@@ -217,9 +214,9 @@ function buildSnapshot(
     pharmacies,
     progress,
     points,
-    balance,
     redemptions,
     isSpecialist,
+    academiaDone,
     daily,
     streak: computeStreak(answeredDays),
     answeredToday: answeredDays.has(dayKey()),
@@ -232,9 +229,10 @@ function reproject(
   redemptions: Redemption[],
   daily: Record<string, DailyEntry>,
 ) {
-  const points = totalPoints(Object.values(progress), Object.values(daily));
-  const balance = Math.max(0, points - spentPoints(redemptions));
-  const isSpecialist = MISSIONS.every((m) => Boolean(progress[m.slug]));
+  const points = employeePoints(Object.values(progress));
+  const completedSlugs = new Set(Object.keys(progress));
+  const isSpecialist = viajeComplete(completedSlugs);
+  const academiaDone = academiaComplete(completedSlugs);
   const answeredDays = new Set(Object.keys(daily));
   setSnapshot({
     ...snapshot,
@@ -242,12 +240,12 @@ function reproject(
     redemptions,
     daily,
     points,
-    balance,
     isSpecialist,
+    academiaDone,
     streak: computeStreak(answeredDays),
     answeredToday: answeredDays.has(dayKey()),
   });
-  return { points, balance, isSpecialist };
+  return { points, isSpecialist, academiaDone };
 }
 
 async function loadPharmacies(): Promise<PharmacyOption[]> {
@@ -431,8 +429,8 @@ export async function completeMission(slug: string): Promise<CompleteMissionResu
   setSnapshot({
     ...snapshot,
     points: result.data.totalPoints,
-    balance: Math.max(0, result.data.totalPoints - spentPoints(snapshot.redemptions)),
     isSpecialist: result.data.isSpecialist,
+    academiaDone: academiaComplete(new Set(Object.keys(snapshot.progress))),
   });
   return {
     ok: true,
@@ -481,39 +479,28 @@ export async function answerDaily(optionIndex: number): Promise<AnswerDailyResul
   };
 }
 
-export type RedeemResult = { ok: true; balance: number } | { ok: false; error: string };
+export type ClaimResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Canjea un premio. El saldo se recalcula SIEMPRE server-side (ganados −
- * gastados); el cliente nunca decide si "alcanza". Optimista para la UI,
- * revertido si el servidor rechaza.
+ * Reclama un premio por hito. El servidor valida elegibilidad y doble reclamo;
+ * el cliente solo manda el prizeId (y el producto elegido, para el del viaje).
  */
-export async function redeem(rewardId: string): Promise<RedeemResult> {
-  const reward = getReward(rewardId);
-  if (!reward || !authUserId) return { ok: false, error: "No hay sesión activa." };
-  if (snapshot.redemptions.some((r) => r.rewardId === rewardId)) {
-    return { ok: false, error: "Ya canjeaste este premio." };
+export async function claimPrize(
+  prizeId: "viaje-producto" | "academia-kit",
+  productSlug?: string,
+): Promise<ClaimResult> {
+  if (!authUserId) return { ok: false, error: "No hay sesión activa." };
+  if (snapshot.redemptions.some((r) => r.rewardId.split(":")[0] === prizeId)) {
+    return { ok: false, error: "Ya reclamaste este premio." };
   }
-  if (snapshot.balance < reward.points) {
-    return { ok: false, error: "No tenés puntos suficientes para este premio." };
-  }
-
-  const prevSnapshot = snapshot;
+  const result = await postJson<{ rewardId: string }>("/api/prizes", { prizeId, productSlug });
+  if (!result.ok) return result;
   const redemptions = [
     ...snapshot.redemptions,
-    { rewardId, redeemedAt: new Date().toISOString() },
+    { rewardId: result.data.rewardId, redeemedAt: new Date().toISOString() },
   ];
-  reproject(snapshot.progress, redemptions, snapshot.daily);
-
-  const result = await postJson<{ balance: number }>("/api/redemptions", { rewardId });
-
-  if (!result.ok) {
-    setSnapshot(prevSnapshot);
-    return result;
-  }
-
-  setSnapshot({ ...snapshot, balance: result.data.balance });
-  return { ok: true, balance: result.data.balance };
+  setSnapshot({ ...snapshot, redemptions });
+  return { ok: true };
 }
 
 /** Cierra la sesión. Con email+contraseña se puede volver a entrar cuando quiera. */
@@ -567,12 +554,12 @@ export type AppState = Snapshot & {
   login: typeof login;
   completeMission: typeof completeMission;
   answerDaily: typeof answerDaily;
-  redeem: typeof redeem;
+  claimPrize: typeof claimPrize;
   logout: typeof logout;
   reset: typeof reset;
 };
 
 export function useApp(): AppState {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  return { ...snap, register, login, completeMission, answerDaily, redeem, logout, reset };
+  return { ...snap, register, login, completeMission, answerDaily, claimPrize, logout, reset };
 }
