@@ -6,8 +6,20 @@
 --
 -- Modelo (fase 2 del plan): la app del empleado deja de guardar en localStorage
 -- y escribe acá. El panel de admin lee TODO. Las misiones/premios siguen
--- definidos en el código (lib/missions.ts, lib/rewards.ts); la base guarda el
+-- definidos en el código (lib/missions.ts, lib/prizes.ts); la base guarda el
 -- PROGRESO por slug y los canjes por reward_id.
+--
+-- ⚠️ ESTE ARCHIVO ES LA BASE. La base VIVA además tiene las migraciones
+-- 002..007 (aplicarlas después de este archivo, en orden):
+--   002  auth + daily_answers + profiles.email/phone + pharmacies_select público
+--   003  puntos server-side (revoca INSERT/UPDATE del cliente en las tablas de
+--        gamificación; deja solo redemptions_admin_update)
+--   004  rol 'vendor' + tabla vendor_pharmacies
+--   005  trigger enforce_profile_role (bloquea auto-escalada de rol)
+--   006  pharmacies.type (farmacia/dietetica) + pharmacies.branch (sucursal)
+--   007  redemptions.prize_type + unique(user_id,prize_type); el trigger 005
+--        también bloquea el cambio de pharmacy_id por el cliente
+-- Es decir: NO alcanza con correr solo este schema.sql para reproducir prod.
 -- ============================================================================
 
 -- Extensión para gen_random_uuid()
