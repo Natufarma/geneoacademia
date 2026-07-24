@@ -23,6 +23,10 @@ export default function MissionPlayer({ slug }: { slug: string }) {
   const [finished, setFinished] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [completeError, setCompleteError] = useState<string | null>(null);
+  // Un intento por pregunta: si erra, la misión vuelve a empezar. `attempt`
+  // remonta los pasos para resetear su estado interno; `failed` muestra el aviso.
+  const [attempt, setAttempt] = useState(0);
+  const [failed, setFailed] = useState(false);
 
   if (!mission) {
     return (
@@ -87,6 +91,16 @@ export default function MissionPlayer({ slug }: { slug: string }) {
     setFinished(true);
   };
 
+  // Respuesta incorrecta: no hay descarte ni segunda chance dentro de la
+  // pregunta. Se avisa y se reinicia la misión desde el paso 1 (sin revelar la
+  // correcta), para que completarla exija saber de verdad.
+  const failMission = () => setFailed(true);
+  const restart = () => {
+    setFailed(false);
+    setStepIndex(0);
+    setAttempt((a) => a + 1);
+  };
+
   if (finished) {
     return (
       <MissionComplete
@@ -99,8 +113,9 @@ export default function MissionPlayer({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="min-h-dvh bg-surface">
-      <div className="max-w-md mx-auto px-5 pt-5 pb-12 flex flex-col gap-6">
+    <>
+      <div className="min-h-dvh bg-surface">
+        <div className="max-w-md mx-auto px-5 pt-5 pb-12 flex flex-col gap-6">
         {/* Header con progreso de pasos */}
         <header className="flex items-center gap-4">
           {/* Área táctil 44px (Mobile §2.1); el círculo visible queda de 36px. */}
@@ -150,7 +165,7 @@ export default function MissionPlayer({ slug }: { slug: string }) {
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={stepIndex}
+            key={`${attempt}-${stepIndex}`}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24 }}
@@ -164,6 +179,7 @@ export default function MissionPlayer({ slug }: { slug: string }) {
                 key={`quiz-${stepIndex}`}
                 step={step}
                 onNext={advance}
+                onWrong={failMission}
                 isLast={isLast}
                 busy={completing}
               />
@@ -173,6 +189,7 @@ export default function MissionPlayer({ slug }: { slug: string }) {
                 key={`match-${stepIndex}`}
                 step={step}
                 onNext={advance}
+                onWrong={failMission}
                 isLast={isLast}
                 busy={completing}
               />
@@ -185,8 +202,53 @@ export default function MissionPlayer({ slug }: { slug: string }) {
             {completeError} Probá de nuevo.
           </p>
         )}
+        </div>
       </div>
-    </div>
+
+      {/* Respuesta incorrecta → volver a empezar (sin revelar la correcta) */}
+      <AnimatePresence>
+        {failed && (
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fail-title"
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-ink/60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 28 }}
+          >
+            <motion.div
+              className="w-full max-w-xs bg-paper rounded-3xl shadow-card p-6 flex flex-col items-center text-center gap-5"
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 260, damping: 28 }}
+            >
+              <span className="flex items-center justify-center w-14 h-14 rounded-full bg-rosa-suave text-geneo">
+                <X size={28} strokeWidth={2.5} />
+              </span>
+              <div className="flex flex-col gap-1.5">
+                <h2 id="fail-title" className="text-ink font-extrabold text-lg tracking-tight">
+                  Respuesta incorrecta
+                </h2>
+                <p className="text-muted text-sm leading-snug">
+                  Para completar la misión hay que responder todo bien. Volvés a empezar desde el
+                  principio.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={restart}
+                className="w-full inline-flex items-center justify-center rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover text-white font-bold uppercase tracking-wide text-sm px-6 py-4 transition-colors"
+              >
+                Volver a empezar
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -258,26 +320,25 @@ function ContentStep({
 function QuizStep({
   step,
   onNext,
+  onWrong,
   isLast,
   busy,
 }: {
   step: StepQuiz;
   onNext: () => void;
+  onWrong: () => void;
   isLast: boolean;
   busy?: boolean;
 }) {
+  // Una sola elección: si acierta queda "solved"; si erra, avisa al padre para
+  // reiniciar la misión. No hay descarte ni segundo intento dentro de la pregunta.
   const [chosen, setChosen] = useState<number | null>(null);
-  const [wrong, setWrong] = useState<Set<number>>(new Set());
-  const solved = chosen !== null && step.options[chosen]?.correct;
+  const solved = chosen !== null && Boolean(step.options[chosen]?.correct);
 
   const pick = (i: number) => {
-    if (solved) return;
-    if (step.options[i].correct) {
-      setChosen(i);
-    } else {
-      setWrong((prev) => new Set(prev).add(i));
-      setChosen(null);
-    }
+    if (chosen !== null) return; // ya respondió
+    setChosen(i);
+    if (!step.options[i].correct) onWrong();
   };
 
   return (
@@ -287,34 +348,41 @@ function QuizStep({
           {step.context}
         </p>
       )}
-      <h2 className="text-ink font-bold text-lg leading-snug">{step.question}</h2>
+      <div className="flex flex-col gap-1">
+        <h2 className="text-ink font-bold text-lg leading-snug">{step.question}</h2>
+        <p className="text-soft text-xs font-semibold">
+          Una sola respuesta. Si errás, la misión vuelve a empezar.
+        </p>
+      </div>
 
       <div className="flex flex-col gap-2.5" role="group" aria-label="Opciones">
         {step.options.map((opt, i) => {
-          const isCorrectChosen = solved && step.options[i].correct;
-          const isWrong = wrong.has(i);
+          const isChosen = chosen === i;
+          const chosenCorrect = isChosen && Boolean(opt.correct);
+          const chosenWrong = isChosen && !opt.correct;
           return (
             <button
               key={opt.label}
               type="button"
               onClick={() => pick(i)}
-              disabled={Boolean(solved) || isWrong}
+              disabled={chosen !== null}
               className={`flex items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-[15px] font-semibold transition-colors ${
-                isCorrectChosen
+                chosenCorrect
                   ? "border-geneo bg-rosa-suave text-geneo"
-                  : isWrong
-                    ? "anim-shake border-line bg-surface text-soft line-through"
-                    : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
+                  : chosenWrong
+                    ? "border-geneo/60 bg-surface text-ink"
+                    : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50 disabled:opacity-50"
               }`}
             >
               {opt.label}
-              {isCorrectChosen && <Check size={18} strokeWidth={3} className="shrink-0" />}
+              {chosenCorrect && <Check size={18} strokeWidth={3} className="shrink-0" />}
+              {chosenWrong && <X size={18} strokeWidth={3} className="shrink-0" />}
             </button>
           );
         })}
       </div>
 
-      {solved ? (
+      {solved && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -326,12 +394,6 @@ function QuizStep({
             {step.feedback && <span className="text-muted font-medium">· {step.feedback}</span>}
           </p>
         </motion.div>
-      ) : (
-        wrong.size > 0 && (
-          <p className="text-muted text-sm font-medium">
-            Mmm, esa no era. ¡Probá de nuevo!
-          </p>
-        )
       )}
 
       <NextButton onClick={onNext} isLast={isLast} disabled={!solved} busy={busy} />
@@ -344,11 +406,13 @@ function QuizStep({
 function MatchStep({
   step,
   onNext,
+  onWrong,
   isLast,
   busy,
 }: {
   step: StepMatch;
   onNext: () => void;
+  onWrong: () => void;
   isLast: boolean;
   busy?: boolean;
 }) {
@@ -362,7 +426,6 @@ function MatchStep({
 
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
-  const [wrongRight, setWrongRight] = useState<number | null>(null);
   const done = matched.size === step.pairs.length;
 
   const pickRight = (pairIndex: number) => {
@@ -370,10 +433,9 @@ function MatchStep({
     if (pairIndex === selectedLeft) {
       setMatched((prev) => new Set(prev).add(pairIndex));
       setSelectedLeft(null);
-      setWrongRight(null);
     } else {
-      setWrongRight(pairIndex);
-      window.setTimeout(() => setWrongRight(null), 450);
+      // Par equivocado: sin reintentos, la misión vuelve a empezar.
+      onWrong();
     }
   };
 
@@ -383,6 +445,9 @@ function MatchStep({
         <h2 className="text-ink font-bold text-lg leading-snug">{step.prompt}</h2>
         <p className="text-muted text-sm">
           Tocá un activo y después su beneficio. Cada par suma {step.pointsPerPair} pts.
+        </p>
+        <p className="text-soft text-xs font-semibold">
+          Si errás un par, la misión vuelve a empezar.
         </p>
       </div>
 
@@ -418,7 +483,6 @@ function MatchStep({
           {rightOrder.map((pairIndex) => {
             const pair = step.pairs[pairIndex];
             const isMatched = matched.has(pairIndex);
-            const isWrong = wrongRight === pairIndex;
             return (
               <button
                 key={pair.right}
@@ -428,11 +492,9 @@ function MatchStep({
                 className={`rounded-2xl border-2 px-3 py-3 text-left text-[13px] font-medium leading-snug transition-colors min-h-16 ${
                   isMatched
                     ? "border-geneo/30 bg-rosa-suave/60 text-geneo/60"
-                    : isWrong
-                      ? "anim-shake border-geneo/60 bg-surface text-ink"
-                      : selectedLeft === null
-                        ? "border-line bg-surface text-soft"
-                        : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
+                    : selectedLeft === null
+                      ? "border-line bg-surface text-soft"
+                      : "border-line bg-surface text-ink hover:border-geneo/50 active:border-geneo/50"
                 }`}
               >
                 {pair.right}
