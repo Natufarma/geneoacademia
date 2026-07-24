@@ -11,6 +11,7 @@ import SorteoBanner from "@/components/SorteoBanner";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS, TOTAL_POINTS } from "@/lib/missions";
 import { getLevel, getNextLevel } from "@/lib/levels";
 import { useApp } from "@/lib/store";
+import { Badge, Card, SectionHeader, type CardVariant } from "@/components/ui";
 
 export default function Misiones() {
   return (
@@ -40,8 +41,8 @@ function MisionesContent() {
         <Image src="/img/logo-fuxia.webp" alt="Geneo" width={86} height={28} priority />
       </header>
 
-      {/* Progreso */}
-      <section className="bg-paper rounded-3xl shadow-card">
+      {/* Progreso — tarjeta principal de la home (nivel feature) */}
+      <Card as="section" variant="feature">
         <div className="p-5 flex items-center gap-5">
           <ProgressRing value={points} max={TOTAL_POINTS}>
             <span className="text-geneo font-extrabold text-xl leading-none">{points}</span>
@@ -72,7 +73,7 @@ function MisionesContent() {
           <span className="text-muted font-semibold">{points} pts</span>
           <ChevronRight size={17} />
         </Link>
-      </section>
+      </Card>
 
       {/* Pregunta del día con racha */}
       <DailyQuestion />
@@ -86,9 +87,11 @@ function MisionesContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
         >
-          <Link
+          <Card
+            as={Link}
             href="/certificado"
-            className="flex items-center gap-4 rounded-3xl bg-gradient-to-br from-geneo to-geneo-dark text-white shadow-card px-5 py-4"
+            variant="hero"
+            className="flex items-center gap-4 px-5 py-4"
           >
             <span className="flex items-center justify-center w-11 h-11 rounded-full bg-white/15 shrink-0">
               <Award size={22} />
@@ -100,30 +103,26 @@ function MisionesContent() {
               <span className="block text-white/85 text-sm">Ver tu certificado</span>
             </span>
             <ChevronRight size={20} className="shrink-0" />
-          </Link>
+          </Card>
         </motion.div>
       )}
 
       {/* Viaje de misiones */}
       <section className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">
+        <SectionHeader>
           Tu viaje de Especialista <span className="text-geneo">en 6 misiones</span>
-        </h2>
+        </SectionHeader>
 
         {MISSIONS.map((m, i) => {
           const done = Boolean(progress[m.slug]);
           const available = !done && i === firstPendingIndex;
           const locked = !done && !available;
+          const variant: CardVariant = done ? "quiet" : available ? "feature" : "base";
 
           const card = (
-            <div
-              className={`flex items-center gap-4 rounded-3xl px-4 py-4 transition-colors ${
-                done
-                  ? "bg-rosa-suave/60"
-                  : available
-                    ? "bg-paper shadow-card"
-                    : "bg-paper/60 opacity-60"
-              }`}
+            <Card
+              variant={variant}
+              className={`flex items-center gap-4 px-4 py-4 transition-colors ${locked ? "opacity-60" : ""}`}
             >
               <span
                 className={`flex items-center justify-center w-11 h-11 rounded-full font-extrabold shrink-0 ${
@@ -151,7 +150,7 @@ function MisionesContent() {
                 </span>
                 {available && <ChevronRight size={18} className="text-geneo" />}
               </span>
-            </div>
+            </Card>
           );
 
           return (
@@ -184,14 +183,9 @@ function MisionesContent() {
 
       {/* Campañas de temporada — Academia (etapa 2): contenido rotativo nuevo */}
       <section className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-ink font-bold text-lg tracking-tight">
-            Campañas <span className="text-geneo">de temporada</span>
-          </h2>
-          <p className="text-muted text-sm leading-snug">
-            Contenido nuevo cada temporada. Sumá puntos extra sin esperar.
-          </p>
-        </div>
+        <SectionHeader subtitle="Contenido nuevo cada temporada. Sumá puntos extra sin esperar.">
+          Campañas <span className="text-geneo">de temporada</span>
+        </SectionHeader>
 
         {CAMPAIGN_MISSIONS.map((m, i) => {
           const done = Boolean(progress[m.slug]);
@@ -213,7 +207,12 @@ function MisionesContent() {
                 href={`/mision/${m.slug}`}
                 aria-label={`${done ? "Repasar" : "Empezar"} campaña: ${m.title}`}
               >
-                <span className="flex items-center gap-4 rounded-3xl px-4 py-4 bg-paper shadow-card transition-colors">
+                <Card
+                  as="span"
+                  variant={done ? "quiet" : "base"}
+                  interactive={!done}
+                  className="flex items-center gap-4 px-4 py-4"
+                >
                   <span
                     className={`flex items-center justify-center w-11 h-11 rounded-full shrink-0 ${
                       done ? "bg-geneo text-white" : "bg-rosa-suave text-geneo"
@@ -226,11 +225,7 @@ function MisionesContent() {
                       <span className="text-[10px] font-bold uppercase tracking-widest text-geneo">
                         Campaña · {m.season}
                       </span>
-                      {!done && (
-                        <span className="rounded-full bg-geneo text-white text-[9px] font-bold uppercase tracking-wide px-2 py-0.5">
-                          Nuevo
-                        </span>
-                      )}
+                      {!done && <Badge tone="solid">Nuevo</Badge>}
                     </span>
                     <span className={`block font-bold leading-tight ${done ? "text-geneo" : "text-ink"}`}>
                       {m.title}
@@ -243,7 +238,7 @@ function MisionesContent() {
                     </span>
                     <ChevronRight size={18} className="text-geneo" />
                   </span>
-                </span>
+                </Card>
               </Link>
             </motion.div>
           );
@@ -252,14 +247,9 @@ function MisionesContent() {
 
       {/* Academia Geneo — misiones avanzadas (etapa 2 de la propuesta) */}
       <section className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-ink font-bold text-lg tracking-tight">
-            Academia Geneo <span className="text-geneo">· Seguí aprendiendo</span>
-          </h2>
-          <p className="text-muted text-sm leading-snug">
-            Contenido avanzado para ir más allá del certificado.
-          </p>
-        </div>
+        <SectionHeader subtitle="Contenido avanzado para ir más allá del certificado.">
+          Academia Geneo <span className="text-geneo">· Seguí aprendiendo</span>
+        </SectionHeader>
 
         {/* Guía de estudio: siempre accesible (estudiar → probar) */}
         <motion.div
@@ -279,7 +269,7 @@ function MisionesContent() {
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
         >
           <Link href="/academia/activos" aria-label="Abrir la guía de activos">
-            <span className="flex items-center gap-4 rounded-3xl px-4 py-4 bg-paper shadow-card transition-colors">
+            <Card as="span" variant="base" interactive className="flex items-center gap-4 px-4 py-4">
               <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
                 <BookOpen size={20} />
               </span>
@@ -293,7 +283,7 @@ function MisionesContent() {
                 </span>
               </span>
               <ChevronRight size={18} className="text-geneo shrink-0" />
-            </span>
+            </Card>
           </Link>
         </motion.div>
 
@@ -302,15 +292,12 @@ function MisionesContent() {
           const available = !done && isSpecialist;
           const locked = !done && !available;
 
+          const variant: CardVariant = done ? "quiet" : "base";
+
           const card = (
-            <div
-              className={`flex items-center gap-4 rounded-3xl px-4 py-4 transition-colors ${
-                done
-                  ? "bg-rosa-suave/60"
-                  : available
-                    ? "bg-paper shadow-card"
-                    : "bg-paper/60 opacity-60"
-              }`}
+            <Card
+              variant={variant}
+              className={`flex items-center gap-4 px-4 py-4 transition-colors ${locked ? "opacity-60" : ""}`}
             >
               <span
                 className={`flex items-center justify-center w-11 h-11 rounded-full shrink-0 ${
@@ -346,7 +333,7 @@ function MisionesContent() {
                 </span>
                 {available && <ChevronRight size={18} className="text-geneo" />}
               </span>
-            </div>
+            </Card>
           );
 
           return (

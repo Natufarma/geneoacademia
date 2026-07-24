@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Info, RotateCcw, Store, Trophy, Users } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { useApp } from "@/lib/store";
+import { Badge, Card } from "@/components/ui";
 
 /**
  * Ranking nacional de empleados y farmacias, alimentado por /api/ranking.
@@ -35,11 +36,36 @@ type RankingResponse = {
 
 type Tab = "empleados" | "farmacias";
 
-const MEDAL: Record<number, { bg: string; label: string }> = {
-  1: { bg: "bg-oro", label: "1º" },
-  2: { bg: "bg-plata", label: "2º" },
-  3: { bg: "bg-bronce", label: "3º" },
+const MEDAL: Record<number, string> = {
+  2: "bg-plata",
+  3: "bg-bronce",
 };
+
+/**
+ * Marca de posición unificada, con una sola forma para todos los puestos:
+ *   1º → trofeo sobre oro (el campeón, el único "pico")
+ *   2º/3º → número sobre plata/bronce (el podio)
+ *   4º+ → número en gris neutro que RETROCEDE (antes era rosa y chocaba con la marca)
+ */
+function RankMark({ position }: { position: number }) {
+  if (position === 1) {
+    return (
+      <span className="flex items-center justify-center w-11 h-11 rounded-full bg-oro text-white shrink-0">
+        <Trophy size={19} />
+      </span>
+    );
+  }
+  const podium = MEDAL[position];
+  return (
+    <span
+      className={`flex items-center justify-center w-11 h-11 rounded-full font-extrabold text-sm shrink-0 ${
+        podium ? `${podium} text-white` : "bg-line/60 text-muted"
+      }`}
+    >
+      {position}º
+    </span>
+  );
+}
 
 /** "2026-07" → "julio 2026" */
 function periodLabel(key: string): string {
@@ -135,19 +161,23 @@ function RankingContent() {
 
       <AnimatePresence initial={false}>
         {tab === "farmacias" && (
-          <motion.p
+          <Card
+            as={motion.p}
+            variant="quiet"
             key="farmacias-note"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            className="flex items-center gap-2 text-muted text-xs leading-relaxed bg-rosa-suave/50 rounded-2xl px-4 py-3"
+            className="flex items-start gap-2.5 text-muted text-xs leading-relaxed px-4 py-3"
           >
-            <Info size={15} className="text-geneo shrink-0" />
-            El puntaje de cada farmacia es el promedio de sus <strong>3 empleados con más
-            puntos</strong> este mes: así una farmacia chica puede competir de igual a igual con una
-            más grande.
-          </motion.p>
+            <Info size={15} className="text-geneo shrink-0 mt-0.5" />
+            <span>
+              El puntaje de una farmacia es el{" "}
+              <strong className="text-ink font-bold">promedio de sus 3 mejores empleados</strong> del
+              mes. Así una farmacia chica compite de igual a igual con una grande.
+            </span>
+          </Card>
         )}
       </AnimatePresence>
 
@@ -257,41 +287,31 @@ function EmployeesList({ rows }: { rows: EmployeeRankRow[] }) {
 
   return (
     <ol className="flex flex-col gap-3">
-      {rows.map((r, i) => {
-        const medal = MEDAL[r.position];
-        return (
-          <motion.li
-            key={r.position}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 28, delay: Math.min(i, 8) * 0.05 }}
-            className={`flex items-center gap-4 rounded-3xl px-4 py-4 ${
-              r.isCurrentUser ? "bg-paper shadow-card ring-2 ring-geneo" : "bg-paper shadow-soft"
-            }`}
-          >
+      {rows.map((r, i) => (
+        <Card
+          as={motion.li}
+          key={r.position}
+          variant={r.isCurrentUser ? "feature" : "base"}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28, delay: Math.min(i, 8) * 0.05 }}
+          className={`flex items-center gap-4 px-4 py-4 ${r.isCurrentUser ? "ring-2 ring-geneo" : ""}`}
+        >
+          <RankMark position={r.position} />
+          <span className="flex-1 min-w-0">
             <span
-              className={`flex items-center justify-center w-11 h-11 rounded-full font-extrabold text-sm shrink-0 ${
-                medal ? `${medal.bg} text-white` : "bg-rosa-suave text-geneo"
-              }`}
+              className={`flex items-center gap-2 font-bold leading-tight ${r.isCurrentUser ? "text-geneo" : "text-ink"}`}
             >
-              {medal ? <Trophy size={19} /> : `${r.position}º`}
+              {r.displayName}
+              {r.isCurrentUser && <Badge tone="soft">Vos</Badge>}
             </span>
-            <span className="flex-1 min-w-0">
-              <span className={`flex items-center gap-2 font-bold leading-tight ${r.isCurrentUser ? "text-geneo" : "text-ink"}`}>
-                {r.displayName}
-                {r.isCurrentUser && (
-                  <span className="text-xs font-bold uppercase tracking-wide bg-rosa-suave text-geneo rounded-full px-2 py-0.5 shrink-0">
-                    Vos
-                  </span>
-                )}
-              </span>
-            </span>
-            <span className="text-ink font-extrabold text-base shrink-0">
-              {r.points.toLocaleString("es-AR")} <span className="text-soft text-xs font-semibold">pts</span>
-            </span>
-          </motion.li>
-        );
-      })}
+          </span>
+          <span className="text-ink font-extrabold text-base shrink-0">
+            {r.points.toLocaleString("es-AR")}{" "}
+            <span className="text-soft text-xs font-semibold">pts</span>
+          </span>
+        </Card>
+      ))}
     </ol>
   );
 }
@@ -316,33 +336,26 @@ function PharmaciesList({
     <ol className="flex flex-col gap-3">
       {rows.map((p, i) => {
         const isMine = p.name === myPharmacyName;
-        const medal = MEDAL[p.position];
         return (
-          <motion.li
+          <Card
+            as={motion.li}
             key={p.position}
+            variant={isMine ? "feature" : "base"}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 28, delay: Math.min(i, 8) * 0.05 }}
-            className={`flex items-center gap-4 rounded-3xl px-4 py-4 ${
-              isMine ? "bg-paper shadow-card ring-2 ring-geneo" : "bg-paper shadow-soft"
-            }`}
+            className={`flex items-center gap-4 px-4 py-4 ${isMine ? "ring-2 ring-geneo" : ""}`}
           >
-            <span
-              className={`flex items-center justify-center w-11 h-11 rounded-full font-extrabold text-sm shrink-0 ${
-                medal ? `${medal.bg} text-white` : "bg-rosa-suave text-geneo"
-              }`}
-            >
-              {medal ? <Trophy size={19} /> : `${p.position}º`}
-            </span>
+            <RankMark position={p.position} />
             <span className="flex-1 min-w-0 flex flex-col gap-0.5">
               <span className="flex items-center gap-2 min-w-0">
                 <span className={`font-bold leading-tight truncate ${isMine ? "text-geneo" : "text-ink"}`}>
                   {p.name}
                 </span>
                 {isMine && (
-                  <span className="text-xs font-bold uppercase tracking-wide bg-rosa-suave text-geneo rounded-full px-2 py-0.5 shrink-0">
+                  <Badge tone="soft" className="shrink-0">
                     Tu farmacia
-                  </span>
+                  </Badge>
                 )}
               </span>
               <span className="text-soft text-xs">
@@ -350,9 +363,10 @@ function PharmaciesList({
               </span>
             </span>
             <span className="text-ink font-extrabold text-base shrink-0">
-              {p.score.toLocaleString("es-AR")} <span className="text-soft text-xs font-semibold">pts</span>
+              {p.score.toLocaleString("es-AR")}{" "}
+              <span className="text-soft text-xs font-semibold">pts</span>
             </span>
-          </motion.li>
+          </Card>
         );
       })}
     </ol>
