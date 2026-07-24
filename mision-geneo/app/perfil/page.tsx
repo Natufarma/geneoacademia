@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Award, CheckCircle2, Circle, Gift, LogOut, RotateCcw, User } from "lucide-react";
+import { Award, CheckCircle2, Circle, Gift, LogOut, User } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import InstallButton from "@/components/InstallButton";
@@ -28,7 +28,7 @@ export default function Perfil() {
 }
 
 function PerfilContent() {
-  const { user, pharmacyName, progress, points, streak, redemptions, isSpecialist, logout, reset } =
+  const { user, pharmacyName, progress, points, streak, redemptions, isSpecialist, logout } =
     useApp();
   const level = getLevel(points);
   const completedCount = MISSIONS.filter((m) => progress[m.slug]).length;
@@ -47,7 +47,7 @@ function PerfilContent() {
         </span>
         <div className="flex flex-col gap-0.5">
           <h1 className="text-ink font-extrabold text-xl tracking-tight">{user?.name}</h1>
-          <p className="text-muted text-sm">{pharmacyName}</p>
+          <p className="text-muted text-sm">{pharmacyName ?? "tu farmacia"}</p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-geneo text-geneo font-bold text-xs uppercase tracking-wide px-4 py-1.5">
           {isSpecialist && <Award size={14} />}
@@ -250,18 +250,6 @@ function PerfilContent() {
         >
           <LogOut size={16} />
           Cerrar sesión
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm("¿Reiniciar el demo? Se borra el progreso de este teléfono.")) {
-              reset();
-            }
-          }}
-          className="inline-flex items-center justify-center gap-2 min-h-11 text-soft hover:text-muted active:text-muted text-xs font-semibold uppercase tracking-wide transition-colors"
-        >
-          <RotateCcw size={14} />
-          Reiniciar demo
         </button>
       </motion.div>
     </div>

@@ -513,29 +513,6 @@ export async function logout() {
   setSnapshot(EMPTY_READY(snapshot.pharmacies));
 }
 
-/** Borra los datos del usuario actual y vuelve al inicio (helper de demo). */
-export async function reset() {
-  const client = sb();
-  if (authUserId) {
-    await Promise.all([
-      client.from("mission_progress").delete().eq("user_id", authUserId),
-      client.from("redemptions").delete().eq("user_id", authUserId),
-      client.from("certificates").delete().eq("user_id", authUserId),
-      client.from("daily_answers").delete().eq("user_id", authUserId),
-    ]);
-    await client.from("profiles").delete().eq("id", authUserId);
-  }
-  await client.auth.signOut();
-  authUserId = null;
-  // El demo arranca de cero de verdad: el onboarding también se vuelve a ver.
-  try {
-    window.localStorage.removeItem("mision-geneo:onboarding-v1");
-  } catch {
-    // localStorage bloqueado: sin drama, solo no se re-muestra el onboarding.
-  }
-  setSnapshot(EMPTY_READY(snapshot.pharmacies));
-}
-
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 function subscribe(listener: () => void): () => void {
@@ -559,10 +536,9 @@ export type AppState = Snapshot & {
   answerDaily: typeof answerDaily;
   claimPrize: typeof claimPrize;
   logout: typeof logout;
-  reset: typeof reset;
 };
 
 export function useApp(): AppState {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  return { ...snap, register, login, completeMission, answerDaily, claimPrize, logout, reset };
+  return { ...snap, register, login, completeMission, answerDaily, claimPrize, logout };
 }

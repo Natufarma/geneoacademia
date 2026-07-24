@@ -35,7 +35,7 @@ function MisionesContent() {
       <header className="flex items-center justify-between gap-3">
         <div className="flex flex-col">
           <p className="text-ink font-bold text-xl tracking-tight">Hola, {firstName} 👋</p>
-          <p className="text-muted text-sm">{pharmacyName}</p>
+          <p className="text-muted text-sm">{pharmacyName ?? "tu farmacia"}</p>
         </div>
         <Image src="/img/logo-fuxia.webp" alt="Geneo" width={86} height={28} priority />
       </header>

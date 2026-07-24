@@ -64,6 +64,10 @@ export async function POST(request: Request) {
     .from("redemptions")
     .insert({ user_id: user.id, reward_id: rewardId, points: 0 });
   if (insertError) {
+    const message = insertError.message?.toLowerCase() ?? "";
+    if (insertError.code === "23505" || message.includes("duplicate") || message.includes("unique")) {
+      return NextResponse.json({ error: "Ya reclamaste este premio." }, { status: 400 });
+    }
     return NextResponse.json({ error: "No pudimos registrar el premio." }, { status: 500 });
   }
 

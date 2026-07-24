@@ -88,7 +88,7 @@ function CertificadoContent() {
             <p className="text-ink font-extrabold text-3xl tracking-tight leading-tight">
               {user?.name}
             </p>
-            <p className="text-muted text-base">{pharmacyName}</p>
+            <p className="text-muted text-base">{pharmacyName ?? "tu farmacia"}</p>
           </div>
 
           <p className="text-muted text-sm leading-relaxed max-w-xs">

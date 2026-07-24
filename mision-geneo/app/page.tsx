@@ -254,25 +254,32 @@ export default function Bienvenida() {
 
               <label className="flex flex-col gap-1.5">
                 <span className="text-muted text-sm font-semibold">Tu farmacia</span>
-                <select
-                  value={pharmacyId}
-                  onChange={(e) => {
-                    setPharmacyId(e.target.value);
-                    clearFeedback();
-                  }}
-                  className={`rounded-full border border-line bg-surface px-5 py-3 text-base focus:border-geneo focus:outline-none ${
-                    pharmacyId ? "text-ink" : "text-soft"
-                  }`}
-                >
-                  <option value="" disabled>
-                    {pharmacies.length ? "Elegí tu farmacia" : "Cargando farmacias…"}
-                  </option>
-                  {pharmacies.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {`${p.name}${p.city ? " — " + p.city : ""}${p.branch ? " (" + p.branch + ")" : ""}`}
+                {ready && pharmacies.length === 0 ? (
+                  <p className="text-muted text-sm rounded-2xl bg-surface border border-line px-5 py-3">
+                    Todavía no hay farmacias habilitadas. Pedile a tu vendedor Geneo que registre
+                    la tuya.
+                  </p>
+                ) : (
+                  <select
+                    value={pharmacyId}
+                    onChange={(e) => {
+                      setPharmacyId(e.target.value);
+                      clearFeedback();
+                    }}
+                    className={`rounded-full border border-line bg-surface px-5 py-3 text-base focus:border-geneo focus:outline-none ${
+                      pharmacyId ? "text-ink" : "text-soft"
+                    }`}
+                  >
+                    <option value="" disabled>
+                      {pharmacies.length ? "Elegí tu farmacia" : "Cargando farmacias…"}
                     </option>
-                  ))}
-                </select>
+                    {pharmacies.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {`${p.name}${p.city ? " — " + p.city : ""}${p.branch ? " (" + p.branch + ")" : ""}`}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </label>
             </>
           )}
