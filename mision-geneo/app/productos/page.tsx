@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import SectionTabs from "@/components/SectionTabs";
 import { Card } from "@/components/ui";
@@ -29,6 +29,34 @@ export default function Productos() {
             Tocá cada uno para ver su fórmula y a quién recomendárselo.
           </p>
         </header>
+
+        {/* Acceso a la consulta de mostrador (buscar por necesidad del cliente) */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={spring}
+        >
+          <Card
+            as={Link}
+            href="/mostrador"
+            variant="base"
+            interactive
+            className="flex items-center gap-3.5 px-5 py-3.5"
+          >
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-rosa-suave text-geneo shrink-0">
+              <Search size={19} />
+            </span>
+            <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+              <span className="block text-ink font-bold text-sm leading-tight">
+                ¿Qué busca tu cliente?
+              </span>
+              <span className="block text-muted text-xs leading-snug">
+                Buscá por necesidad y recomendá al instante.
+              </span>
+            </span>
+            <ChevronRight size={18} className="text-geneo shrink-0" />
+          </Card>
+        </motion.div>
 
         <section className="grid grid-cols-2 gap-3.5">
           {PRODUCTS.map((p, i) => (

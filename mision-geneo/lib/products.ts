@@ -27,6 +27,10 @@ export type Product = {
   /** Clase de color de marca (Solar va en naranja). */
   accent: string;
   available: boolean;
+  /** Palabras con las que un cliente pediría este producto en el mostrador
+   * (para el buscador de /mostrador). Curadas, sin tildes ni mayúsculas
+   * obligatorias: el matcher normaliza. */
+  needs: string[];
 };
 
 export const PRODUCTS: Product[] = [
@@ -40,6 +44,11 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-piel.webp",
     accent: "text-geneo",
     available: true,
+    needs: [
+      "glow", "luminosidad", "brillo", "hidratacion", "hidratar", "firmeza",
+      "reafirmante", "piel", "tersa", "colageno", "q10", "arrugas", "antiedad",
+      "flacidez", "tono",
+    ],
   },
   {
     slug: "beauty",
@@ -51,6 +60,11 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-beauty.webp",
     accent: "text-geneo",
     available: true,
+    needs: [
+      "pelo", "cabello", "caida", "caida del pelo", "uñas", "unas", "quebradizas",
+      "fortalecer", "fuerza", "integral", "completo", "todo en uno", "belleza",
+      "piel firme", "hialuronico", "resveratrol", "cistina", "biotina",
+    ],
   },
   {
     slug: "45",
@@ -62,6 +76,11 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-45.webp",
     accent: "text-geneo",
     available: true,
+    needs: [
+      "45", "+45", "mas de 45", "edad", "madura", "menopausia", "climaterio",
+      "elasticidad", "renovacion", "arrugas", "antiedad", "isoflavonas",
+      "estrogenos", "sofocos", "piel madura",
+    ],
   },
   {
     slug: "solar",
@@ -73,6 +92,10 @@ export const PRODUCTS: Product[] = [
     img: "/img/prod-solar.webp",
     accent: "text-solar",
     available: false,
+    needs: [
+      "sol", "solar", "bronceado", "broncear", "playa", "verano", "exposicion",
+      "tomar sol", "pileta", "vacaciones",
+    ],
   },
 ];
 

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Check, Lock, ChevronRight, Award, BookOpen, Gift, GraduationCap, Sparkles } from "lucide-react";
+import { Check, Lock, ChevronRight, Award, BookOpen, Gift, GraduationCap, Sparkles, Search } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import DailyQuestion from "@/components/DailyQuestion";
 import ProgressRing from "@/components/ProgressRing";
@@ -77,6 +77,34 @@ function MisionesContent() {
 
       {/* Pregunta del día con racha */}
       <DailyQuestion />
+
+      {/* Consulta de mostrador: recomendar al instante frente al cliente */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 28 }}
+      >
+        <Card
+          as={Link}
+          href="/mostrador"
+          variant="base"
+          interactive
+          className="flex items-center gap-4 px-5 py-4"
+        >
+          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
+            <Search size={20} />
+          </span>
+          <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+            <span className="block text-ink font-bold text-base leading-tight">
+              Consulta de mostrador
+            </span>
+            <span className="block text-muted text-sm leading-snug">
+              Recomendá al instante lo que busca tu cliente.
+            </span>
+          </span>
+          <ChevronRight size={20} className="text-geneo shrink-0" />
+        </Card>
+      </motion.div>
 
       <SorteoBanner compact />
 
