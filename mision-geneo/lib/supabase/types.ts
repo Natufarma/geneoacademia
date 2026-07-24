@@ -5,12 +5,15 @@
 
 export type Role = "employee" | "admin" | "vendor";
 export type RedemptionStatus = "requested" | "approved" | "delivered";
+export type PharmacyType = "farmacia" | "dietetica";
 
 export type PharmacyRow = {
   id: string;
   code: string;
   name: string;
   city: string | null;
+  branch: string | null;
+  type: PharmacyType;
   active: boolean;
   created_at: string;
 };

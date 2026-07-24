@@ -6,7 +6,7 @@ import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const LINKS = [
-  { href: "/vendedor/farmacias", label: "Farmacias" },
+  { href: "/vendedor/farmacias", label: "Puntos de venta" },
   { href: "/vendedor/premios", label: "Premios" },
   { href: "/vendedor/ranking", label: "Ranking" },
 ];

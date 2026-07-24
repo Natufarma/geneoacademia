@@ -32,7 +32,7 @@ export async function GET() {
 
   const { data: pharmacies } = await admin
     .from("pharmacies")
-    .select("id, name, city, created_at")
+    .select("id, name, type, city, branch, created_at")
     .in("id", ids)
     .order("name");
   return NextResponse.json({ pharmacies: pharmacies ?? [] });
@@ -42,16 +42,25 @@ export async function POST(request: Request) {
   const vendorId = await getVendorUserId();
   if (!vendorId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  let body: { name?: unknown; city?: unknown } | null;
+  let body: { type?: unknown; name?: unknown; city?: unknown; branch?: unknown } | null;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
+  const type = typeof body?.type === "string" ? body.type.trim() : "";
   const name = typeof body?.name === "string" ? body.name.trim() : "";
-  const city = typeof body?.city === "string" && body.city.trim() ? body.city.trim() : null;
+  const city = typeof body?.city === "string" ? body.city.trim() : "";
+  const branch = typeof body?.branch === "string" && body.branch.trim() ? body.branch.trim() : null;
+
+  if (type !== "farmacia" && type !== "dietetica") {
+    return NextResponse.json({ error: "Elegí el tipo de punto de venta." }, { status: 400 });
+  }
   if (!name) {
-    return NextResponse.json({ error: "El nombre de la farmacia es obligatorio." }, { status: 400 });
+    return NextResponse.json({ error: "El nombre es obligatorio." }, { status: 400 });
+  }
+  if (!city) {
+    return NextResponse.json({ error: "La ciudad es obligatoria." }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -60,7 +69,7 @@ export async function POST(request: Request) {
     const code = genPharmacyCode();
     const { data, error } = await admin
       .from("pharmacies")
-      .insert({ code, name, city })
+      .insert({ code, name, city, branch, type })
       .select("id")
       .maybeSingle();
     if (!error && data) {
