@@ -20,7 +20,7 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4">
+      <Reveal className="flex flex-col gap-4">
         <Link
           href="/admin/empleados"
           className="inline-flex items-center gap-1.5 min-h-11 -my-2 text-muted hover:text-geneo active:text-geneo text-sm font-semibold transition-colors self-start"
@@ -42,12 +42,14 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
               <Award size={26} />
             </span>
           )}
-          <div className="flex flex-col gap-1 min-w-0">
-            <h1 className="text-ink font-extrabold text-2xl tracking-tight truncate">{emp.name}</h1>
+          <div className="flex flex-col gap-1">
+            <h1 className="text-ink font-extrabold text-2xl tracking-tight break-words">
+              {emp.name}
+            </h1>
             <p className="text-muted text-sm">
               {emp.pharmacyName} · Registrado el {fmtDate(emp.createdAt)}
             </p>
-            <p className="text-muted text-sm truncate">
+            <p className="text-muted text-sm break-words">
               {emp.email ?? "Sin email"}
               {emp.phone ? ` · ${emp.phone}` : ""}
             </p>
@@ -56,9 +58,9 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
             <CertifiedBadge certified={emp.certified} />
           </div>
         </header>
-      </div>
+      </Reveal>
 
-      <Reveal className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <Reveal delay={0.08} className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard label="Puntos" value={emp.points} hint={emp.levelName} />
         <StatCard label="Misiones" value={`${emp.coreDone}/${emp.coreTotal}`} hint="Viaje core" />
         <StatCard
@@ -78,7 +80,7 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
         />
       </Reveal>
 
-      <Reveal className="flex flex-col gap-3">
+      <Reveal delay={0.16} className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Progreso por misión</h2>
         <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line overflow-hidden">
           {emp.missions.map((m) => (
@@ -107,7 +109,7 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
         </div>
       </Reveal>
 
-      <Reveal className="flex flex-col gap-3">
+      <Reveal delay={0.24} className="flex flex-col gap-3">
         <h2 className="text-ink font-bold text-lg tracking-tight">Premios canjeados</h2>
         {emp.redemptions.length === 0 ? (
           <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
