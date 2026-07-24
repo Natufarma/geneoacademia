@@ -74,7 +74,7 @@ export default function RankingVendedor() {
               resetea cada mes
             </>
           ) : (
-            "Las farmacias con más puntos de tu cartera."
+            "El ranking mensual de todas las farmacias del programa."
           )}
         </p>
       </header>
