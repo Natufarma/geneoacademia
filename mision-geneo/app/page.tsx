@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Gamepad2, Star, Gift, Eye, EyeOff, MailCheck } from "lucide-react";
@@ -336,6 +337,13 @@ export default function Bienvenida() {
             Programa exclusivo para Farmacias Aliadas Geneo.
           </p>
         </motion.form>
+
+        <Link
+          href="/vendedor/acceso"
+          className="text-soft text-xs underline underline-offset-2 text-center block py-2"
+        >
+          Soy vendedor
+        </Link>
       </main>
     </div>
   );
