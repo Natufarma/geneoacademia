@@ -8,6 +8,7 @@ import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import InstallButton from "@/components/InstallButton";
 import AvatarUploader from "@/components/AvatarUploader";
+import Achievements from "@/components/Achievements";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { claimLabel } from "@/lib/prizes";
@@ -16,13 +17,16 @@ import { Card, SectionHeader } from "@/components/ui";
 
 // Scroll reveal por sección: el trigger de viewport vive en CADA sección (no en
 // un contenedor), así cada bloque se desvela al hacer scroll hasta él —
-// coreografía real, no una entrada de mount disfrazada. Spring, y:30.
-const reveal = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-40px" },
-  transition: { type: "spring", stiffness: 260, damping: 28 },
-} as const;
+// coreografía real, no una entrada de mount disfrazada. Spring, y:30. El `delay`
+// escalonado (acotado) ordena las secciones sobre el pliegue en el primer
+// pintado, sin penalizar con lag a las de más abajo cuando se scrollea.
+const reveal = (i = 0) =>
+  ({
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-40px" },
+    transition: { type: "spring", stiffness: 260, damping: 28, delay: Math.min(i, 3) * 0.06 },
+  }) as const;
 
 export default function Perfil() {
   return (
@@ -55,7 +59,7 @@ function PerfilContent() {
         {/* Tarjeta de identidad — la principal de esta vista */}
         <Card
           as={motion.section}
-          {...reveal}
+          {...reveal(0)}
           variant="feature"
           className="p-6 flex flex-col items-center text-center gap-3"
         >
@@ -98,13 +102,18 @@ function PerfilContent() {
         </Card>
 
         {/* Niveles de Especialista (Academia, etapa 2) */}
-        <motion.section {...reveal} className="flex flex-col gap-3">
+        <motion.section {...reveal(1)} className="flex flex-col gap-3">
           <SectionHeader>Tus niveles</SectionHeader>
           <LevelsLadder points={points} />
         </motion.section>
 
+        {/* Logros / insignias */}
+        <motion.section {...reveal(2)} className="flex flex-col gap-3">
+          <Achievements />
+        </motion.section>
+
         {/* Historial de misiones */}
-        <motion.section {...reveal} className="flex flex-col gap-3">
+        <motion.section {...reveal(3)} className="flex flex-col gap-3">
           <SectionHeader>Historial de misiones</SectionHeader>
           <Card variant="base" className="divide-y divide-line">
             {MISSIONS.map((m) => {
@@ -186,7 +195,7 @@ function PerfilContent() {
         </motion.section>
 
         {/* Tus premios */}
-        <motion.section {...reveal} className="flex flex-col gap-3">
+        <motion.section {...reveal(4)} className="flex flex-col gap-3">
           <SectionHeader>Tus premios</SectionHeader>
           {redemptions.length > 0 ? (
             <Card variant="base" className="divide-y divide-line">
@@ -220,7 +229,7 @@ function PerfilContent() {
         </motion.section>
 
         {/* Certificados */}
-        <motion.section {...reveal} className="flex flex-col gap-3">
+        <motion.section {...reveal(5)} className="flex flex-col gap-3">
           <SectionHeader>Certificados</SectionHeader>
           {isSpecialist ? (
             <Card
@@ -247,7 +256,7 @@ function PerfilContent() {
         </motion.section>
 
         {/* La app (instalar PWA) */}
-        <motion.section {...reveal} className="flex flex-col gap-3">
+        <motion.section {...reveal(6)} className="flex flex-col gap-3">
           <SectionHeader subtitle="Instalala en tu teléfono para tenerla a un toque, sin abrir el navegador.">
             La app
           </SectionHeader>
@@ -257,7 +266,7 @@ function PerfilContent() {
         </motion.section>
 
         {/* Sesión */}
-        <motion.div {...reveal} className="flex flex-col items-center gap-3">
+        <motion.div {...reveal(7)} className="flex flex-col items-center gap-3">
           <button
             type="button"
             onClick={() => setConfirmLogout(true)}

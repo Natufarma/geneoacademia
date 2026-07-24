@@ -43,6 +43,8 @@ export function CorrectBurst({ face = "😍" }: { face?: string }) {
         <motion.span
           aria-hidden
           exit={{ opacity: 0 }}
+          // Fade de opacidad de una capa decorativa que desaparece (no es
+          // desplazamiento espacial): un tween corto es correcto acá.
           transition={{ duration: 0.25 }}
           className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-visible"
         >
@@ -57,14 +59,16 @@ export function CorrectBurst({ face = "😍" }: { face?: string }) {
               <p.Icon size={p.size} className="fill-current" strokeWidth={0} />
             </motion.span>
           ))}
-          <motion.span
-            className="text-4xl leading-none drop-shadow-sm"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 380, damping: 16 }}
-          >
-            {face}
-          </motion.span>
+          {face && (
+            <motion.span
+              className="text-4xl leading-none drop-shadow-sm"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 380, damping: 16 }}
+            >
+              {face}
+            </motion.span>
+          )}
         </motion.span>
       )}
     </AnimatePresence>
