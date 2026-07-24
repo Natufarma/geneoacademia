@@ -78,6 +78,12 @@ export type VendorPharmacyRow = {
   created_at: string;
 };
 
+export type RateLimitRow = {
+  key: string;
+  count: number;
+  window_start: string;
+};
+
 /** Shape que consume @supabase/supabase-js para tipar queries. */
 export type Database = {
   public: {
@@ -133,11 +139,21 @@ export type Database = {
         Update: Partial<VendorPharmacyRow>;
         Relationships: [];
       };
+      rate_limits: {
+        Row: RateLimitRow;
+        Insert: Pick<RateLimitRow, "key"> & Partial<RateLimitRow>;
+        Update: Partial<RateLimitRow>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       is_admin: {
         Args: Record<string, never>;
+        Returns: boolean;
+      };
+      check_rate_limit: {
+        Args: { p_key: string; p_max: number; p_window: number };
         Returns: boolean;
       };
     };

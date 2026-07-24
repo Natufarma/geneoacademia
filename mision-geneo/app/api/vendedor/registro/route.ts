@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyVendorCode } from "@/lib/vendor-auth";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 /**
  * Alta de vendedor. TODO server-side: valida el código de alta y crea el
@@ -10,6 +11,14 @@ import { verifyVendorCode } from "@/lib/vendor-auth";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const ip = clientIp(request.headers);
+  if (!(await checkRateLimit(`vendreg:${ip}`, 10, 900))) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Esperá unos minutos e intentá de nuevo." },
+      { status: 429 },
+    );
+  }
+
   let body: { name?: unknown; email?: unknown; password?: unknown; code?: unknown } | null;
   try {
     body = await request.json();
