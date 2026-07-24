@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       String(error?.code ?? "").includes("23505") ||
       String(error?.message ?? "").toLowerCase().includes("duplicate");
     if (error && !dup) {
-      return NextResponse.json({ error: "No pudimos crear la farmacia." }, { status: 500 });
+      return NextResponse.json({ error: "No pudimos crear el punto de venta." }, { status: 500 });
     }
   }
   if (!pharmacyId) {
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     .from("vendor_pharmacies")
     .insert({ vendor_id: vendorId, pharmacy_id: pharmacyId });
   if (linkErr) {
-    return NextResponse.json({ error: "Creamos la farmacia pero no pudimos vincularla. Avisá a soporte." }, { status: 500 });
+    return NextResponse.json({ error: "Creamos el punto de venta pero no pudimos vincularlo. Avisá a soporte." }, { status: 500 });
   }
   return NextResponse.json({ ok: true, pharmacyId });
 }
