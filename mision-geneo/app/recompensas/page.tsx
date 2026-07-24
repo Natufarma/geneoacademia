@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { Check, Lock, Sparkles } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import SorteoBanner from "@/components/SorteoBanner";
 import { PRODUCTS, getProduct } from "@/lib/products";
@@ -168,8 +168,8 @@ function RecompensasContent() {
 
         {kitClaimed ? (
           <Card variant="quiet" className="flex items-center gap-4 px-5 py-4">
-            <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave/60 text-geneo shrink-0">
-              <Sparkles size={24} />
+            <span className="relative w-14 h-14 shrink-0">
+              <Image src="/img/kit-merch.webp" alt="" fill sizes="56px" className="object-contain" />
             </span>
             <div className="flex-1 min-w-0 flex flex-col gap-1">
               <p className="text-ink font-bold text-sm leading-tight">
@@ -182,16 +182,20 @@ function RecompensasContent() {
           </Card>
         ) : academiaDone ? (
           <Card variant="base" className="flex flex-col gap-3 px-5 py-4">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave text-geneo shrink-0">
-                <Sparkles size={24} />
-              </span>
-              <div className="flex-1 min-w-0 flex flex-col gap-1">
-                <p className="text-ink font-bold text-sm leading-tight">
-                  Kit de merchandising Geneo
-                </p>
-                <p className="text-soft text-xs">Llavero + bolsa + neceser</p>
-              </div>
+            <span className="relative block w-full h-44 rounded-2xl bg-surface overflow-hidden">
+              <Image
+                src="/img/kit-merch.webp"
+                alt="Kit de merchandising Geneo: bolsa, neceser y llavero"
+                fill
+                sizes="(max-width: 480px) 100vw, 448px"
+                className="object-contain"
+              />
+            </span>
+            <div className="flex flex-col gap-1">
+              <p className="text-ink font-bold text-sm leading-tight">
+                Kit de merchandising Geneo
+              </p>
+              <p className="text-soft text-xs">Llavero + bolsa + neceser</p>
             </div>
             <motion.button
               type="button"
