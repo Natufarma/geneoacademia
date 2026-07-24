@@ -230,8 +230,8 @@ function ContentStep({
   return (
     <div className="bg-paper rounded-3xl shadow-card p-6 flex flex-col gap-4">
       {step.image && (
-        <div className="relative -mx-6 -mt-6 h-44 overflow-hidden rounded-t-3xl">
-          <Image src={step.image} alt="" fill className="object-cover" />
+        <div className="relative -mx-6 -mt-6 h-56 overflow-hidden rounded-t-3xl">
+          <Image src={step.image} alt="" fill className="object-cover object-[50%_66%]" />
         </div>
       )}
       <div className="flex flex-col gap-2.5">
