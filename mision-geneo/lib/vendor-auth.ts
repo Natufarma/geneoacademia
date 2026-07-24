@@ -35,7 +35,12 @@ export async function getVendorUserId(): Promise<string | null> {
   return data?.role === "vendor" ? user.id : null;
 }
 
-/** ¿La farmacia pertenece al vendedor (existe el vínculo en vendor_pharmacies)? */
+/**
+ * ¿La farmacia pertenece al vendedor (existe el vínculo en vendor_pharmacies)?
+ * `vendorId` DEBE venir siempre de `getVendorUserId()` (la sesión), NUNCA de
+ * datos enviados por el cliente (body/query) — de lo contrario cualquiera
+ * podría pasar el vendorId de otro vendedor y pasar este chequeo (IDOR).
+ */
 export async function vendorOwnsPharmacy(vendorId: string, pharmacyId: string): Promise<boolean> {
   const admin = createAdminClient();
   const { data } = await admin
