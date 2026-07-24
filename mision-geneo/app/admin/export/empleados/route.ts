@@ -3,7 +3,11 @@ import { getEmployees } from "@/lib/admin-data";
 import { isAuthed } from "@/lib/admin-auth";
 
 function cell(value: string | number): string {
-  const s = String(value);
+  let s = String(value);
+  // Anti inyección de fórmulas: si la celda arranca con = + - @ (o tab/CR),
+  // Excel/Sheets la ejecutaría como fórmula. El empleado controla nombre,
+  // email y celular, así que se antepone un apóstrofo para forzar texto.
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
