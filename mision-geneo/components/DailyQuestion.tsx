@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Check, Flame, Loader2, X } from "lucide-react";
 import { dayKey, type PublicDailyQuestion } from "@/lib/daily";
 import { useApp } from "@/lib/store";
+import { CorrectBurst } from "@/components/CorrectCelebration";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
 
@@ -144,7 +145,7 @@ export default function DailyQuestion() {
                   initial={false}
                   animate={{ scale: isPicked ? 1.02 : 1 }}
                   transition={spring}
-                  className={`flex items-center justify-between gap-3 min-h-11 rounded-2xl border-2 px-4 py-2.5 text-left text-sm font-semibold transition-colors ${
+                  className={`relative flex items-center justify-between gap-3 min-h-11 rounded-2xl border-2 px-4 py-2.5 text-left text-sm font-semibold transition-colors ${
                     isCorrectRevealed
                       ? "border-geneo bg-rosa-suave/60 text-geneo"
                       : revealed && isPicked
@@ -160,6 +161,7 @@ export default function DailyQuestion() {
                   {isPicked && submitting && <Loader2 size={16} className="animate-spin shrink-0" />}
                   {isCorrectRevealed && <Check size={17} strokeWidth={3} className="shrink-0" />}
                   {revealed && isPicked && !isCorrectRevealed && <X size={17} strokeWidth={3} className="shrink-0" />}
+                  {isCorrectRevealed && result?.correct && <CorrectBurst />}
                 </motion.button>
               );
             })}

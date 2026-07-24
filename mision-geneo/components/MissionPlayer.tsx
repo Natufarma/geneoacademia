@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Check, ArrowRight, Lock, Star, Award } from "lucide-react";
 import Confetti from "@/components/Confetti";
+import { CorrectBurst, CountUp } from "@/components/CorrectCelebration";
 import { MISSIONS, getMission, stepPoints, type Mission, type StepContent, type StepMatch, type StepQuiz } from "@/lib/missions";
 import { useApp } from "@/lib/store";
 
@@ -361,12 +362,14 @@ function QuizStep({
           const chosenCorrect = isChosen && Boolean(opt.correct);
           const chosenWrong = isChosen && !opt.correct;
           return (
-            <button
+            <motion.button
               key={opt.label}
               type="button"
               onClick={() => pick(i)}
               disabled={chosen !== null}
-              className={`flex items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-[15px] font-semibold transition-colors ${
+              animate={{ scale: chosenCorrect ? 1.03 : 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              className={`relative flex items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-[15px] font-semibold transition-colors ${
                 chosenCorrect
                   ? "border-geneo bg-rosa-suave text-geneo"
                   : chosenWrong
@@ -377,7 +380,8 @@ function QuizStep({
               {opt.label}
               {chosenCorrect && <Check size={18} strokeWidth={3} className="shrink-0" />}
               {chosenWrong && <X size={18} strokeWidth={3} className="shrink-0" />}
-            </button>
+              {chosenCorrect && <CorrectBurst />}
+            </motion.button>
           );
         })}
       </div>
@@ -390,7 +394,9 @@ function QuizStep({
         >
           <p className="flex items-center gap-2 text-geneo font-bold text-sm">
             <Star size={16} className="fill-geneo" />
-            +{step.points} puntos
+            <span className="tabular-nums">
+              +<CountUp to={step.points} /> puntos
+            </span>
             {step.feedback && <span className="text-muted font-medium">· {step.feedback}</span>}
           </p>
         </motion.div>
@@ -510,10 +516,14 @@ function MatchStep({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
-          className="flex items-center gap-2 text-geneo font-bold text-sm"
+          className="relative flex items-center gap-2 text-geneo font-bold text-sm"
         >
           <Star size={16} className="fill-geneo" />
-          +{stepPoints(step)} puntos · ¡Todos los pares unidos!
+          <span className="tabular-nums">
+            +<CountUp to={stepPoints(step)} /> puntos
+          </span>{" "}
+          · ¡Todos los pares unidos!
+          <CorrectBurst />
         </motion.p>
       ) : (
         matched.size > 0 && (
