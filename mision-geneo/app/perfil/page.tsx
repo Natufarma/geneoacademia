@@ -10,6 +10,7 @@ import LevelsLadder from "@/components/LevelsLadder";
 import InstallButton from "@/components/InstallButton";
 import AvatarUploader from "@/components/AvatarUploader";
 import Achievements from "@/components/Achievements";
+import PushToggle from "@/components/PushToggle";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { claimLabel } from "@/lib/prizes";
@@ -256,13 +257,14 @@ function PerfilContent() {
           )}
         </motion.section>
 
-        {/* La app (instalar PWA) */}
+        {/* La app (instalar PWA + recordatorios push) */}
         <motion.section {...reveal(6)} className="flex flex-col gap-3">
-          <SectionHeader subtitle="Instalala en tu teléfono para tenerla a un toque, sin abrir el navegador.">
+          <SectionHeader subtitle="Instalala en tu teléfono y activá los recordatorios para no perder tu racha.">
             La app
           </SectionHeader>
-          <Card variant="base" className="p-5">
+          <Card variant="base" className="p-5 flex flex-col gap-4">
             <InstallButton />
+            <PushToggle />
           </Card>
         </motion.section>
 

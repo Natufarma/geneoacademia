@@ -56,3 +56,39 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(caches.match(req).then((r) => r || fetch(req)));
   }
 });
+
+// ───────────────────────── Web Push (recordatorios de racha) ─────────────────
+// El payload lo arma el servidor en /api/push/recordatorio.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = data.title || "Misión Geneo";
+  const options = {
+    body: data.body || "",
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
+    data: { url: data.url || "/misiones" },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Al tocar la notificación: enfocar una pestaña abierta o abrir la app.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/misiones";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      const open = clients.find((c) => c.url.includes(self.location.origin));
+      if (open) {
+        open.focus();
+        if ("navigate" in open) open.navigate(target);
+        return;
+      }
+      return self.clients.openWindow(target);
+    }),
+  );
+});

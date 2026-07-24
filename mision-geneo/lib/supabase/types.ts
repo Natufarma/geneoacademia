@@ -86,6 +86,14 @@ export type RateLimitRow = {
   window_start: string;
 };
 
+export type PushSubscriptionRow = {
+  endpoint: string;
+  user_id: string;
+  p256dh: string;
+  auth: string;
+  created_at: string;
+};
+
 /** Shape que consume @supabase/supabase-js para tipar queries. */
 export type Database = {
   public: {
@@ -145,6 +153,13 @@ export type Database = {
         Row: RateLimitRow;
         Insert: Pick<RateLimitRow, "key"> & Partial<RateLimitRow>;
         Update: Partial<RateLimitRow>;
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: PushSubscriptionRow;
+        Insert: Pick<PushSubscriptionRow, "endpoint" | "user_id" | "p256dh" | "auth"> &
+          Partial<PushSubscriptionRow>;
+        Update: Partial<PushSubscriptionRow>;
         Relationships: [];
       };
     };
