@@ -30,9 +30,18 @@ export default async function EmpleadoDetalle({ params }: { params: Promise<{ id
         </Link>
 
         <header className="flex flex-wrap items-center gap-4">
-          <span className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-geneo to-geneo-dark text-white shrink-0">
-            <Award size={26} />
-          </span>
+          {emp.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- URL firmada de Storage: no aplica next/image (unoptimized, sin remotePatterns).
+            <img
+              src={emp.avatarUrl}
+              alt={emp.name}
+              className="w-14 h-14 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <span className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-geneo to-geneo-dark text-white shrink-0">
+              <Award size={26} />
+            </span>
+          )}
           <div className="flex flex-col gap-1 min-w-0">
             <h1 className="text-ink font-extrabold text-2xl tracking-tight truncate">{emp.name}</h1>
             <p className="text-muted text-sm">

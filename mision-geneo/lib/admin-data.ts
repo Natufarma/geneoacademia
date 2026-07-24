@@ -247,13 +247,21 @@ export type RedemptionDetail = {
 export type EmployeeDetail = EmployeeSummary & {
   missions: MissionRow[];
   redemptions: RedemptionDetail[];
+  /** URL firmada (vida corta) de la foto de perfil; null si no tiene o falló. */
+  avatarUrl: string | null;
 };
+
+const AVATAR_SIGNED_URL_TTL_SECONDS = 3600;
 
 export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
   const sb = createAdminClient();
   const [profileRes, pharmaciesRes, progressRes, certsRes, redemptionsRes, dailyRes] =
     await Promise.all([
-      sb.from("profiles").select("id, name, email, phone, pharmacy_id, role, created_at").eq("id", id).maybeSingle(),
+      sb
+        .from("profiles")
+        .select("id, name, email, phone, pharmacy_id, role, avatar_path, created_at")
+        .eq("id", id)
+        .maybeSingle(),
       sb.from("pharmacies").select("id, name"),
       sb.from("mission_progress").select("user_id, mission_slug, score, completed_at").eq("user_id", id),
       sb.from("certificates").select("user_id, issued_at").eq("user_id", id).limit(1),
@@ -262,6 +270,13 @@ export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
     ]);
   const profile = profileRes.data;
   if (!profile) return null;
+
+  // service_role bypasea RLS: el admin puede firmar la foto de cualquier
+  // empleado sin necesitar una policy de SELECT adicional en storage.objects.
+  const avatarUrl = profile.avatar_path
+    ? ((await sb.storage.from("avatars").createSignedUrl(profile.avatar_path, AVATAR_SIGNED_URL_TTL_SECONDS))
+        .data?.signedUrl ?? null)
+    : null;
 
   const pharmMap = new Map((pharmaciesRes.data ?? []).map((p) => [p.id, p.name]));
   const progress = (progressRes.data ?? []) as ProgressRow[];
@@ -298,5 +313,5 @@ export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
     createdAt: r.created_at,
   }));
 
-  return { ...summary, missions, redemptions };
+  return { ...summary, missions, redemptions, avatarUrl };
 }

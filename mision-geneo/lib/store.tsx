@@ -22,6 +22,8 @@ import { viajeComplete, academiaComplete } from "@/lib/prizes";
 export type DemoUser = {
   name: string;
   pharmacyId: string;
+  /** Ruta del avatar en el bucket privado `avatars` (null = sin foto todavía). */
+  avatarPath: string | null;
 };
 
 export type MissionProgress = {
@@ -184,7 +186,7 @@ function friendlyAuthError(message: string): string {
 
 /** Arma el snapshot logueado desde las filas crudas de la base. */
 function buildSnapshot(
-  profile: { name: string; pharmacy_id: string | null },
+  profile: { name: string; pharmacy_id: string | null; avatar_path: string | null },
   prog: { mission_slug: string; score: number; completed_at: string }[],
   reds: { reward_id: string; created_at: string }[],
   dailyRows: { day: string; question_id: string; correct: boolean; points: number }[],
@@ -212,7 +214,11 @@ function buildSnapshot(
 
   return {
     ready: true,
-    user: { name: profile.name, pharmacyId: profile.pharmacy_id ?? "" },
+    user: {
+      name: profile.name,
+      pharmacyId: profile.pharmacy_id ?? "",
+      avatarPath: profile.avatar_path ?? null,
+    },
     pharmacyName,
     pharmacies,
     progress,
@@ -291,7 +297,11 @@ async function loadUser(userId: string, pharmacies: PharmacyOption[]): Promise<S
   const client = sb();
   const [{ data: profile }, { data: prog }, { data: reds }, { data: daily }] =
     await Promise.all([
-      client.from("profiles").select("name, pharmacy_id").eq("id", userId).maybeSingle(),
+      client
+        .from("profiles")
+        .select("name, pharmacy_id, avatar_path")
+        .eq("id", userId)
+        .maybeSingle(),
       client
         .from("mission_progress")
         .select("mission_slug, score, completed_at")

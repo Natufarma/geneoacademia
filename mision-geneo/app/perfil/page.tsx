@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Award, CheckCircle2, Circle, Gift, LogOut, User } from "lucide-react";
+import { Award, CheckCircle2, Circle, Gift, LogOut } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import InstallButton from "@/components/InstallButton";
+import AvatarUploader from "@/components/AvatarUploader";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { claimLabel } from "@/lib/prizes";
@@ -45,9 +46,7 @@ function PerfilContent() {
         transition={{ type: "spring", stiffness: 260, damping: 28 }}
         className="p-6 flex flex-col items-center text-center gap-3"
       >
-        <span className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-geneo to-geneo-dark text-white">
-          <User size={34} />
-        </span>
+        <AvatarUploader initialPath={user?.avatarPath ?? null} name={user?.name ?? ""} />
         <div className="flex flex-col gap-0.5">
           <h1 className="text-ink font-extrabold text-xl tracking-tight">{user?.name}</h1>
           <p className="text-muted text-sm">{pharmacyName ?? "tu farmacia"}</p>

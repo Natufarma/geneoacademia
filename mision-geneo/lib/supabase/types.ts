@@ -25,6 +25,8 @@ export type ProfileRow = {
   role: Role;
   email: string | null;
   phone: string | null;
+  /** Ruta del objeto en el bucket privado `avatars` (null = sin foto). Nunca una URL. */
+  avatar_path: string | null;
   created_at: string;
 };
 
