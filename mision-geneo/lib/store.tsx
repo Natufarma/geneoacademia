@@ -37,6 +37,8 @@ export type Redemption = {
 export type PharmacyOption = {
   id: string;
   name: string;
+  city: string | null;
+  branch: string | null;
 };
 
 export type DailyEntry = {
@@ -251,8 +253,8 @@ function reproject(
 
 async function loadPharmacies(): Promise<PharmacyOption[]> {
   // Lectura pública (el selector del registro se ve antes de tener sesión).
-  const { data } = await sb().from("pharmacies").select("id, name").order("name");
-  return data ?? [];
+  const { data } = await sb().from("pharmacies").select("id, name, city, branch").order("name");
+  return (data ?? []).map((p) => ({ id: p.id, name: p.name, city: p.city, branch: p.branch }));
 }
 
 /**

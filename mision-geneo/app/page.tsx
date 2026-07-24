@@ -269,7 +269,7 @@ export default function Bienvenida() {
                   </option>
                   {pharmacies.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name}
+                      {`${p.name}${p.city ? " — " + p.city : ""}${p.branch ? " (" + p.branch + ")" : ""}`}
                     </option>
                   ))}
                 </select>
