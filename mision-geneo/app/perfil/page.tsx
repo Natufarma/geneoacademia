@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, CheckCircle2, Circle, Gift, LogOut } from "lucide-react";
+import { Award, CheckCircle2, ChevronRight, Circle, Gift, HelpCircle, LogOut, ShieldCheck, UserCog } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
 import InstallButton from "@/components/InstallButton";
@@ -265,8 +266,28 @@ function PerfilContent() {
           </Card>
         </motion.section>
 
+        {/* Cuenta y ayuda */}
+        <motion.section {...reveal(7)} className="flex flex-col gap-3">
+          <SectionHeader>Cuenta y ayuda</SectionHeader>
+          <Card variant="base" className="divide-y divide-line">
+            <SettingsRow
+              href="/cuenta"
+              icon={UserCog}
+              label="Mi cuenta"
+              hint="Editar datos, contraseña y baja"
+            />
+            <SettingsRow
+              href="/ayuda"
+              icon={HelpCircle}
+              label="Ayuda"
+              hint="Preguntas frecuentes y contacto"
+            />
+            <SettingsRow href="/privacidad" icon={ShieldCheck} label="Política de privacidad" />
+          </Card>
+        </motion.section>
+
         {/* Sesión */}
-        <motion.div {...reveal(7)} className="flex flex-col items-center gap-3">
+        <motion.div {...reveal(8)} className="flex flex-col items-center gap-3">
           <button
             type="button"
             onClick={() => setConfirmLogout(true)}
@@ -339,5 +360,33 @@ function PerfilContent() {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function SettingsRow({
+  href,
+  icon: Icon,
+  label,
+  hint,
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  hint?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-rosa-suave/40 active:bg-rosa-suave/40 transition-colors"
+    >
+      <span className="flex items-center justify-center w-9 h-9 rounded-full bg-rosa-suave text-geneo shrink-0">
+        <Icon size={17} />
+      </span>
+      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className="block text-ink font-bold text-sm leading-tight">{label}</span>
+        {hint && <span className="block text-soft text-xs leading-snug">{hint}</span>}
+      </span>
+      <ChevronRight size={17} className="text-soft shrink-0" />
+    </Link>
   );
 }

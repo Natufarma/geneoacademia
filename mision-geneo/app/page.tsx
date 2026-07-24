@@ -42,6 +42,7 @@ export default function Bienvenida() {
   const [phone, setPhone] = useState("");
   const [pharmacyId, setPharmacyId] = useState("");
   const [password, setPassword] = useState("");
+  const [consent, setConsent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -73,6 +74,10 @@ export default function Bienvenida() {
       }
       if (password.length < 8) {
         setError("La contraseña debe tener al menos 8 caracteres.");
+        return;
+      }
+      if (!consent) {
+        setError("Para crear tu cuenta tenés que aceptar la política de privacidad.");
         return;
       }
       setSubmitting(true);
@@ -332,6 +337,30 @@ export default function Bienvenida() {
               </button>
             </span>
           </label>
+
+          {mode === "signup" && (
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => {
+                  setConsent(e.target.checked);
+                  clearFeedback();
+                }}
+                className="mt-0.5 h-5 w-5 shrink-0 rounded-md border border-line text-geneo accent-geneo focus:outline-none focus:ring-2 focus:ring-geneo/40"
+              />
+              <span className="text-muted text-sm leading-snug">
+                Acepto la{" "}
+                <Link
+                  href="/privacidad"
+                  className="text-geneo font-semibold underline underline-offset-2"
+                >
+                  política de privacidad
+                </Link>
+                .
+              </span>
+            </label>
+          )}
 
           {error && (
             <p role="alert" className="text-geneo text-sm font-medium">

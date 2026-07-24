@@ -147,6 +147,18 @@ const SHARE_TEXT =
  * Compartir con Web Share API; si el navegador no la soporta (desktop viejo),
  * cae a WhatsApp. La detección ocurre recién en el click: el markup es idéntico
  * en SSR y cliente, así no hay mismatch de hidratación.
+ *
+ * ¿Por qué no se comparte una imagen (navigator.share con `files`)? Se evaluó
+ * generar un PNG de la tarjeta con <canvas> dibujando manualmente el degradé,
+ * el logo y cada bloque de texto, pero requeriría: cargar la fuente Montserrat
+ * vía FontFace antes de dibujar (con posible desajuste de kerning/OpenType
+ * respecto al render real en HTML), hardcodear a mano los tokens de color de
+ * marca (geneo, ink, muted, etc.) fuera de Tailwind, y mantener ese dibujo
+ * sincronizado a mano cada vez que cambie el diseño de la tarjeta. El riesgo
+ * de un certificado con pixel-fidelity pobre supera el beneficio frente al
+ * fallback de texto + url, que es soportado de forma nativa y consistente.
+ * Si en el futuro se necesita imagen, la vía más confiable es capturar
+ * `.print-area` con una lib dedicada (ej. html-to-image) en vez de canvas manual.
  */
 function ShareButton() {
   const share = async () => {
@@ -154,8 +166,13 @@ function ShareButton() {
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({ text: SHARE_TEXT, url });
-      } catch {
-        // Compartir cancelado por la usuaria: no es un error.
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") {
+          // Compartir cancelado por la usuaria: no es un error.
+          return;
+        }
+        // Otro fallo (ej. permisos denegados): no rompemos la UI, solo lo dejamos en consola.
+        console.error("No se pudo compartir el certificado", err);
       }
     } else {
       window.open(

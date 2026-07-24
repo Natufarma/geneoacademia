@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Info, RotateCcw, Store, Trophy, Users } from "lucide-react";
+import { AlertCircle, ChevronRight, Info, RotateCcw, Store, Trophy, Users } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { useApp } from "@/lib/store";
 import { Badge, Card } from "@/components/ui";
@@ -127,6 +128,28 @@ function RankingContent() {
           )}
         </p>
       </header>
+
+      {/* Acceso al desafío de tu farmacia (resumen motivacional del ranking) */}
+      <Card
+        as={Link}
+        href="/desafio"
+        variant="base"
+        interactive
+        className="flex items-center gap-3.5 px-5 py-3.5"
+      >
+        <span className="flex items-center justify-center w-10 h-10 rounded-full bg-rosa-suave text-geneo shrink-0">
+          <Trophy size={19} />
+        </span>
+        <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+          <span className="block text-ink font-bold text-sm leading-tight">
+            Desafío de tu farmacia
+          </span>
+          <span className="block text-muted text-xs leading-snug">
+            Cuánto falta para el kit del mes.
+          </span>
+        </span>
+        <ChevronRight size={18} className="text-geneo shrink-0" />
+      </Card>
 
       <nav aria-label="Tipo de ranking" className="flex gap-1 bg-paper rounded-full shadow-soft p-1">
         {(
