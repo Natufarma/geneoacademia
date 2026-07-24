@@ -6,12 +6,12 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, BookOpen, FlaskConical, Megaphone } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import { Card, SectionHeader } from "@/components/ui";
 import { getProduct } from "@/lib/products";
 import { ACTIVES } from "@/lib/actives";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
 const reveal = { once: true, margin: "-10% 0px" } as const;
-const MotionLink = motion.create(Link);
 
 /**
  * Ficha individual de producto. Los activos se derivan de ACTIVES (única fuente
@@ -51,13 +51,15 @@ export default function ProductoDetalle() {
           Productos
         </Link>
 
-        {/* Hero del producto */}
-        <motion.section
+        {/* Hero del producto — la tarjeta principal de la ficha (nivel feature) */}
+        <Card
+          as={motion.section}
+          variant="feature"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={reveal}
           transition={spring}
-          className="flex flex-col gap-4 bg-paper rounded-3xl shadow-card p-5"
+          className="flex flex-col gap-4 p-5"
         >
           <div className="relative aspect-square w-full max-w-[220px] mx-auto rounded-2xl overflow-hidden bg-surface">
             <Image
@@ -77,16 +79,18 @@ export default function ProductoDetalle() {
             </h1>
             <p className="text-ink text-base leading-snug">{product.beneficio}</p>
           </div>
-        </motion.section>
+        </Card>
 
         {/* Fórmula */}
         {product.formula && (
-          <motion.section
+          <Card
+            as={motion.section}
+            variant="base"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={reveal}
             transition={{ ...spring, delay: 0.05 }}
-            className="flex flex-col gap-2.5 bg-paper rounded-3xl shadow-soft p-5"
+            className="flex flex-col gap-3 p-5"
           >
             <div className="flex items-center gap-2.5">
               <span className="flex items-center justify-center w-9 h-9 rounded-full bg-rosa-suave text-geneo shrink-0">
@@ -94,59 +98,66 @@ export default function ProductoDetalle() {
               </span>
               <h2 className="text-ink font-bold text-base">Fórmula</h2>
             </div>
-            <p className="text-muted text-sm leading-snug">{product.formula}</p>
-          </motion.section>
+            <p className="text-muted text-sm leading-relaxed">{product.formula}</p>
+          </Card>
         )}
 
         {/* Activos (derivados de ACTIVES) */}
         {activos.length > 0 && (
           <section className="flex flex-col gap-3">
-            <h2 className="text-ink font-bold text-lg tracking-tight">Sus activos</h2>
+            <SectionHeader>Sus activos</SectionHeader>
             {activos.map((a, i) => (
-              <motion.article
+              <Card
+                as={motion.article}
                 key={a.slug}
+                variant="base"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={reveal}
                 transition={{ ...spring, delay: 0.05 + i * 0.05 }}
-                className="flex items-start gap-4 bg-paper rounded-3xl shadow-soft p-5"
+                className="flex items-start gap-4 p-5"
               >
                 <span className="relative w-16 h-16 shrink-0 rounded-2xl bg-rosa-suave/40 overflow-hidden">
                   <Image src={a.img} alt={a.name} fill sizes="64px" className="object-contain p-1.5" />
                 </span>
-                <span className="flex-1 min-w-0 flex flex-col gap-1.5">
+                <span className="flex-1 min-w-0 flex flex-col gap-2">
                   <span className="text-ink font-bold leading-tight">{a.name}</span>
-                  <span className="text-muted text-sm leading-snug">{a.description}</span>
+                  <span className="text-muted text-sm leading-relaxed">{a.description}</span>
                 </span>
-              </motion.article>
+              </Card>
             ))}
-            <MotionLink
-              href="/academia/activos"
-              className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft p-5"
-              whileHover={{ boxShadow: "var(--shadow-card)" }}
-              whileTap={{ boxShadow: "var(--shadow-card)" }}
-              transition={spring}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={reveal}
+              transition={{ ...spring, delay: 0.05 + activos.length * 0.05 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: -2 }}
             >
-              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
-                <BookOpen size={20} />
-              </span>
-              <span className="flex-1 min-w-0 flex flex-col gap-0.5">
-                <span className="text-ink font-bold text-sm">Estudiá los activos en la Academia</span>
-                <span className="text-muted text-xs">Guía completa con la ciencia de cada uno.</span>
-              </span>
-              <ArrowRight size={18} className="text-geneo shrink-0" />
-            </MotionLink>
+              <Card as={Link} href="/academia/activos" variant="base" interactive className="flex items-center gap-4 p-5">
+                <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
+                  <BookOpen size={20} />
+                </span>
+                <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <span className="text-ink font-bold text-sm">Estudiá los activos en la Academia</span>
+                  <span className="text-muted text-xs">Guía completa con la ciencia de cada uno.</span>
+                </span>
+                <ArrowRight size={18} className="text-geneo shrink-0" />
+              </Card>
+            </motion.div>
           </section>
         )}
 
-        {/* Cómo recomendarlo: cierre de la ficha, orientado al mostrador */}
+        {/* Cómo recomendarlo: cierre de la ficha, referencia secundaria (nivel quiet) */}
         {product.available ? (
-          <motion.section
+          <Card
+            as={motion.section}
+            variant="quiet"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={reveal}
             transition={{ ...spring, delay: 0.2 }}
-            className="flex flex-col gap-4 bg-paper rounded-3xl shadow-card p-5"
+            className="flex flex-col gap-4 p-5"
           >
             <div className="flex items-center gap-2.5">
               <span className="flex items-center justify-center w-9 h-9 rounded-full bg-rosa-suave text-geneo shrink-0">
@@ -192,9 +203,9 @@ export default function ProductoDetalle() {
                 <p className="text-muted text-sm leading-snug">{product.presentacion}</p>
               </div>
             )}
-          </motion.section>
+          </Card>
         ) : (
-          <div className="flex flex-col gap-1.5 bg-rosa-suave/50 rounded-3xl p-5 text-center">
+          <Card variant="quiet" className="flex flex-col gap-1.5 p-5 text-center">
             <p className="text-solar font-bold text-sm uppercase tracking-wide">
               Próximo lanzamiento
             </p>
@@ -202,7 +213,7 @@ export default function ProductoDetalle() {
               Su composición todavía no está publicada. Pronto vas a poder
               recomendarlo.
             </p>
-          </div>
+          </Card>
         )}
       </div>
     </AppShell>

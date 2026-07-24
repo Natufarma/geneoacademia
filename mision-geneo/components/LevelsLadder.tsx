@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Award, Check, Lock } from "lucide-react";
 import { LEVELS, getLevel, getNextLevel } from "@/lib/levels";
+import { Card, type CardVariant } from "@/components/ui";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
 
@@ -24,27 +25,29 @@ export default function LevelsLadder({ points }: { points: number }) {
         const reached = points >= lvl.min;
         const isCurrent = lvl.n === current.n;
         const isTop = lvl.n === LEVELS.length;
+        // El "pico" de la escalera: nivel máximo alcanzado. Único hero posible
+        // acá, y solo puede darse para un nivel a la vez.
+        const maxed = isCurrent && isTop;
+        const variant: CardVariant = maxed ? "hero" : isCurrent ? "feature" : reached ? "quiet" : "base";
 
         return (
-          <motion.div
+          <Card
+            as={motion.div}
             key={lvl.n}
+            variant={variant}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0, transition: { ...spring, delay: i * 0.06 } }}
-            className={`flex items-start gap-4 rounded-3xl px-4 py-4 ${
-              isCurrent
-                ? "bg-gradient-to-br from-geneo to-geneo-dark text-white shadow-card"
-                : reached
-                  ? "bg-rosa-suave/60"
-                  : "bg-paper/60"
-            }`}
+            className="flex items-start gap-4 px-4 py-4"
           >
             <span
               className={`flex items-center justify-center w-11 h-11 rounded-full font-extrabold shrink-0 ${
-                isCurrent
+                maxed
                   ? "bg-white/20 text-white"
-                  : reached
-                    ? "bg-geneo text-white"
-                    : "bg-line text-soft"
+                  : isCurrent
+                    ? "bg-rosa-suave text-geneo"
+                    : reached
+                      ? "bg-geneo text-white"
+                      : "bg-line text-soft"
               }`}
             >
               {isTop ? (
@@ -63,13 +66,13 @@ export default function LevelsLadder({ points }: { points: number }) {
             <div className="flex-1 min-w-0 flex flex-col gap-1">
               <div className="flex items-center justify-between gap-2">
                 <span
-                  className={`font-bold leading-tight ${isCurrent ? "text-white" : "text-ink"}`}
+                  className={`font-bold leading-tight ${maxed ? "text-white" : "text-ink"}`}
                 >
                   Nivel {lvl.n} · {lvl.name}
                 </span>
                 <span
                   className={`text-xs font-bold shrink-0 ${
-                    isCurrent ? "text-white/85" : "text-soft"
+                    maxed ? "text-white/85" : "text-soft"
                   }`}
                 >
                   {lvl.min} pts
@@ -77,7 +80,7 @@ export default function LevelsLadder({ points }: { points: number }) {
               </div>
               <p
                 className={`text-sm leading-snug ${
-                  isCurrent ? "text-white/85" : "text-muted"
+                  maxed ? "text-white/85" : "text-muted"
                 }`}
               >
                 {lvl.blurb}
@@ -85,15 +88,15 @@ export default function LevelsLadder({ points }: { points: number }) {
 
               {isCurrent && next && (
                 <div className="flex flex-col gap-1.5 pt-1">
-                  <div className="h-2 rounded-full bg-white/25 overflow-hidden">
+                  <div className="h-2 rounded-full bg-line/60 overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-white"
+                      className="h-full rounded-full bg-geneo"
                       initial={{ width: 0 }}
                       animate={{ width: `${toNext * 100}%` }}
                       transition={spring}
                     />
                   </div>
-                  <span className="text-white/85 text-xs font-semibold">
+                  <span className="text-muted text-xs font-semibold">
                     Te faltan {next.min - points} pts para {next.name}
                   </span>
                 </div>
@@ -104,7 +107,7 @@ export default function LevelsLadder({ points }: { points: number }) {
                 </span>
               )}
             </div>
-          </motion.div>
+          </Card>
         );
       })}
     </div>

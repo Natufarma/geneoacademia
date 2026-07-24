@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import SectionTabs from "@/components/SectionTabs";
+import { Card } from "@/components/ui";
 import { PRODUCTS } from "@/lib/products";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
@@ -39,10 +40,13 @@ export default function Productos() {
               whileTap={{ y: -2 }}
               transition={spring}
             >
-              <Link
+              <Card
+                as={Link}
                 href={`/productos/${p.slug}`}
                 aria-label={`Ver ficha de Geneo ${p.name}`}
-                className="flex flex-col gap-2.5 bg-paper rounded-3xl shadow-soft p-3.5 h-full hover:shadow-card active:shadow-card transition-shadow"
+                variant="base"
+                interactive
+                className="flex flex-col gap-2.5 p-3.5 h-full"
               >
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface">
                   <Image
@@ -67,15 +71,15 @@ export default function Productos() {
                     </span>
                   )}
                 </div>
-              </Link>
+              </Card>
             </motion.div>
           ))}
         </section>
 
-        <p className="text-soft text-xs leading-relaxed text-center px-4">
+        <Card variant="quiet" className="text-soft text-xs leading-relaxed text-center px-4 py-3">
           La constancia es la clave: los resultados se construyen a los 20, 40 y
           90 días.
-        </p>
+        </Card>
       </div>
     </AppShell>
   );

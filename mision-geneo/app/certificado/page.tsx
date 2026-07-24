@@ -56,9 +56,7 @@ function CertificadoContent() {
     <div className="flex flex-col gap-6">
       <header className="no-print flex flex-col gap-1">
         <h1 className="text-ink font-extrabold text-2xl tracking-tight">Tu certificado</h1>
-        <p className="text-muted text-sm">
-          Descargalo y compartilo con orgullo. #PielSaludable
-        </p>
+        <p className="text-muted text-sm">Descargalo y compartilo con orgullo. #PielSaludable</p>
       </header>
 
       {/* Certificado imprimible */}

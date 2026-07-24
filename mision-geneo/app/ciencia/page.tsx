@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, FlaskConical, Sparkles, Heart, BookOpen } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import SectionTabs from "@/components/SectionTabs";
+import { Card, SectionHeader } from "@/components/ui";
 import { CIENCIA_INTRO, PILARES, TIEMPOS } from "@/lib/ciencia";
 
 const spring = { type: "spring", stiffness: 260, damping: 28 } as const;
@@ -37,11 +38,13 @@ export default function Ciencia() {
           {PILARES.map((p, i) => {
             const Icon = PILAR_ICONS[i];
             return (
-              <motion.article
+              <Card
+                as={motion.article}
                 key={p.slug}
+                variant="base"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0, transition: { ...spring, delay: i * 0.06 } }}
-                className="flex items-start gap-4 bg-paper rounded-3xl shadow-soft p-5"
+                className="flex items-start gap-4 p-5"
               >
                 <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
                   <Icon size={20} />
@@ -50,25 +53,22 @@ export default function Ciencia() {
                   <span className="text-ink font-bold leading-tight">{p.titulo}</span>
                   <span className="text-muted text-sm leading-snug">{p.bajada}</span>
                 </span>
-              </motion.article>
+              </Card>
             );
           })}
         </section>
 
-        {/* Constancia: 20 / 40 / 90 días */}
-        <motion.section
+        {/* Constancia: 20 / 40 / 90 días — la pieza memorable de la vista (nivel feature) */}
+        <Card
+          as={motion.section}
+          variant="feature"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0, transition: { ...spring, delay: 0.2 } }}
-          className="flex flex-col gap-4 bg-paper rounded-3xl shadow-card p-6"
+          className="flex flex-col gap-4 p-6"
         >
-          <div className="flex flex-col gap-1">
-            <h2 className="text-ink font-bold text-lg tracking-tight">
-              Los resultados llegan con constancia
-            </h2>
-            <p className="text-muted text-sm leading-snug">
-              El ritual se construye día a día. Esto es lo que se ve con el tiempo:
-            </p>
-          </div>
+          <SectionHeader subtitle="El ritual se construye día a día. Esto es lo que se ve con el tiempo:">
+            Los resultados llegan con constancia
+          </SectionHeader>
           <div className="flex flex-col gap-3">
             {TIEMPOS.map((t) => (
               <div key={t.dias} className="flex items-baseline gap-3">
@@ -80,12 +80,14 @@ export default function Ciencia() {
               </div>
             ))}
           </div>
-        </motion.section>
+        </Card>
 
-        {/* Acceso a la guía de activos (no se duplica: se enlaza) */}
-        <Link
+        {/* Acceso a la guía de activos (no se duplica: se enlaza) — único hero de la pantalla */}
+        <Card
+          as={Link}
           href="/academia/activos"
-          className="flex items-center gap-4 bg-gradient-to-br from-geneo to-geneo-dark text-white rounded-3xl shadow-card px-5 py-4 hover:brightness-105 active:brightness-105 transition-all"
+          variant="hero"
+          className="flex items-center gap-4 px-5 py-4 hover:brightness-105 active:brightness-105 transition-all"
         >
           <span className="flex items-center justify-center w-11 h-11 rounded-full bg-white/15 shrink-0">
             <BookOpen size={20} />
@@ -95,7 +97,7 @@ export default function Ciencia() {
             <span className="text-white/85 text-xs">Estudiá los 9 activos en la Academia Geneo.</span>
           </span>
           <ArrowRight size={18} className="shrink-0" />
-        </Link>
+        </Card>
       </div>
     </AppShell>
   );

@@ -9,6 +9,7 @@ import SorteoBanner from "@/components/SorteoBanner";
 import { PRODUCTS, getProduct } from "@/lib/products";
 import { parseClaim } from "@/lib/prizes";
 import { useApp } from "@/lib/store";
+import { Card, SectionHeader } from "@/components/ui";
 
 export default function Recompensas() {
   return (
@@ -62,10 +63,10 @@ function RecompensasContent() {
 
       {/* Premio del viaje: producto a elección */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">Premio del viaje</h2>
+        <SectionHeader>Premio del viaje</SectionHeader>
 
         {viajeClaim ? (
-          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+          <Card variant="quiet" className="flex items-center gap-4 px-5 py-4">
             <span className="relative w-14 h-14 rounded-2xl bg-rosa-suave/60 overflow-hidden shrink-0">
               {viajeProduct && (
                 <Image
@@ -89,9 +90,9 @@ function RecompensasContent() {
               </p>
             </div>
             <Check size={20} className="text-geneo shrink-0" strokeWidth={3} />
-          </div>
+          </Card>
         ) : isSpecialist ? (
-          <div className="flex flex-col gap-3 bg-paper rounded-3xl shadow-card px-5 py-4">
+          <Card variant="feature" className="flex flex-col gap-3 px-5 py-4">
             <p className="text-muted text-sm">
               Completaste el viaje. Elegí el producto de la línea Geneo que querés recibir.
             </p>
@@ -105,10 +106,15 @@ function RecompensasContent() {
                     onClick={() => setChosen(product.slug)}
                     aria-pressed={selected}
                     {...tap}
-                    className={`flex flex-row sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border-2 px-3 py-3 sm:py-4 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                      selected ? "border-geneo bg-rosa-suave/60" : "border-line bg-paper"
+                    className={`relative flex flex-row sm:flex-col items-center gap-3 sm:gap-2 rounded-2xl border-2 px-3 py-3 sm:py-4 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      selected ? "border-geneo ring-2 ring-geneo bg-rosa-suave/60" : "border-line bg-paper"
                     }`}
                   >
+                    {selected && (
+                      <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-5 h-5 rounded-full bg-geneo text-white shrink-0">
+                        <Check size={12} strokeWidth={3} />
+                      </span>
+                    )}
                     <span className="relative w-16 h-16 shrink-0">
                       <Image src={product.img} alt="" fill sizes="64px" className="object-contain" />
                     </span>
@@ -123,26 +129,32 @@ function RecompensasContent() {
               type="button"
               onClick={() => chosen && onClaim("viaje-producto", chosen)}
               disabled={!chosen || claiming === "viaje-producto"}
+              aria-disabled={!chosen || claiming === "viaje-producto"}
+              aria-label={!chosen ? "Elegí un producto de la lista para poder confirmarlo" : undefined}
               {...tap}
               className="rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft disabled:hover:bg-line text-white font-bold uppercase tracking-wide text-xs px-6 min-h-11 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
             >
-              {claiming === "viaje-producto" ? "Reclamando…" : "Elegir este producto"}
+              {claiming === "viaje-producto"
+                ? "Reclamando…"
+                : chosen
+                  ? "Elegir este producto"
+                  : "Elegí un producto arriba"}
             </motion.button>
             {claimError?.prizeId === "viaje-producto" && (
               <p role="alert" className="text-geneo text-sm font-semibold text-center">
                 {claimError.message}
               </p>
             )}
-          </div>
+          </Card>
         ) : (
-          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+          <Card variant="base" className="flex items-center gap-4 px-5 py-4 opacity-60">
             <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-line/40 text-soft shrink-0">
               <Lock size={22} />
             </span>
             <p className="text-muted text-sm leading-snug">
               Completá el viaje principal para elegir tu producto.
             </p>
-          </div>
+          </Card>
         )}
       </motion.section>
 
@@ -152,10 +164,10 @@ function RecompensasContent() {
         transition={{ ...reveal.transition, delay: 0.06 }}
         className="flex flex-col gap-3"
       >
-        <h2 className="text-ink font-bold text-lg tracking-tight">Kit de Academia</h2>
+        <SectionHeader>Kit de Academia</SectionHeader>
 
         {kitClaimed ? (
-          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+          <Card variant="quiet" className="flex items-center gap-4 px-5 py-4">
             <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave/60 text-geneo shrink-0">
               <Sparkles size={24} />
             </span>
@@ -167,9 +179,9 @@ function RecompensasContent() {
               <p className="text-geneo text-xs font-semibold">Pendiente de entrega</p>
             </div>
             <Check size={20} className="text-geneo shrink-0" strokeWidth={3} />
-          </div>
+          </Card>
         ) : academiaDone ? (
-          <div className="flex flex-col gap-3 bg-paper rounded-3xl shadow-card px-5 py-4">
+          <Card variant="base" className="flex flex-col gap-3 px-5 py-4">
             <div className="flex items-center gap-4">
               <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rosa-suave text-geneo shrink-0">
                 <Sparkles size={24} />
@@ -195,16 +207,16 @@ function RecompensasContent() {
                 {claimError.message}
               </p>
             )}
-          </div>
+          </Card>
         ) : (
-          <div className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4">
+          <Card variant="base" className="flex items-center gap-4 px-5 py-4 opacity-60">
             <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-line/40 text-soft shrink-0">
               <Lock size={22} />
             </span>
             <p className="text-muted text-sm leading-snug">
               Completá las dos misiones de Academia para tu kit.
             </p>
-          </div>
+          </Card>
         )}
       </motion.section>
 

@@ -10,6 +10,7 @@ import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { claimLabel } from "@/lib/prizes";
 import { useApp } from "@/lib/store";
+import { Card, SectionHeader } from "@/components/ui";
 
 // Revelado escalonado al entrar en viewport (Ley de Movimiento: spring, sin tween).
 const reveal = {
@@ -35,12 +36,14 @@ function PerfilContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tarjeta de identidad */}
-      <motion.section
+      {/* Tarjeta de identidad — la principal de esta vista */}
+      <Card
+        as={motion.section}
+        variant="feature"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 28 }}
-        className="bg-paper rounded-3xl shadow-card p-6 flex flex-col items-center text-center gap-3"
+        className="p-6 flex flex-col items-center text-center gap-3"
       >
         <span className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-geneo to-geneo-dark text-white">
           <User size={34} />
@@ -78,18 +81,18 @@ function PerfilContent() {
             </p>
           </div>
         </div>
-      </motion.section>
+      </Card>
 
       {/* Niveles de Especialista (Academia, etapa 2) */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">Tus niveles</h2>
+        <SectionHeader>Tus niveles</SectionHeader>
         <LevelsLadder points={points} />
       </motion.section>
 
       {/* Historial de misiones */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">Historial de misiones</h2>
-        <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
+        <SectionHeader>Historial de misiones</SectionHeader>
+        <Card variant="base" className="divide-y divide-line">
           {MISSIONS.map((m) => {
             const done = progress[m.slug];
             return (
@@ -165,14 +168,14 @@ function PerfilContent() {
               </div>
             );
           })}
-        </div>
+        </Card>
       </motion.section>
 
       {/* Tus premios */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">Tus premios</h2>
+        <SectionHeader>Tus premios</SectionHeader>
         {redemptions.length > 0 ? (
-          <div className="bg-paper rounded-3xl shadow-soft divide-y divide-line">
+          <Card variant="base" className="divide-y divide-line">
             {redemptions.map((r) => (
               <div key={r.rewardId} className="flex items-center gap-3 px-5 py-3.5">
                 <Gift size={19} className="text-geneo shrink-0" />
@@ -187,9 +190,9 @@ function PerfilContent() {
                 </span>
               </div>
             ))}
-          </div>
+          </Card>
         ) : (
-          <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
+          <Card variant="quiet" className="text-muted text-sm px-5 py-4">
             Todavía no ganaste premios.{" "}
             <Link
               href="/recompensas"
@@ -198,17 +201,20 @@ function PerfilContent() {
               Mirá el catálogo
             </Link>
             .
-          </p>
+          </Card>
         )}
       </motion.section>
 
       {/* Certificados */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <h2 className="text-ink font-bold text-lg tracking-tight">Certificados</h2>
+        <SectionHeader>Certificados</SectionHeader>
         {isSpecialist ? (
-          <Link
+          <Card
+            as={Link}
             href="/certificado"
-            className="flex items-center gap-4 bg-paper rounded-3xl shadow-soft px-5 py-4 hover:shadow-card active:shadow-card transition-shadow"
+            variant="base"
+            interactive
+            className="flex items-center gap-4 px-5 py-4"
           >
             <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
               <Award size={20} />
@@ -217,24 +223,23 @@ function PerfilContent() {
               <span className="block text-ink font-bold text-sm">Especialista Geneo</span>
               <span className="block text-muted text-xs">Ver y descargar</span>
             </span>
-          </Link>
+          </Card>
         ) : (
-          <p className="text-muted text-sm bg-paper rounded-3xl shadow-soft px-5 py-4">
+          <Card variant="quiet" className="text-muted text-sm px-5 py-4">
             Completá las 6 misiones para desbloquear tu certificado de{" "}
             <strong className="text-geneo">Especialista Geneo</strong>.
-          </p>
+          </Card>
         )}
       </motion.section>
 
       {/* La app (instalar PWA) */}
       <motion.section {...reveal} className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-ink font-bold text-lg tracking-tight">La app</h2>
-          <p className="text-muted text-sm">
-            Instalala en tu teléfono para tenerla a un toque, sin abrir el navegador.
-          </p>
-        </div>
-        <InstallButton />
+        <SectionHeader subtitle="Instalala en tu teléfono para tenerla a un toque, sin abrir el navegador.">
+          La app
+        </SectionHeader>
+        <Card variant="base" className="p-5">
+          <InstallButton />
+        </Card>
       </motion.section>
 
       {/* Sesión */}

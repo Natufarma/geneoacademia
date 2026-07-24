@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Gamepad2, Star, Gift, Eye, EyeOff, MailCheck } from "lucide-react";
 import Onboarding, { ONBOARDING_KEY } from "@/components/Onboarding";
 import { useApp } from "@/lib/store";
+import { Card } from "@/components/ui";
 
 const inputClass =
   "w-full rounded-full border border-line bg-surface px-5 py-3 text-base text-ink placeholder:text-soft focus:border-geneo focus:outline-none";
@@ -126,11 +127,13 @@ export default function Bienvenida() {
       </AnimatePresence>
       <main className="max-w-md mx-auto px-5 py-8 flex flex-col gap-5">
         {/* Hero de bienvenida (estilo lámina 1 "Inicio" de Lakhu) */}
-        <motion.section
+        <Card
+          as={motion.section}
+          variant="feature"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
-          className="bg-paper rounded-3xl shadow-card p-6 flex flex-col gap-4"
+          className="p-6 flex flex-col gap-4"
         >
           <Image
             src="/img/logo-fuxia.webp"
@@ -150,7 +153,7 @@ export default function Bienvenida() {
               <strong className="text-ink font-bold">Especialista Beauty Wellness</strong>.
             </p>
           </div>
-        </motion.section>
+        </Card>
 
         {/* Cómo funciona */}
         <motion.ul
@@ -164,25 +167,29 @@ export default function Bienvenida() {
             { icon: Star, text: "Sumá puntos con cada misión." },
             { icon: Gift, text: "Obtené tu certificado y participá del ranking." },
           ].map(({ icon: Icon, text }) => (
-            <li
+            <Card
               key={text}
-              className="flex items-center gap-3.5 bg-paper rounded-2xl shadow-soft px-4 py-3.5"
+              as="li"
+              variant="base"
+              className="flex items-center gap-3.5 px-4 py-3.5"
             >
               <span className="flex items-center justify-center w-10 h-10 rounded-full bg-rosa-suave text-geneo shrink-0">
                 <Icon size={20} />
               </span>
               <span className="text-ink text-[15px] font-medium leading-snug">{text}</span>
-            </li>
+            </Card>
           ))}
         </motion.ul>
 
         {/* Alta / ingreso */}
-        <motion.form
+        <Card
+          as={motion.form}
+          variant="feature"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.12 }}
           onSubmit={onSubmit}
-          className="bg-paper rounded-3xl shadow-card p-6 flex flex-col gap-4"
+          className="p-6 flex flex-col gap-4"
         >
           {/* Selector de modo */}
           <div className="grid grid-cols-2 gap-1 rounded-full bg-surface border border-line p-1">
@@ -335,7 +342,7 @@ export default function Bienvenida() {
           {mode === "login" && (
             <Link
               href="/recuperar"
-              className="text-soft text-xs underline underline-offset-2 self-end"
+              className="inline-flex items-center min-h-11 -my-2 self-end text-soft text-xs underline underline-offset-2"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -352,11 +359,11 @@ export default function Bienvenida() {
           <p className="text-soft text-xs leading-relaxed text-center">
             Programa exclusivo para Farmacias Aliadas Geneo.
           </p>
-        </motion.form>
+        </Card>
 
         <Link
           href="/vendedor/acceso"
-          className="text-soft text-xs underline underline-offset-2 text-center block py-2"
+          className="flex items-center justify-center min-h-11 text-soft text-xs underline underline-offset-2"
         >
           Soy vendedor
         </Link>

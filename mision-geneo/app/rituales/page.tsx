@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import SectionTabs from "@/components/SectionTabs";
+import { Card } from "@/components/ui";
 import { RITUALES } from "@/lib/rituales";
 import { getProduct } from "@/lib/products";
 
@@ -40,13 +41,15 @@ export default function Rituales() {
               .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
             return (
-              <motion.article
+              <Card
+                as={motion.article}
                 key={r.slug}
+                variant="base"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={reveal}
                 transition={{ ...spring, delay: i * 0.07 }}
-                className="flex flex-col gap-4 bg-paper rounded-3xl shadow-soft p-5"
+                className="flex flex-col gap-4 p-5"
               >
                 <div className="flex items-center gap-3">
                   {productos.map((p) => (
@@ -97,7 +100,7 @@ export default function Rituales() {
                     Próximo lanzamiento
                   </span>
                 )}
-              </motion.article>
+              </Card>
             );
           })}
         </section>
