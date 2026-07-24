@@ -226,9 +226,14 @@ export default function MissionPlayer({ slug }: { slug: string }) {
               exit={{ opacity: 0, y: 20, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 260, damping: 28 }}
             >
-              <span className="flex items-center justify-center w-14 h-14 rounded-full bg-rosa-suave text-geneo">
-                <X size={28} strokeWidth={2.5} />
-              </span>
+              <motion.span
+                initial={{ scale: 0, rotate: -8 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 380, damping: 16 }}
+                className="text-5xl leading-none"
+              >
+                😢
+              </motion.span>
               <div className="flex flex-col gap-1.5">
                 <h2 id="fail-title" className="text-ink font-extrabold text-lg tracking-tight">
                   Respuesta incorrecta

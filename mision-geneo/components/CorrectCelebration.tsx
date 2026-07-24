@@ -14,15 +14,15 @@ import { Heart, Star } from "lucide-react";
 
 // Partículas en distribución radial DETERMINISTA (evita Math.random → sin
 // mismatch de hidratación y con un reparto parejo).
-const PARTICLES = Array.from({ length: 10 }, (_, i) => {
-  const angle = (i / 10) * Math.PI * 2;
-  const distance = 40 + (i % 3) * 14;
+const PARTICLES = Array.from({ length: 12 }, (_, i) => {
+  const angle = (i / 12) * Math.PI * 2;
+  const distance = 52 + (i % 3) * 16;
   return {
     dx: Math.cos(angle) * distance,
     dy: Math.sin(angle) * distance,
     Icon: i % 2 === 0 ? Heart : Star,
     color: i % 3 === 0 ? "text-rosa-claro" : "text-geneo",
-    size: 12 + (i % 3) * 3,
+    size: 16 + (i % 3) * 4,
   };
 });
 
@@ -58,10 +58,10 @@ export function CorrectBurst({ face = "😍" }: { face?: string }) {
             </motion.span>
           ))}
           <motion.span
-            className="text-2xl leading-none"
+            className="text-4xl leading-none drop-shadow-sm"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 380, damping: 18 }}
+            transition={{ type: "spring", stiffness: 380, damping: 16 }}
           >
             {face}
           </motion.span>
