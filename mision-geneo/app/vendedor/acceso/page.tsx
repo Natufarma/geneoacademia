@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
@@ -241,6 +242,15 @@ export default function AccesoVendedor() {
             <p role="alert" className="text-geneo text-sm font-medium">
               {error}
             </p>
+          )}
+
+          {mode === "login" && (
+            <Link
+              href="/recuperar"
+              className="text-soft text-xs underline underline-offset-2 self-end"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
           )}
 
           <button

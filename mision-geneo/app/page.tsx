@@ -332,6 +332,15 @@ export default function Bienvenida() {
             </p>
           )}
 
+          {mode === "login" && (
+            <Link
+              href="/recuperar"
+              className="text-soft text-xs underline underline-offset-2 self-end"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          )}
+
           <button
             type="submit"
             disabled={submitting}
