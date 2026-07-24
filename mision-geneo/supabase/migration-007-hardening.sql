@@ -68,7 +68,7 @@ create trigger profiles_enforce_role
 -- Verificación:
 --   -- unique presente:
 --   select conname from pg_constraint
---     where conrelid='public.redemptions'::regclass and conname='redemptions_user_reward_unique';
+--     where conrelid='public.redemptions'::regclass and conname='redemptions_user_prize_unique';
 --   -- como authenticated, cambiar pharmacy_id a OTRO valor debe FALLAR;
 --   -- cambiarlo al MISMO valor (upsert de registro) debe funcionar.
 -- ----------------------------------------------------------------------------
