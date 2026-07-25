@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Lock } from "lucide-react";
+import { Check, Loader2, Lock, Share2 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { MISSIONS } from "@/lib/missions";
+import { getLevel } from "@/lib/levels";
 import { BADGES, evaluateBadges, type Badge, type BadgeInput } from "@/lib/badges";
+import { generateProfileCard } from "@/lib/profile-card";
 import { CorrectBurst } from "@/components/CorrectCelebration";
 import { Card, SectionHeader } from "@/components/ui";
 
@@ -102,6 +104,49 @@ export default function Achievements() {
   );
 
   const earnedCount = results.filter((r) => r.earned).length;
+  const level = getLevel(points);
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState(false);
+
+  const onShare = async () => {
+    setSharing(true);
+    setShareError(false);
+    try {
+      const blob = await generateProfileCard({
+        name: user?.name ?? "",
+        levelName: level.name,
+        levelN: level.n,
+        points,
+        earned: results.filter((r) => r.earned).map((r) => r.badge),
+        earnedCount,
+        totalBadges: BADGES.length,
+      });
+      if (!blob) throw new Error("no-blob");
+      const file = new File([blob], "mis-logros-geneo.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Mis logros en Misión Geneo",
+          text: "¡Mirá cómo voy en Misión Geneo! 🎓✨",
+        });
+      } else {
+        // Fallback (desktop sin compartir archivos): descargar la imagen.
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "mis-logros-geneo.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      // El usuario canceló el diálogo de compartir: no es un error real.
+      if ((err as Error).name !== "AbortError") setShareError(true);
+    } finally {
+      setSharing(false);
+    }
+  };
 
   return (
     <>
@@ -126,6 +171,21 @@ export default function Achievements() {
           </div>
         ))}
       </Card>
+
+      <button
+        type="button"
+        onClick={onShare}
+        disabled={sharing}
+        className="w-full inline-flex items-center justify-center gap-2 min-h-11 rounded-full border-2 border-geneo text-geneo hover:bg-rosa-suave/40 active:bg-rosa-suave/40 disabled:opacity-60 font-bold uppercase tracking-wide text-sm px-6 py-3 transition-colors"
+      >
+        {sharing ? <Loader2 size={17} className="animate-spin" /> : <Share2 size={17} />}
+        {sharing ? "Generando…" : "Compartir mis logros"}
+      </button>
+      {shareError && (
+        <p className="text-geneo text-xs font-semibold text-center">
+          No pudimos generar la tarjeta. Probá de nuevo.
+        </p>
+      )}
 
       {/* Festejo de logro recién desbloqueado. Va por PORTAL a document.body:
           esta sección vive dentro de un motion.section con transform+opacity
