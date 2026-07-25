@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ChevronRight, Info, RotateCcw, Store, Trophy, Users } from "lucide-react";
+import { AlertCircle, ArrowDown, ArrowUp, ChevronRight, Info, RotateCcw, Store, Trophy, Users } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { useApp } from "@/lib/store";
 import { Badge, Card } from "@/components/ui";
@@ -89,6 +89,8 @@ function RankingContent() {
   const [data, setData] = useState<RankingResponse | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [reloadKey, setReloadKey] = useState(0);
+  // Movimiento de puesto desde la última visita (comparado contra localStorage).
+  const [movement, setMovement] = useState<{ delta: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,6 +103,30 @@ function RankingContent() {
         if (cancelled) return;
         setData(json);
         setStatus("ready");
+
+        // Comparar mi puesto de empleado con el de la última visita (mismo mes).
+        const me = json.employees.find((e) => e.isCurrentUser);
+        if (me) {
+          const KEY = "geneo-rank-pos";
+          let prev: { period: string; position: number } | null = null;
+          try {
+            prev = JSON.parse(window.localStorage.getItem(KEY) ?? "null");
+          } catch {
+            prev = null;
+          }
+          if (prev && prev.period === json.period && prev.position !== me.position) {
+            // delta > 0 = subió (menor número de posición = mejor puesto).
+            setMovement({ delta: prev.position - me.position });
+          }
+          try {
+            window.localStorage.setItem(
+              KEY,
+              JSON.stringify({ period: json.period, position: me.position }),
+            );
+          } catch {
+            // sin localStorage: simplemente no mostramos el movimiento
+          }
+        }
       })
       .catch(() => {
         if (cancelled) return;
@@ -128,6 +154,28 @@ function RankingContent() {
           )}
         </p>
       </header>
+
+      {/* Movimiento de puesto desde la última visita */}
+      {movement && movement.delta !== 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+          className="flex items-center gap-2.5 rounded-2xl bg-rosa-suave/60 px-4 py-2.5"
+        >
+          {movement.delta > 0 ? (
+            <ArrowUp size={18} strokeWidth={2.5} className="text-geneo shrink-0" />
+          ) : (
+            <ArrowDown size={18} strokeWidth={2.5} className="text-soft shrink-0" />
+          )}
+          <span className="text-ink text-sm font-semibold leading-snug">
+            {movement.delta > 0
+              ? `¡Subiste ${movement.delta} ${movement.delta === 1 ? "puesto" : "puestos"}!`
+              : `Bajaste ${Math.abs(movement.delta)} ${Math.abs(movement.delta) === 1 ? "puesto" : "puestos"}`}{" "}
+            <span className="text-soft font-normal">desde tu última visita.</span>
+          </span>
+        </motion.div>
+      )}
 
       {/* Acceso al desafío de tu farmacia (resumen motivacional del ranking) */}
       <Card

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Flame, Loader2, X } from "lucide-react";
+import { Check, Flame, Lightbulb, Loader2, X } from "lucide-react";
 import { dayKey, type PublicDailyQuestion } from "@/lib/daily";
 import { useApp } from "@/lib/store";
 import { CorrectBurst } from "@/components/CorrectCelebration";
@@ -185,7 +185,13 @@ export default function DailyQuestion() {
                   ? "¡Correcto! Tu racha sigue creciendo. 🔥"
                   : "Esta vez no fue, pero tu racha sigue viva. 🔥"}
               </p>
-              <p className="text-muted text-sm leading-snug">{result.feedback}</p>
+              <p className="flex items-start gap-2 text-muted text-sm leading-snug">
+                <Lightbulb size={15} className="text-geneo shrink-0 mt-0.5" />
+                <span>
+                  <span className="font-semibold text-ink">¿Por qué? </span>
+                  {result.feedback}
+                </span>
+              </p>
             </motion.div>
           )}
         </div>

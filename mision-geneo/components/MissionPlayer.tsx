@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Check, ArrowRight, Lock, Star, Award } from "lucide-react";
+import { X, Check, ArrowRight, Lightbulb, Lock, Star, Award } from "lucide-react";
 import Confetti from "@/components/Confetti";
 import { CorrectBurst, CountUp } from "@/components/CorrectCelebration";
 import { MISSIONS, getMission, stepPoints, type Mission, type StepContent, type StepMatch, type StepQuiz } from "@/lib/missions";
@@ -396,14 +396,23 @@ function QuizStep({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
+          className="flex flex-col gap-1.5"
         >
           <p className="flex items-center gap-2 text-geneo font-bold text-sm">
             <Star size={16} className="fill-geneo" />
             <span className="tabular-nums">
               +<CountUp to={step.points} /> puntos
             </span>
-            {step.feedback && <span className="text-muted font-medium">· {step.feedback}</span>}
           </p>
+          {step.feedback && (
+            <p className="flex items-start gap-2 text-muted text-sm leading-snug">
+              <Lightbulb size={15} className="text-geneo shrink-0 mt-0.5" />
+              <span>
+                <span className="font-semibold text-ink">¿Por qué? </span>
+                {step.feedback}
+              </span>
+            </p>
+          )}
         </motion.div>
       )}
 
