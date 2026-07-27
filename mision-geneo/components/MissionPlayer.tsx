@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Check, ArrowRight, Lightbulb, Lock, Star, Award } from "lucide-react";
+import { X, Check, ArrowRight, BookOpen, Lightbulb, Lock, Star, Award } from "lucide-react";
 import Confetti from "@/components/Confetti";
 import { CorrectBurst, CountUp } from "@/components/CorrectCelebration";
 import { MISSIONS, getMission, stepPoints, type Mission, type StepContent, type StepMatch, type StepQuiz } from "@/lib/missions";
@@ -154,12 +154,13 @@ export default function MissionPlayer({ slug }: { slug: string }) {
           <h1 className="text-ink font-extrabold text-2xl tracking-tight leading-tight">
             {mission.title}
           </h1>
-          {mission.advanced && (
+          {(mission.advanced || mission.slug === "ingredientes") && (
             <Link
               href="/academia/activos"
-              className="self-start inline-block py-3 -my-3 text-geneo text-sm font-semibold underline underline-offset-2"
+              className="self-start inline-flex items-center gap-1.5 py-3 -my-3 text-geneo text-sm font-semibold underline underline-offset-2"
             >
-              Repasá la guía de activos
+              <BookOpen size={15} />
+              {mission.advanced ? "Repasá la guía de activos" : "Estudiá primero la guía de activos"}
             </Link>
           )}
         </div>

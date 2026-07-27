@@ -279,33 +279,6 @@ function MisionesContent() {
           Academia Geneo <span className="text-geneo">· Seguí aprendiendo</span>
         </SectionHeader>
 
-        {/* Modo práctica: repaso sin presión de los 9 activos */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 28 }}
-          whileHover={{ y: -2 }}
-          whileTap={{ y: -2 }}
-        >
-          <Link href="/practica" aria-label="Abrir el modo práctica">
-            <Card as="span" variant="base" interactive className="flex items-center gap-4 px-4 py-4">
-              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
-                <Sparkles size={20} />
-              </span>
-              <span className="flex-1 min-w-0 flex flex-col gap-0.5">
-                <span className="block text-[10px] font-bold uppercase tracking-widest text-geneo">
-                  Academia · Practicá sin presión
-                </span>
-                <span className="block font-bold leading-tight text-ink">Modo práctica</span>
-                <span className="block text-muted text-sm leading-snug">
-                  Flashcards y quiz de los 9 activos. Acá no se pierde nada.
-                </span>
-              </span>
-              <ChevronRight size={18} className="text-geneo shrink-0" />
-            </Card>
-          </Link>
-        </motion.div>
-
         {/* Guía de estudio: siempre accesible (estudiar → probar) */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -335,6 +308,33 @@ function MisionesContent() {
                 <span className="block font-bold leading-tight text-ink">Guía de activos</span>
                 <span className="block text-muted text-sm leading-snug">
                   Las fotos y la ciencia de cada activo, para repasar antes de la prueba.
+                </span>
+              </span>
+              <ChevronRight size={18} className="text-geneo shrink-0" />
+            </Card>
+          </Link>
+        </motion.div>
+
+        {/* Modo práctica: repaso sin presión, DESPUÉS de estudiar la guía */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+          whileHover={{ y: -2 }}
+          whileTap={{ y: -2 }}
+        >
+          <Link href="/practica" aria-label="Abrir el modo práctica">
+            <Card as="span" variant="base" interactive className="flex items-center gap-4 px-4 py-4">
+              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-rosa-suave text-geneo shrink-0">
+                <Sparkles size={20} />
+              </span>
+              <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className="block text-[10px] font-bold uppercase tracking-widest text-geneo">
+                  Academia · Practicá después de estudiar
+                </span>
+                <span className="block font-bold leading-tight text-ink">Modo práctica</span>
+                <span className="block text-muted text-sm leading-snug">
+                  Flashcards y quiz de los 9 activos. Acá no se pierde nada.
                 </span>
               </span>
               <ChevronRight size={18} className="text-geneo shrink-0" />

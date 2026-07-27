@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, CheckCircle2, ChevronRight, Circle, Gift, HelpCircle, LogOut, ShieldCheck, UserCog } from "lucide-react";
+import { Award, CheckCircle2, ChevronRight, Circle, Gift, HelpCircle, LogOut, ScrollText, ShieldCheck, UserCog } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import LevelsLadder from "@/components/LevelsLadder";
@@ -285,6 +285,7 @@ function PerfilContent() {
               hint="Preguntas frecuentes y contacto"
             />
             <SettingsRow href="/privacidad" icon={ShieldCheck} label="Política de privacidad" />
+            <SettingsRow href="/bases" icon={ScrollText} label="Bases y condiciones" />
           </Card>
         </motion.section>
 

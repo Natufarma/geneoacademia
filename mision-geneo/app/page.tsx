@@ -77,7 +77,7 @@ export default function Bienvenida() {
         return;
       }
       if (!consent) {
-        setError("Para crear tu cuenta tenés que aceptar la política de privacidad.");
+        setError("Para crear tu cuenta tenés que aceptar la política de privacidad y las bases.");
         return;
       }
       setSubmitting(true);
@@ -356,6 +356,13 @@ export default function Bienvenida() {
                   className="text-geneo font-semibold underline underline-offset-2"
                 >
                   política de privacidad
+                </Link>{" "}
+                y las{" "}
+                <Link
+                  href="/bases"
+                  className="text-geneo font-semibold underline underline-offset-2"
+                >
+                  bases y condiciones
                 </Link>
                 .
               </span>
