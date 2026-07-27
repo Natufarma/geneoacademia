@@ -11,8 +11,8 @@ const reveal = { once: true, margin: "-10% 0px" } as const;
 
 // Contacto de soporte: no hay backend de tickets, así que derivamos a canales
 // directos. Reemplazar por los datos reales de Natufarma antes de publicar.
-const SOPORTE_WHATSAPP = "5491100000000"; // TODO: reemplazar por el WhatsApp real de soporte (código de país + número, sin "+" ni espacios)
-const SOPORTE_EMAIL = "soporte@natufarma.com.ar"; // TODO: reemplazar por el email real de soporte
+const SOPORTE_WHATSAPP = "5493496660195"; // 03496 15660195 en formato internacional
+const SOPORTE_EMAIL = "fabianapeculo@natufarma.com.ar";
 
 const WHATSAPP_MENSAJE = "Hola, necesito ayuda con Misión Geneo";
 const EMAIL_ASUNTO = "Ayuda con Misión Geneo";

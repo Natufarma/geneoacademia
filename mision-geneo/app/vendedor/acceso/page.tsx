@@ -192,6 +192,16 @@ export default function AccesoVendedor() {
                   placeholder="Código provisto por Geneo"
                   className={inputClass}
                 />
+                <span className="text-soft text-xs leading-snug">
+                  Es el código que te da el equipo Geneo. Si no lo tenés, escribí a{" "}
+                  <a
+                    href="mailto:fabianapeculo@natufarma.com.ar"
+                    className="text-geneo font-semibold underline underline-offset-2 break-words"
+                  >
+                    fabianapeculo@natufarma.com.ar
+                  </a>
+                  .
+                </span>
               </label>
             </>
           )}

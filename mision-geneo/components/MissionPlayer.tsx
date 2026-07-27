@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Check, ArrowRight, BookOpen, Lightbulb, Lock, Star, Award } from "lucide-react";
+import { X, Check, ArrowRight, BookOpen, ChevronRight, Gift, Lightbulb, Lock, Star, Award } from "lucide-react";
 import Confetti from "@/components/Confetti";
 import { CorrectBurst, CountUp } from "@/components/CorrectCelebration";
 import { MISSIONS, getMission, stepPoints, type Mission, type StepContent, type StepMatch, type StepQuiz } from "@/lib/missions";
@@ -19,7 +19,7 @@ import { useApp } from "@/lib/store";
 export default function MissionPlayer({ slug }: { slug: string }) {
   const mission = getMission(slug);
   const router = useRouter();
-  const { pharmacyName, progress, completeMission, points, isSpecialist } = useApp();
+  const { progress, completeMission, points, isSpecialist } = useApp();
   const [stepIndex, setStepIndex] = useState(0);
   const [finished, setFinished] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -104,12 +104,7 @@ export default function MissionPlayer({ slug }: { slug: string }) {
 
   if (finished) {
     return (
-      <MissionComplete
-        mission={mission}
-        totalPoints={points}
-        progress={progress}
-        pharmacyName={pharmacyName ?? undefined}
-      />
+      <MissionComplete mission={mission} totalPoints={points} progress={progress} />
     );
   }
 
@@ -559,12 +554,10 @@ function MissionComplete({
   mission,
   totalPoints,
   progress,
-  pharmacyName,
 }: {
   mission: Mission;
   totalPoints: number;
   progress: Record<string, unknown>;
-  pharmacyName?: string;
 }) {
   const coreDone = MISSIONS.every((m) => Boolean(progress[m.slug]));
   // La celebración de Especialista (premio inmediato + certificado) es solo
@@ -629,28 +622,32 @@ function MissionComplete({
           </div>
         </div>
 
-        {/* Premio inmediato (lámina Lakhu: "TU PREMIO INMEDIATO") */}
+        {/* Premio del viaje: elegir UNO de los 3 productos Geneo (en /recompensas). */}
         {allDone && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.45 }}
-            className="w-full flex items-center gap-4 bg-white/10 rounded-3xl px-5 py-4 text-left"
+            className="w-full"
           >
-            <span className="relative w-14 h-14 rounded-2xl bg-white/90 overflow-hidden shrink-0">
-              <Image src="/img/prod-45.webp" alt="Geneo 45+" fill className="object-contain p-1" />
-            </span>
-            <span className="flex-1 min-w-0 flex flex-col gap-1">
-              <span className="block text-white/75 text-[10px] font-bold uppercase tracking-widest">
-                Tu premio inmediato
+            <Link
+              href="/recompensas"
+              className="w-full flex items-center gap-4 bg-white/10 rounded-3xl px-5 py-4 text-left"
+            >
+              <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/15 shrink-0">
+                <Gift size={26} />
               </span>
-              <span className="block font-bold text-sm leading-tight">
-                Pack de muestras Geneo 45+
+              <span className="flex-1 min-w-0 flex flex-col gap-1">
+                <span className="block text-white/75 text-[10px] font-bold uppercase tracking-widest">
+                  Tu premio del viaje
+                </span>
+                <span className="block font-bold text-sm leading-tight">Elegí tu producto Geneo</span>
+                <span className="block text-white/85 text-xs">
+                  Uno de los 3 productos a elección · Reclamalo en Premios
+                </span>
               </span>
-              <span className="block text-white/85 text-xs">
-                Envío sin cargo · En camino a {pharmacyName ?? "tu farmacia"}
-              </span>
-            </span>
+              <ChevronRight size={20} className="shrink-0" />
+            </Link>
           </motion.div>
         )}
 

@@ -13,8 +13,7 @@ import { Card, SectionHeader } from "@/components/ui";
  * cliente antes de publicarse.
  */
 
-// TODO: reemplazar por el contacto real de soporte del cliente.
-const SOPORTE_EMAIL = "soporte@natufarma.com.ar";
+const SOPORTE_EMAIL = "fabianapeculo@natufarma.com.ar";
 
 export const metadata: Metadata = {
   title: "Bases y condiciones · Misión Geneo",

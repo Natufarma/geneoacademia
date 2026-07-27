@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "VAPID no configurado" }, { status: 500 });
   }
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || "mailto:soporte@natufarma.com.ar",
+    process.env.VAPID_SUBJECT || "mailto:fabianapeculo@natufarma.com.ar",
     publicKey,
     privateKey,
   );
