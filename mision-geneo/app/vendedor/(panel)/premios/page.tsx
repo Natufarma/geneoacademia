@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Check, Gift } from "lucide-react";
+import { AlertCircle, Check, Gift, Package } from "lucide-react";
+import { Badge, Card } from "@/components/ui";
 
 /**
  * "Premios" del vendedor: lista los premios reclamados por los empleados de
@@ -59,6 +60,12 @@ export default function PremiosVendedor() {
     });
   }, [prizes]);
 
+  // PENDIENTE = todo lo que no esté "delivered" (ver GET /api/vendedor/premios).
+  const pendingCount = useMemo(() => {
+    if (!prizes) return null;
+    return prizes.filter((p) => p.status !== "delivered").length;
+  }, [prizes]);
+
   async function markDelivered(id: string) {
     setRowError(null);
     setDelivering(id);
@@ -90,6 +97,33 @@ export default function PremiosVendedor() {
           Los premios que reclamaron los empleados de tus farmacias.
         </p>
       </header>
+
+      {!loadError && pendingCount !== null && (
+        <Card
+          variant={pendingCount > 0 ? "feature" : "quiet"}
+          className="flex items-center gap-4 px-5 py-4"
+        >
+          <span
+            className={`flex items-center justify-center w-11 h-11 rounded-full shrink-0 ${
+              pendingCount > 0 ? "bg-geneo text-white" : "bg-rosa-suave/60 text-geneo"
+            }`}
+          >
+            {pendingCount > 0 ? <Package size={20} /> : <Check size={20} strokeWidth={3} />}
+          </span>
+          <div className="flex flex-col gap-0.5">
+            <p className="font-extrabold text-ink text-lg leading-tight">
+              {pendingCount > 0
+                ? `${pendingCount} premio${pendingCount === 1 ? "" : "s"} pendiente${pendingCount === 1 ? "" : "s"} de entrega`
+                : "Todo entregado ✓"}
+            </p>
+            <p className="text-muted text-sm leading-snug">
+              {pendingCount > 0
+                ? "Entregalos a tus empleados y marcalos abajo."
+                : "No tenés premios esperando entrega."}
+            </p>
+          </div>
+        </Card>
+      )}
 
       {loadError && (
         <div className="bg-paper rounded-3xl shadow-soft px-6 py-10 flex flex-col items-center text-center gap-3">
@@ -145,11 +179,15 @@ export default function PremiosVendedor() {
                     </p>
                     <p className="text-soft text-[11px]">{dateFormatter.format(new Date(p.createdAt))}</p>
                   </div>
-                  {delivered && (
+                  {delivered ? (
                     <span className="flex items-center gap-1 text-geneo text-xs font-bold shrink-0">
                       <Check size={16} strokeWidth={3} />
                       Entregado
                     </span>
+                  ) : (
+                    <Badge tone="solid" className="shrink-0">
+                      Pendiente
+                    </Badge>
                   )}
                 </div>
 

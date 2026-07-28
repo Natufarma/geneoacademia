@@ -315,3 +315,57 @@ export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
 
   return { ...summary, missions, redemptions, avatarUrl };
 }
+
+export type RedemptionRow = {
+  id: string;
+  employeeName: string;
+  pharmacyName: string;
+  prize: string;
+  status: string;
+  points: number;
+  createdAt: string;
+};
+
+type RawRedemption = {
+  id: string;
+  user_id: string;
+  reward_id: string;
+  points: number;
+  status: string;
+  created_at: string;
+};
+
+/**
+ * TABLERO DE PREMIOS: todos los canjes de todas las farmacias, para que el
+ * admin tenga visibilidad completa. Es de SOLO LECTURA: el vendedor es quien
+ * marca `status = "delivered"` desde su panel, el admin no canjea ni entrega.
+ */
+export async function getAllRedemptions(): Promise<RedemptionRow[]> {
+  const sb = createAdminClient();
+  const [redemptionsRes, profilesRes, pharmaciesRes] = await Promise.all([
+    sb
+      .from("redemptions")
+      .select("id, user_id, reward_id, points, status, created_at")
+      .order("created_at", { ascending: false }),
+    sb.from("profiles").select("id, name, pharmacy_id"),
+    sb.from("pharmacies").select("id, name"),
+  ]);
+
+  const redemptions = (redemptionsRes.data ?? []) as RawRedemption[];
+  const profiles = profilesRes.data ?? [];
+  const pharmMap = new Map((pharmaciesRes.data ?? []).map((p) => [p.id, p.name]));
+  const profileMap = new Map(profiles.map((p) => [p.id, p]));
+
+  return redemptions.map((r) => {
+    const profile = profileMap.get(r.user_id);
+    return {
+      id: r.id,
+      employeeName: profile?.name ?? "—",
+      pharmacyName: profile?.pharmacy_id ? (pharmMap.get(profile.pharmacy_id) ?? "—") : "—",
+      prize: claimLabel(r.reward_id),
+      status: r.status,
+      points: r.points,
+      createdAt: r.created_at,
+    };
+  });
+}
