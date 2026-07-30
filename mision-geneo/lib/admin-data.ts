@@ -127,6 +127,50 @@ export async function getEmployees(): Promise<EmployeeSummary[]> {
   return profiles.map((p) => summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null, period));
 }
 
+export type VendorSummary = {
+  id: string;
+  name: string;
+  email: string | null;
+  /** Cantidad de puntos de venta que sumó el vendedor. */
+  pharmacyCount: number;
+  /** Nombres de sus puntos de venta, ordenados alfabéticamente. */
+  pharmacyNames: string[];
+  createdAt: string;
+};
+
+/** Vendedores (role "vendor") con las farmacias que cada uno sumó al programa. */
+export async function getVendors(): Promise<VendorSummary[]> {
+  const sb = createAdminClient();
+  const [vendorsRes, linksRes, pharmaciesRes] = await Promise.all([
+    sb
+      .from("profiles")
+      .select("id, name, email, created_at")
+      .eq("role", "vendor")
+      .order("created_at", { ascending: false }),
+    sb.from("vendor_pharmacies").select("vendor_id, pharmacy_id"),
+    sb.from("pharmacies").select("id, name"),
+  ]);
+  const pharmName = new Map((pharmaciesRes.data ?? []).map((p) => [p.id, p.name]));
+  const byVendor = new Map<string, string[]>();
+  for (const link of linksRes.data ?? []) {
+    const list = byVendor.get(link.vendor_id) ?? [];
+    const name = pharmName.get(link.pharmacy_id);
+    if (name) list.push(name);
+    byVendor.set(link.vendor_id, list);
+  }
+  return (vendorsRes.data ?? []).map((v) => {
+    const names = (byVendor.get(v.id) ?? []).sort((a, b) => a.localeCompare(b, "es"));
+    return {
+      id: v.id,
+      name: v.name,
+      email: v.email,
+      pharmacyNames: names,
+      pharmacyCount: names.length,
+      createdAt: v.created_at,
+    };
+  });
+}
+
 export type DashboardStats = {
   employees: number;
   certified: number;
