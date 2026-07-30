@@ -1,14 +1,31 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getVendorUserId } from "@/lib/vendor-auth";
+import { getVendorUserId, vendorOwnsPharmacy } from "@/lib/vendor-auth";
 
 /**
  * Farmacias del vendedor logueado. GET lista las farmacias vinculadas
  * (vendor_pharmacies); POST crea una farmacia nueva con un código único
  * generado server-side y la vincula al vendedor de la sesión — el body
- * nunca puede elegir a qué vendedor se vincula.
+ * nunca puede elegir a qué vendedor se vincula. PATCH edita los datos y
+ * DELETE la elimina (solo si no tiene empleados). Ambas verifican que la
+ * farmacia sea del vendedor de la sesión antes de tocar nada.
  */
 export const dynamic = "force-dynamic";
+
+type PharmacyFields = { type: "farmacia" | "dietetica"; name: string; city: string; branch: string | null };
+type ParseResult = { error: string; fields?: undefined } | { error?: undefined; fields: PharmacyFields };
+
+/** Valida y normaliza los campos de un punto de venta (compartido por POST y PATCH). */
+function parsePharmacyFields(body: { type?: unknown; name?: unknown; city?: unknown; branch?: unknown }): ParseResult {
+  const type = typeof body?.type === "string" ? body.type.trim() : "";
+  const name = typeof body?.name === "string" ? body.name.trim() : "";
+  const city = typeof body?.city === "string" ? body.city.trim() : "";
+  const branch = typeof body?.branch === "string" && body.branch.trim() ? body.branch.trim() : null;
+  if (type !== "farmacia" && type !== "dietetica") return { error: "Elegí el tipo de punto de venta." };
+  if (!name) return { error: "El nombre es obligatorio." };
+  if (!city) return { error: "La ciudad es obligatoria." };
+  return { fields: { type, name, city, branch } };
+}
 
 /** Código de farmacia legible y aleatorio (sin caracteres ambiguos). */
 function genPharmacyCode(): string {
@@ -48,20 +65,9 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
-  const type = typeof body?.type === "string" ? body.type.trim() : "";
-  const name = typeof body?.name === "string" ? body.name.trim() : "";
-  const city = typeof body?.city === "string" ? body.city.trim() : "";
-  const branch = typeof body?.branch === "string" && body.branch.trim() ? body.branch.trim() : null;
-
-  if (type !== "farmacia" && type !== "dietetica") {
-    return NextResponse.json({ error: "Elegí el tipo de punto de venta." }, { status: 400 });
-  }
-  if (!name) {
-    return NextResponse.json({ error: "El nombre es obligatorio." }, { status: 400 });
-  }
-  if (!city) {
-    return NextResponse.json({ error: "La ciudad es obligatoria." }, { status: 400 });
-  }
+  const parsed = parsePharmacyFields(body ?? {});
+  if (!parsed.fields) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { type, name, city, branch } = parsed.fields;
 
   const admin = createAdminClient();
   let pharmacyId: string | null = null;
@@ -94,4 +100,72 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Creamos el punto de venta pero no pudimos vincularlo. Avisá a soporte." }, { status: 500 });
   }
   return NextResponse.json({ ok: true, pharmacyId });
+}
+
+/** Edita los datos de una farmacia del vendedor (nombre, ciudad, sucursal, tipo). */
+export async function PATCH(request: Request) {
+  const vendorId = await getVendorUserId();
+  if (!vendorId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  let body: { pharmacyId?: unknown; type?: unknown; name?: unknown; city?: unknown; branch?: unknown } | null;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Body inválido" }, { status: 400 });
+  }
+  const pharmacyId = typeof body?.pharmacyId === "string" ? body.pharmacyId : "";
+  if (!pharmacyId) return NextResponse.json({ error: "pharmacyId inválido" }, { status: 400 });
+
+  // Autorizar ANTES de validar el body: la propiedad del recurso se verifica
+  // primero, así los mensajes de validación no sondean el sistema.
+  if (!(await vendorOwnsPharmacy(vendorId, pharmacyId))) {
+    return NextResponse.json({ error: "Ese punto de venta no es tuyo." }, { status: 403 });
+  }
+
+  const parsed = parsePharmacyFields(body ?? {});
+  if (!parsed.fields) return NextResponse.json({ error: parsed.error }, { status: 400 });
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("pharmacies").update(parsed.fields).eq("id", pharmacyId);
+  if (error) return NextResponse.json({ error: "No pudimos guardar los cambios." }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
+
+/** Elimina una farmacia del vendedor. Bloquea el borrado si ya tiene empleados registrados. */
+export async function DELETE(request: Request) {
+  const vendorId = await getVendorUserId();
+  if (!vendorId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  let body: { pharmacyId?: unknown } | null;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Body inválido" }, { status: 400 });
+  }
+  const pharmacyId = typeof body?.pharmacyId === "string" ? body.pharmacyId : "";
+  if (!pharmacyId) return NextResponse.json({ error: "pharmacyId inválido" }, { status: 400 });
+
+  if (!(await vendorOwnsPharmacy(vendorId, pharmacyId))) {
+    return NextResponse.json({ error: "Ese punto de venta no es tuyo." }, { status: 403 });
+  }
+
+  const admin = createAdminClient();
+
+  // Protección: no se puede borrar una farmacia que ya tiene empleados jugando.
+  const { count } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("pharmacy_id", pharmacyId);
+  if ((count ?? 0) > 0) {
+    return NextResponse.json(
+      { error: "No podés borrar esta farmacia: ya tiene empleados registrados." },
+      { status: 409 },
+    );
+  }
+
+  // Sin empleados → desvincular y eliminar la farmacia por completo.
+  await admin.from("vendor_pharmacies").delete().eq("pharmacy_id", pharmacyId).eq("vendor_id", vendorId);
+  const { error } = await admin.from("pharmacies").delete().eq("id", pharmacyId);
+  if (error) return NextResponse.json({ error: "No pudimos eliminar el punto de venta." }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }
