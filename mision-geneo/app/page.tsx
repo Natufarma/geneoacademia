@@ -353,6 +353,8 @@ export default function Bienvenida() {
                 Acepto la{" "}
                 <Link
                   href="/privacidad"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-geneo font-semibold underline underline-offset-2"
                 >
                   política de privacidad
@@ -360,6 +362,8 @@ export default function Bienvenida() {
                 y las{" "}
                 <Link
                   href="/bases"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-geneo font-semibold underline underline-offset-2"
                 >
                   bases y condiciones
