@@ -107,7 +107,10 @@ async function fetchAll() {
     sb.from("certificates").select("user_id, issued_at"),
     sb.from("daily_answers").select("user_id, day, points"),
   ]);
-  const profiles = (profilesRes.data ?? []).filter((p) => p.role !== "admin");
+  // Solo EMPLEADOS: el panel de empleados/dashboard/farmacias no debe incluir
+  // vendedores (role "vendor") ni admins. Filtrar por !== "admin" dejaba pasar
+  // a los vendedores y aparecían como empleados.
+  const profiles = (profilesRes.data ?? []).filter((p) => p.role === "employee");
   const pharmacies = pharmaciesRes.data ?? [];
   const progress = (progressRes.data ?? []) as ProgressRow[];
   const certs = (certsRes.data ?? []) as CertRow[];
