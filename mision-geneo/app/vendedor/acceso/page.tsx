@@ -66,7 +66,9 @@ export default function AccesoVendedor() {
           setLoading(false);
           return;
         }
-        router.push("/vendedor/premios");
+        // Vendedor recién creado: lo llevamos a "Puntos de venta" para que cargue
+        // sus farmacias (todavía no tiene premios ni nada que entregar).
+        router.push("/vendedor/farmacias");
       } catch {
         setError("No pudimos completar el registro.");
         setLoading(false);
@@ -113,7 +115,7 @@ export default function AccesoVendedor() {
 
   return (
     <div className="min-h-dvh bg-surface">
-      <main className="max-w-md mx-auto px-5 py-8 flex flex-col gap-5">
+      <main className="max-w-md mx-auto px-5 py-12 flex flex-col gap-5">
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -196,7 +198,7 @@ export default function AccesoVendedor() {
                   Es el código que te da el equipo Geneo. Si no lo tenés, escribí a{" "}
                   <a
                     href="mailto:fabianapeculo@natufarma.com.ar"
-                    className="text-geneo font-semibold underline underline-offset-2 break-words"
+                    className="text-geneo font-semibold underline underline-offset-2 break-words inline-block py-1"
                   >
                     fabianapeculo@natufarma.com.ar
                   </a>
@@ -257,7 +259,7 @@ export default function AccesoVendedor() {
           {mode === "login" && (
             <Link
               href="/recuperar"
-              className="text-soft text-xs underline underline-offset-2 self-end"
+              className="text-soft text-xs underline underline-offset-2 self-end inline-flex items-center min-h-11"
             >
               ¿Olvidaste tu contraseña?
             </Link>
