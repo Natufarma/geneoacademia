@@ -106,7 +106,7 @@ export default function AccesoVendedor() {
         setLoading(false);
         return;
       }
-      router.push("/vendedor/premios");
+      router.push("/vendedor/farmacias");
     } catch {
       setError("No pudimos iniciar sesión.");
       setLoading(false);
