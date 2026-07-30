@@ -98,7 +98,10 @@ export default function PremiosVendedor() {
         </p>
       </header>
 
-      {!loadError && pendingCount !== null && (
+      {/* Tarjeta-resumen: solo si hay al menos un premio. Con cero premios, el
+          "Todo entregado ✓" confundía (daba a entender que hubo entregas); el
+          estado vacío de abajo ya comunica "todavía no hay premios". */}
+      {!loadError && pendingCount !== null && prizes !== null && prizes.length > 0 && (
         <Card
           variant={pendingCount > 0 ? "feature" : "quiet"}
           className="flex items-center gap-4 px-5 py-4"
@@ -162,7 +165,7 @@ export default function PremiosVendedor() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 28, delay: Math.min(i, 8) * 0.05 }}
-                className="flex flex-col gap-3 rounded-3xl px-5 py-4 bg-paper shadow-soft"
+                className="flex flex-col gap-3 rounded-3xl px-4 py-4 bg-paper shadow-soft"
               >
                 <div className="flex items-center gap-4">
                   <span
