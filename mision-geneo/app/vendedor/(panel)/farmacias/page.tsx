@@ -2,7 +2,18 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Check, MapPin, Pencil, Plus, Store, Trash2, X } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  ChevronDown,
+  MapPin,
+  Pencil,
+  Plus,
+  Store,
+  Trash2,
+  Users,
+  X,
+} from "lucide-react";
 
 /**
  * "Mis puntos de venta" del vendedor: lista las farmacias y dietéticas que
@@ -13,6 +24,13 @@ import { AlertCircle, Check, MapPin, Pencil, Plus, Store, Trash2, X } from "luci
 
 type PharmacyType = "farmacia" | "dietetica";
 
+type EmployeeLite = {
+  id: string;
+  name: string;
+  points: number;
+  certified: boolean;
+};
+
 type Pharmacy = {
   id: string;
   name: string;
@@ -20,6 +38,7 @@ type Pharmacy = {
   city: string | null;
   branch: string | null;
   created_at: string;
+  employees: EmployeeLite[];
 };
 
 const TYPE_LABELS: Record<PharmacyType, string> = {
@@ -257,6 +276,7 @@ function PharmacyItem({
 }) {
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [showEmployees, setShowEmployees] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -383,6 +403,53 @@ function PharmacyItem({
               </span>
             )}
           </div>
+
+          {/* Empleados registrados en esta farmacia (nombre + puntos + certificado). */}
+          {pharmacy.employees.length === 0 ? (
+            <p className="border-t border-line pt-2 text-soft text-xs">
+              Sin empleados registrados aún.
+            </p>
+          ) : (
+            <div className="border-t border-line pt-2">
+              <button
+                type="button"
+                onClick={() => setShowEmployees((s) => !s)}
+                aria-expanded={showEmployees}
+                className="flex items-center gap-1.5 min-h-11 text-muted text-xs font-bold hover:text-geneo active:text-geneo transition-colors"
+              >
+                <Users size={14} className="text-geneo" />
+                {pharmacy.employees.length} empleado{pharmacy.employees.length === 1 ? "" : "s"}
+                <motion.span
+                  animate={{ rotate: showEmployees ? 180 : 0 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 28 }}
+                  className="inline-flex"
+                >
+                  <ChevronDown size={14} />
+                </motion.span>
+              </button>
+              {showEmployees && (
+                <ul className="flex flex-col divide-y divide-line">
+                  {pharmacy.employees.map((emp) => (
+                    <li key={emp.id} className="flex items-center justify-between gap-3 py-2">
+                      <span className="text-ink text-sm truncate">{emp.name}</span>
+                      <span className="shrink-0 flex items-center gap-2">
+                        <span className="text-geneo font-bold text-xs">
+                          {emp.points.toLocaleString("es-AR")} pts
+                        </span>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                            emp.certified ? "bg-rosa-suave text-geneo" : "bg-line/60 text-soft"
+                          }`}
+                        >
+                          {emp.certified ? "Certificado" : "En curso"}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {confirmingDelete && (
             <div className="flex flex-col gap-2 rounded-2xl bg-surface border border-line px-4 py-3">

@@ -47,12 +47,43 @@ export async function GET() {
   const ids = (links ?? []).map((l) => l.pharmacy_id);
   if (!ids.length) return NextResponse.json({ pharmacies: [] });
 
-  const { data: pharmacies } = await admin
-    .from("pharmacies")
-    .select("id, name, type, city, branch, created_at")
-    .in("id", ids)
-    .order("name");
-  return NextResponse.json({ pharmacies: pharmacies ?? [] });
+  const [{ data: pharmacies }, { data: employees }] = await Promise.all([
+    admin
+      .from("pharmacies")
+      .select("id, name, type, city, branch, created_at")
+      .in("id", ids)
+      .order("name"),
+    admin.from("profiles").select("id, name, pharmacy_id").eq("role", "employee").in("pharmacy_id", ids),
+  ]);
+
+  // Progreso de los empleados de esas farmacias: puntos = suma de scores de
+  // misiones (igual que en la app y el admin); certificado = tiene fila en certificates.
+  const empList = employees ?? [];
+  const empIds = empList.map((e) => e.id);
+  const [progressRes, certsRes] = empIds.length
+    ? await Promise.all([
+        admin.from("mission_progress").select("user_id, score").in("user_id", empIds),
+        admin.from("certificates").select("user_id").in("user_id", empIds),
+      ])
+    : [{ data: [] as { user_id: string; score: number }[] }, { data: [] as { user_id: string }[] }];
+
+  const pointsByUser = new Map<string, number>();
+  for (const p of progressRes.data ?? []) {
+    pointsByUser.set(p.user_id, (pointsByUser.get(p.user_id) ?? 0) + p.score);
+  }
+  const certifiedUsers = new Set((certsRes.data ?? []).map((c) => c.user_id));
+
+  const empByPharmacy = new Map<string, { id: string; name: string; points: number; certified: boolean }[]>();
+  for (const e of empList) {
+    if (!e.pharmacy_id) continue;
+    const list = empByPharmacy.get(e.pharmacy_id) ?? [];
+    list.push({ id: e.id, name: e.name, points: pointsByUser.get(e.id) ?? 0, certified: certifiedUsers.has(e.id) });
+    empByPharmacy.set(e.pharmacy_id, list);
+  }
+  for (const list of empByPharmacy.values()) list.sort((a, b) => b.points - a.points);
+
+  const result = (pharmacies ?? []).map((ph) => ({ ...ph, employees: empByPharmacy.get(ph.id) ?? [] }));
+  return NextResponse.json({ pharmacies: result });
 }
 
 export async function POST(request: Request) {
