@@ -1,5 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "./types";
+import { normalizeSupabaseUrl } from "./url";
 
 /**
  * Cliente Supabase para el navegador (Client Components).
@@ -16,5 +17,5 @@ export function createClient() {
     );
   }
 
-  return createBrowserClient<Database>(url, anonKey);
+  return createBrowserClient<Database>(normalizeSupabaseUrl(url), anonKey);
 }

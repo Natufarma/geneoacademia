@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
+import { normalizeSupabaseUrl } from "./url";
 
 /**
  * Cliente Supabase SOLO PARA EL SERVIDOR del panel de admin.
@@ -18,7 +19,7 @@ export function createAdminClient(): SupabaseClient<Database> {
     );
   }
   if (!client) {
-    client = createClient<Database>(url, key, {
+    client = createClient<Database>(normalizeSupabaseUrl(url), key, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
   }

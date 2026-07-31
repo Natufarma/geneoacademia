@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "./types";
+import { normalizeSupabaseUrl } from "./url";
 
 /**
  * Cliente Supabase para el servidor (Server Components, Route Handlers, Server
@@ -19,7 +20,7 @@ export async function createClient() {
 
   const cookieStore = await cookies();
 
-  return createServerClient<Database>(url, anonKey, {
+  return createServerClient<Database>(normalizeSupabaseUrl(url), anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
