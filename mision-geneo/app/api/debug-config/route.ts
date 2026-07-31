@@ -1,30 +1,39 @@
 import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeSupabaseUrl } from "@/lib/supabase/url";
 
 /**
- * TEMPORAL — diagnóstico de configuración. Muestra qué Supabase está usando el
- * deploy (URL + rol/proyecto de cada key, SIN exponer las keys). Borrar cuando
- * se termine de diagnosticar el entorno de staging.
+ * TEMPORAL — diagnóstico. Muestra la config y, sobre todo, INTENTA un createUser
+ * real (mismo cliente que el registro) y devuelve el error exacto de Supabase.
+ * Borrar cuando termine el diagnóstico de staging.
  */
 export const dynamic = "force-dynamic";
 
-function inspect(token: string | undefined) {
-  if (!token) return { present: false };
-  const parts = token.split(".");
-  if (parts.length !== 3) return { present: true, jwt: false, endsWith: token.slice(-8) };
-  try {
-    const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-    return { present: true, jwt: true, role: payload.role, ref: payload.ref, endsWith: token.slice(-8) };
-  } catch {
-    return { present: true, jwt: false };
-  }
-}
-
 export async function GET() {
-  return NextResponse.json({
-    marker: "v2-build-limpio",
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? null,
-    SUPABASE_SERVICE_ROLE_KEY: inspect(process.env.SUPABASE_SERVICE_ROLE_KEY),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: inspect(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-    VENDOR_SIGNUP_CODE_present: Boolean(process.env.VENDOR_SIGNUP_CODE),
-  });
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const result: Record<string, unknown> = {
+    marker: "v3-test-createuser",
+    rawUrl: raw,
+    normalizedUrl: raw ? normalizeSupabaseUrl(raw) : null,
+  };
+
+  try {
+    const admin = createAdminClient();
+    const email = `debug-${Math.round(Math.random() * 1e9)}@example.com`;
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password: "DebugTest2026",
+      email_confirm: true,
+    });
+    if (error) {
+      result.createUser = { ok: false, status: error.status, message: error.message };
+    } else {
+      result.createUser = { ok: true, id: data.user.id };
+      await admin.auth.admin.deleteUser(data.user.id); // limpieza
+    }
+  } catch (e) {
+    result.createUser = { ok: false, threw: e instanceof Error ? e.message : String(e) };
+  }
+
+  return NextResponse.json(result);
 }
