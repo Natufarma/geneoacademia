@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, ScrollText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Card, SectionHeader } from "@/components/ui";
 
 /**
@@ -8,9 +8,6 @@ import { Card, SectionHeader } from "@/components/ui";
  * PÚBLICO (igual que /privacidad): se enlaza desde el consentimiento del alta y
  * desde el perfil, así que NO va dentro de <AppShell> (que redirige a quien no
  * tiene sesión). Replica el marco visual de la app.
- *
- * ⚠️ El texto es un BORRADOR de trabajo. Debe pasar por el área legal del
- * cliente antes de publicarse.
  */
 
 const SOPORTE_EMAIL = "fabianapeculo@natufarma.com.ar";
@@ -39,16 +36,6 @@ export default function BasesPage() {
           </h1>
           <p className="text-muted text-sm">Del programa de capacitación Misión Geneo.</p>
         </header>
-
-        {/* Aviso de BORRADOR */}
-        <Card variant="quiet" className="flex items-start gap-3 px-5 py-4">
-          <ScrollText size={20} className="text-geneo shrink-0 mt-0.5" />
-          <p className="text-ink text-sm leading-snug">
-            <strong className="font-bold">Borrador para revisión legal.</strong> Este texto es una
-            versión preliminar y debe ser revisado y aprobado por el área legal del cliente antes de
-            su publicación definitiva.
-          </p>
-        </Card>
 
         <section className="flex flex-col gap-3">
           <SectionHeader eyebrow="1. El programa">Qué es Misión Geneo</SectionHeader>
@@ -94,7 +81,9 @@ export default function BasesPage() {
           <SectionHeader eyebrow="4. Premios">Premios y su entrega</SectionHeader>
           <Card variant="base" className="px-5 py-4 flex flex-col gap-2.5">
             <p className="text-muted text-sm leading-relaxed">
-              El programa contempla: el <strong>certificado</strong> de Especialista Geneo; un{" "}
+              El programa contempla: al completar las 6 misiones principales, un{" "}
+              <strong>producto de la línea Geneo a elección</strong>; el{" "}
+              <strong>certificado</strong> de Especialista Geneo; un{" "}
               <strong>kit de merchandising</strong> al completar la Academia; y un{" "}
               <strong>premio mensual de farmacia</strong> (kit Geneo) para la farmacia mejor rankeada
               de cada mes.
