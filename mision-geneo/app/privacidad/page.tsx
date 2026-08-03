@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Card, SectionHeader } from "@/components/ui";
 
 /**
@@ -9,9 +9,6 @@ import { Card, SectionHeader } from "@/components/ui";
  * de que exista sesión. Por eso NO se envuelve en <AppShell> (que redirige al
  * inicio a quien no está logueado): replica el marco visual de la app —
  * bg-surface + columna centrada — pero queda accesible sin login.
- *
- * ⚠️ El texto es un BORRADOR de trabajo. Debe pasar por el área legal del
- * cliente antes de publicarse. Ver el aviso destacado dentro de la página.
  */
 
 const SOPORTE_EMAIL = "fabianapeculo@natufarma.com.ar";
@@ -42,16 +39,6 @@ export default function PrivacidadPage() {
             Cómo cuidamos tus datos personales en Misión Geneo.
           </p>
         </header>
-
-        {/* Aviso de BORRADOR: lo primero que se ve, imposible de pasar por alto. */}
-        <Card variant="quiet" className="flex items-start gap-3 px-5 py-4">
-          <ShieldCheck size={20} className="text-geneo shrink-0 mt-0.5" />
-          <p className="text-ink text-sm leading-snug">
-            <strong className="font-bold">Borrador para revisión legal.</strong> Este texto es una
-            versión preliminar y debe ser revisada y aprobada por el área legal del cliente antes de
-            su publicación definitiva.
-          </p>
-        </Card>
 
         <section className="flex flex-col gap-3">
           <SectionHeader eyebrow="Responsable">Quién trata tus datos</SectionHeader>
