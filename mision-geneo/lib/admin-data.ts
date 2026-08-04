@@ -135,13 +135,15 @@ export type VendorSummary = {
   pharmacyCount: number;
   /** Nombres de sus puntos de venta, ordenados alfabéticamente. */
   pharmacyNames: string[];
+  /** false = dado de baja (baneado en Auth): no puede iniciar sesión. */
+  active: boolean;
   createdAt: string;
 };
 
 /** Vendedores (role "vendor") con las farmacias que cada uno sumó al programa. */
 export async function getVendors(): Promise<VendorSummary[]> {
   const sb = createAdminClient();
-  const [vendorsRes, linksRes, pharmaciesRes] = await Promise.all([
+  const [vendorsRes, linksRes, pharmaciesRes, usersRes] = await Promise.all([
     sb
       .from("profiles")
       .select("id, name, email, created_at")
@@ -149,7 +151,15 @@ export async function getVendors(): Promise<VendorSummary[]> {
       .order("created_at", { ascending: false }),
     sb.from("vendor_pharmacies").select("vendor_id, pharmacy_id"),
     sb.from("pharmacies").select("id, name"),
+    sb.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ]);
+  // Vendedores dados de baja = usuarios con ban vigente (banned_until en el futuro).
+  const now = Date.now();
+  const bannedIds = new Set(
+    (usersRes.data?.users ?? [])
+      .filter((u) => u.banned_until != null && new Date(u.banned_until).getTime() > now)
+      .map((u) => u.id),
+  );
   const pharmName = new Map((pharmaciesRes.data ?? []).map((p) => [p.id, p.name]));
   const byVendor = new Map<string, string[]>();
   for (const link of linksRes.data ?? []) {
@@ -166,6 +176,7 @@ export async function getVendors(): Promise<VendorSummary[]> {
       email: v.email,
       pharmacyNames: names,
       pharmacyCount: names.length,
+      active: !bannedIds.has(v.id),
       createdAt: v.created_at,
     };
   });

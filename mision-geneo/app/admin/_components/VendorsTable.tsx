@@ -1,11 +1,87 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { Search, Store } from "lucide-react";
 import type { VendorSummary } from "@/lib/admin-data";
+import { setVendorActive } from "../(protected)/vendedores/actions";
 import { fmtDate } from "./ui";
 
-const COLS = "grid grid-cols-[1.2fr_1.5fr_auto_2fr_0.9fr] gap-4";
+const COLS = "grid grid-cols-[1.1fr_1.4fr_auto_1.5fr_0.8fr_1.3fr] gap-4";
+
+/** Badge de estado + botón dar de baja / reactivar (con confirmación). */
+function VendorControls({ vendor }: { vendor: VendorSummary }) {
+  const [pending, startTransition] = useTransition();
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState("");
+
+  function act(active: boolean) {
+    setError("");
+    startTransition(async () => {
+      const res = await setVendorActive(vendor.id, active);
+      if (!res.ok) setError(res.error);
+      else setConfirming(false);
+    });
+  }
+
+  const badge = vendor.active
+    ? "bg-rosa-suave text-geneo"
+    : "bg-line/60 text-soft";
+
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      <span
+        className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${badge}`}
+      >
+        {vendor.active ? "Activo" : "Dado de baja"}
+      </span>
+
+      {vendor.active ? (
+        confirming ? (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-muted text-xs">¿Dar de baja a este vendedor?</span>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => act(false)}
+                disabled={pending}
+                className="inline-flex items-center rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft text-white font-bold text-xs px-3 min-h-11 transition-colors"
+              >
+                {pending ? "Un momento…" : "Sí, dar de baja"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                disabled={pending}
+                className="inline-flex items-center rounded-full border border-line text-muted hover:text-geneo active:text-geneo font-bold text-xs px-3 min-h-11 transition-colors"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className="inline-flex items-center rounded-full border border-line text-muted hover:border-geneo hover:text-geneo active:text-geneo font-semibold text-xs px-3 min-h-11 transition-colors"
+          >
+            Dar de baja
+          </button>
+        )
+      ) : (
+        <button
+          type="button"
+          onClick={() => act(true)}
+          disabled={pending}
+          className="inline-flex items-center rounded-full bg-geneo hover:bg-geneo-hover active:bg-geneo-hover disabled:bg-line disabled:text-soft text-white font-bold text-xs px-3 min-h-11 transition-colors"
+        >
+          {pending ? "Un momento…" : "Reactivar"}
+        </button>
+      )}
+
+      {error && <span className="text-geneo text-xs font-medium">{error}</span>}
+    </div>
+  );
+}
 
 export default function VendorsTable({ vendors }: { vendors: VendorSummary[] }) {
   const [q, setQ] = useState("");
@@ -39,7 +115,7 @@ export default function VendorsTable({ vendors }: { vendors: VendorSummary[] }) 
         </p>
       ) : (
         <>
-          {/* Mobile: tarjetas apiladas (la tabla ancha no entra en un teléfono). */}
+          {/* Mobile: tarjetas apiladas. */}
           <ul className="md:hidden flex flex-col gap-3">
             {filtered.map((v) => (
               <li key={v.id} className="bg-paper rounded-2xl shadow-soft p-4 flex flex-col gap-2.5">
@@ -60,13 +136,16 @@ export default function VendorsTable({ vendors }: { vendors: VendorSummary[] }) 
                   </span>
                 </div>
                 <span className="text-soft text-xs">Alta: {fmtDate(v.createdAt)}</span>
+                <div className="border-t border-line pt-2.5">
+                  <VendorControls vendor={v} />
+                </div>
               </li>
             ))}
           </ul>
 
           {/* Desktop: tabla con las columnas alineadas. */}
           <div className="hidden md:block overflow-x-auto scrollbar-hide bg-paper rounded-3xl shadow-soft">
-            <div className="min-w-[720px]">
+            <div className="min-w-[880px]">
               <div
                 className={`${COLS} px-5 py-3 border-b border-line text-soft text-[11px] font-bold uppercase tracking-widest`}
               >
@@ -75,6 +154,7 @@ export default function VendorsTable({ vendors }: { vendors: VendorSummary[] }) 
                 <span className="text-center">Farmacias</span>
                 <span>Puntos de venta</span>
                 <span className="text-right">Alta</span>
+                <span>Estado</span>
               </div>
               <div className="divide-y divide-line">
                 {filtered.map((v) => (
@@ -91,6 +171,7 @@ export default function VendorsTable({ vendors }: { vendors: VendorSummary[] }) 
                       {v.pharmacyNames.length ? v.pharmacyNames.join(" · ") : "—"}
                     </span>
                     <span className="text-muted text-sm text-right">{fmtDate(v.createdAt)}</span>
+                    <VendorControls vendor={v} />
                   </div>
                 ))}
               </div>

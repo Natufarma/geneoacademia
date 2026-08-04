@@ -88,7 +88,11 @@ export default function AccesoVendedor() {
         password,
       });
       if (signInError) {
-        setError("Email o contraseña incorrectos.");
+        setError(
+          signInError.code === "user_banned"
+            ? "Tu cuenta fue dada de baja. Escribí a Geneo para reactivarla."
+            : "Email o contraseña incorrectos.",
+        );
         setLoading(false);
         return;
       }
