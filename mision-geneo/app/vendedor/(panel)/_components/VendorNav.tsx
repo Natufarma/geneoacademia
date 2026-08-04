@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gift, Store, Trophy } from "lucide-react";
+import { Building2, Gift, Store, Trophy } from "lucide-react";
 
 /**
  * Navegación del panel de vendedor: barra inferior con íconos (mismo patrón que
  * la app del empleado). El nav superior anterior apretaba "Puntos de venta" en
  * varias líneas en mobile; la barra inferior es más clara y thumb-friendly.
+ * El perfil vive en el header (arriba a la derecha), no acá.
  */
 const TABS = [
   { href: "/vendedor/farmacias", label: "Puntos de venta", icon: Store },
+  { href: "/vendedor/mis-farmacias", label: "Mis Farmacias", icon: Building2 },
   { href: "/vendedor/premios", label: "Premios", icon: Gift },
   { href: "/vendedor/ranking", label: "Ranking", icon: Trophy },
 ] as const;
@@ -45,7 +47,7 @@ export default function VendorNav() {
       aria-label="Navegación del vendedor"
       className="no-print fixed bottom-0 inset-x-0 z-50 bg-paper/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="max-w-3xl mx-auto grid grid-cols-3">
+      <div className="max-w-3xl mx-auto grid grid-cols-4">
         {TABS.map(({ href, label, icon: Icon }) => {
           const active = pathname.startsWith(href);
           const showBadge = href === "/vendedor/premios" && pendingPrizes > 0;

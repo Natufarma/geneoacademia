@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { User } from "lucide-react";
 import { getVendorUserId } from "@/lib/vendor-auth";
 import VendorNav from "./_components/VendorNav";
-import VendorLogout from "./_components/VendorLogout";
 
 export default async function VendedorPanelLayout({ children }: { children: ReactNode }) {
   const vendorId = await getVendorUserId();
@@ -17,7 +18,16 @@ export default async function VendedorPanelLayout({ children }: { children: Reac
             <Image src="/img/logo-fuxia.webp" alt="Geneo" width={92} height={30} priority />
             <span className="text-soft text-xs font-bold uppercase tracking-widest">Vendedor</span>
           </div>
-          <VendorLogout />
+          <Link
+            href="/vendedor/perfil"
+            aria-label="Mi perfil"
+            className="inline-flex items-center gap-2 min-h-11 rounded-full pl-1 pr-3 text-sm font-bold text-muted hover:bg-rosa-suave/50 active:bg-rosa-suave/50 transition-colors"
+          >
+            <span className="flex items-center justify-center w-9 h-9 rounded-full bg-rosa-suave text-geneo shrink-0">
+              <User size={18} />
+            </span>
+            <span className="hidden sm:inline">Perfil</span>
+          </Link>
         </div>
       </header>
       <main className="max-w-3xl mx-auto px-5 pt-6 pb-28">{children}</main>
