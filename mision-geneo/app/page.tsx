@@ -49,7 +49,9 @@ export default function Bienvenida() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (ready && user) router.replace("/misiones");
+    if (!ready || !user) return;
+    // Un vendedor puede tener sesión pero no es empleado: va a su panel.
+    router.replace(user.role === "vendor" ? "/vendedor/farmacias" : "/misiones");
   }, [ready, user, router]);
 
   const clearFeedback = () => {

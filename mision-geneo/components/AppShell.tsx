@@ -15,11 +15,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const { ready, user } = useApp();
   const router = useRouter();
 
-  useEffect(() => {
-    if (ready && !user) router.replace("/");
-  }, [ready, user, router]);
+  // Un vendedor tiene sesión de Supabase válida pero NO es empleado: nunca debe
+  // ver la app de empleado. Lo mandamos a su propio panel.
+  const isVendor = user?.role === "vendor";
 
-  if (!ready || !user) {
+  useEffect(() => {
+    if (!ready) return;
+    if (!user) router.replace("/");
+    else if (isVendor) router.replace("/vendedor/farmacias");
+  }, [ready, user, isVendor, router]);
+
+  if (!ready || !user || isVendor) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-surface">
         <Image

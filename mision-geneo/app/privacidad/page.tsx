@@ -1,6 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft } from "lucide-react";
+import BackButton from "@/components/BackButton";
 import { Card, SectionHeader } from "@/components/ui";
 
 /**
@@ -23,13 +22,7 @@ export default function PrivacidadPage() {
   return (
     <div className="min-h-dvh bg-surface">
       <main className="max-w-md mx-auto px-5 pt-6 pb-16 flex flex-col gap-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 min-h-11 -my-2 self-start text-muted hover:text-geneo active:text-geneo text-sm font-semibold transition-colors"
-        >
-          <ArrowLeft size={16} />
-          Volver
-        </Link>
+        <BackButton />
 
         <header className="flex flex-col gap-1">
           <h1 className="text-ink font-extrabold text-2xl tracking-tight">

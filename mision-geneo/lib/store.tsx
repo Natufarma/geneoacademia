@@ -24,6 +24,8 @@ export type DemoUser = {
   pharmacyId: string;
   /** Ruta del avatar en el bucket privado `avatars` (null = sin foto todavía). */
   avatarPath: string | null;
+  /** Rol del perfil. "vendor" = NO es empleado: la app de empleado debe redirigirlo. */
+  role: string | null;
 };
 
 export type MissionProgress = {
@@ -188,7 +190,7 @@ function friendlyAuthError(message: string): string {
 
 /** Arma el snapshot logueado desde las filas crudas de la base. */
 function buildSnapshot(
-  profile: { name: string; pharmacy_id: string | null; avatar_path: string | null },
+  profile: { name: string; pharmacy_id: string | null; avatar_path: string | null; role?: string | null },
   prog: { mission_slug: string; score: number; completed_at: string }[],
   reds: { reward_id: string; created_at: string; status: string }[],
   dailyRows: { day: string; question_id: string; correct: boolean; points: number }[],
@@ -221,6 +223,7 @@ function buildSnapshot(
       name: profile.name,
       pharmacyId: profile.pharmacy_id ?? "",
       avatarPath: profile.avatar_path ?? null,
+      role: profile.role ?? null,
     },
     pharmacyName,
     pharmacies,
@@ -302,7 +305,7 @@ async function loadUser(userId: string, pharmacies: PharmacyOption[]): Promise<S
     await Promise.all([
       client
         .from("profiles")
-        .select("name, pharmacy_id, avatar_path")
+        .select("name, pharmacy_id, avatar_path, role")
         .eq("id", userId)
         .maybeSingle(),
       client
