@@ -35,7 +35,7 @@ export async function GET() {
 
   const { data: reds } = await admin
     .from("redemptions")
-    .select("id, user_id, reward_id, status, created_at")
+    .select("id, user_id, reward_id, status, created_at, delivered_at")
     .in("user_id", empIds)
     .order("created_at", { ascending: false });
 
@@ -48,6 +48,7 @@ export async function GET() {
       prize: claimLabel(r.reward_id),
       status: r.status,
       createdAt: r.created_at,
+      deliveredAt: r.delivered_at,
     };
   });
   return NextResponse.json({ prizes });
@@ -86,7 +87,7 @@ export async function PATCH(request: Request) {
 
   const { error } = await admin
     .from("redemptions")
-    .update({ status: "delivered" })
+    .update({ status: "delivered", delivered_at: new Date().toISOString() })
     .eq("id", redemptionId);
   if (error) return NextResponse.json({ error: "No pudimos actualizar el premio." }, { status: 500 });
   return NextResponse.json({ ok: true });

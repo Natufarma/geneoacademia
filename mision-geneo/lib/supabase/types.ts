@@ -56,6 +56,8 @@ export type RedemptionRow = {
   points: number;
   status: RedemptionStatus;
   created_at: string;
+  /** Fecha en que el vendedor marcó el premio como entregado (null = pendiente). */
+  delivered_at: string | null;
 };
 
 export type CertificateRow = {

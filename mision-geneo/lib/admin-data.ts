@@ -378,10 +378,14 @@ export type RedemptionRow = {
   id: string;
   employeeName: string;
   pharmacyName: string;
+  pharmacyId: string | null;
+  vendorName: string | null;
+  vendorId: string | null;
   prize: string;
   status: string;
   points: number;
   createdAt: string;
+  deliveredAt: string | null;
 };
 
 type RawRedemption = {
@@ -391,6 +395,7 @@ type RawRedemption = {
   points: number;
   status: string;
   created_at: string;
+  delivered_at: string | null;
 };
 
 /**
@@ -400,30 +405,44 @@ type RawRedemption = {
  */
 export async function getAllRedemptions(): Promise<RedemptionRow[]> {
   const sb = createAdminClient();
-  const [redemptionsRes, profilesRes, pharmaciesRes] = await Promise.all([
+  const [redemptionsRes, profilesRes, pharmaciesRes, vendorLinksRes] = await Promise.all([
     sb
       .from("redemptions")
-      .select("id, user_id, reward_id, points, status, created_at")
+      .select("id, user_id, reward_id, points, status, created_at, delivered_at")
       .order("created_at", { ascending: false }),
     sb.from("profiles").select("id, name, pharmacy_id"),
     sb.from("pharmacies").select("id, name"),
+    sb.from("vendor_pharmacies").select("vendor_id, pharmacy_id"),
   ]);
 
   const redemptions = (redemptionsRes.data ?? []) as RawRedemption[];
   const profiles = profilesRes.data ?? [];
   const pharmMap = new Map((pharmaciesRes.data ?? []).map((p) => [p.id, p.name]));
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
+  // pharmacy_id -> vendedor que la administra (el primero, si hubiera varios).
+  const vendorByPharmacy = new Map<string, { id: string; name: string }>();
+  for (const link of vendorLinksRes.data ?? []) {
+    if (vendorByPharmacy.has(link.pharmacy_id)) continue;
+    const v = profileMap.get(link.vendor_id);
+    if (v) vendorByPharmacy.set(link.pharmacy_id, { id: v.id, name: v.name });
+  }
 
   return redemptions.map((r) => {
     const profile = profileMap.get(r.user_id);
+    const pharmacyId = profile?.pharmacy_id ?? null;
+    const vendor = pharmacyId ? vendorByPharmacy.get(pharmacyId) : undefined;
     return {
       id: r.id,
       employeeName: profile?.name ?? "—",
-      pharmacyName: profile?.pharmacy_id ? (pharmMap.get(profile.pharmacy_id) ?? "—") : "—",
+      pharmacyName: pharmacyId ? (pharmMap.get(pharmacyId) ?? "—") : "—",
+      pharmacyId,
+      vendorName: vendor?.name ?? null,
+      vendorId: vendor?.id ?? null,
       prize: claimLabel(r.reward_id),
       status: r.status,
       points: r.points,
       createdAt: r.created_at,
+      deliveredAt: r.delivered_at,
     };
   });
 }

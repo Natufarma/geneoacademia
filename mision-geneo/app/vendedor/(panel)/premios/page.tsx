@@ -19,7 +19,10 @@ type Prize = {
   prize: string;
   status: "requested" | "approved" | "delivered";
   createdAt: string;
+  deliveredAt: string | null;
 };
+
+type PrizeFilter = "pending" | "delivered" | "all";
 
 const dateFormatter = new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "short" });
 
@@ -29,7 +32,7 @@ export default function PremiosVendedor() {
   const [delivering, setDelivering] = useState<string | null>(null);
   const [rowError, setRowError] = useState<{ id: string; message: string } | null>(null);
   const [q, setQ] = useState("");
-  const [onlyPending, setOnlyPending] = useState(true);
+  const [filter, setFilter] = useState<PrizeFilter>("pending");
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +77,9 @@ export default function PremiosVendedor() {
     if (!sorted) return null;
     const term = q.trim().toLowerCase();
     return sorted.filter((p) => {
-      if (onlyPending && p.status === "delivered") return false;
+      const delivered = p.status === "delivered";
+      if (filter === "pending" && delivered) return false;
+      if (filter === "delivered" && !delivered) return false;
       if (!term) return true;
       return (
         p.employeeName.toLowerCase().includes(term) ||
@@ -82,7 +87,7 @@ export default function PremiosVendedor() {
         p.prize.toLowerCase().includes(term)
       );
     });
-  }, [sorted, q, onlyPending]);
+  }, [sorted, q, filter]);
 
   async function markDelivered(id: string) {
     setRowError(null);
@@ -158,19 +163,29 @@ export default function PremiosVendedor() {
               className="w-full min-h-11 rounded-full border border-line bg-paper pl-10 pr-5 text-ink text-sm outline-none focus:border-geneo transition-colors"
             />
           </label>
-          <button
-            type="button"
-            onClick={() => setOnlyPending((v) => !v)}
-            aria-pressed={onlyPending}
-            className={`self-start inline-flex items-center gap-2 min-h-11 rounded-full px-4 text-sm font-bold transition-colors ${
-              onlyPending
-                ? "bg-geneo text-white"
-                : "border border-line text-muted hover:text-geneo active:text-geneo"
-            }`}
-          >
-            {onlyPending && <Check size={16} strokeWidth={3} />}
-            Solo pendientes
-          </button>
+          <div className="grid grid-cols-3 gap-1 rounded-full bg-surface border border-line p-1">
+            {(
+              [
+                ["pending", "Pendientes"],
+                ["delivered", "Entregados"],
+                ["all", "Todos"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setFilter(value)}
+                aria-pressed={filter === value}
+                className={`min-h-11 rounded-full text-sm font-bold tracking-tight transition-colors ${
+                  filter === value
+                    ? "bg-geneo text-white"
+                    : "text-muted hover:text-geneo active:text-geneo"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -204,7 +219,13 @@ export default function PremiosVendedor() {
       {!loadError && sorted !== null && sorted.length > 0 && visible !== null && visible.length === 0 && (
         <div className="bg-paper rounded-3xl shadow-soft px-6 py-8 text-center">
           <p className="text-muted text-sm">
-            {q.trim() ? `Sin resultados para “${q.trim()}”.` : "No tenés premios pendientes."}
+            {q.trim()
+              ? `Sin resultados para “${q.trim()}”.`
+              : filter === "delivered"
+                ? "Todavía no hay premios entregados."
+                : filter === "pending"
+                  ? "No tenés premios pendientes."
+                  : "No hay premios."}
           </p>
         </div>
       )}
@@ -234,7 +255,11 @@ export default function PremiosVendedor() {
                     <p className="text-muted text-xs truncate">
                       {p.employeeName} · {p.pharmacyName}
                     </p>
-                    <p className="text-soft text-[11px]">{dateFormatter.format(new Date(p.createdAt))}</p>
+                    <p className="text-soft text-[11px]">
+                      {delivered && p.deliveredAt
+                        ? `Entregado el ${dateFormatter.format(new Date(p.deliveredAt))}`
+                        : dateFormatter.format(new Date(p.createdAt))}
+                    </p>
                   </div>
                   {delivered ? (
                     <span className="flex items-center gap-1 text-geneo text-xs font-bold shrink-0">

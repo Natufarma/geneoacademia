@@ -1,21 +1,22 @@
-import Link from "next/link";
-import { Gift } from "lucide-react";
+import { Download, Gift } from "lucide-react";
 import { getAllRedemptions } from "@/lib/admin-data";
+import PremiosFilters from "../../_components/PremiosFilters";
 import { Reveal } from "../../_components/Reveal";
 import { EmptyState, StatCard, fmtDate } from "../../_components/ui";
 
 export const dynamic = "force-dynamic";
 
 type Estado = "todos" | "pendientes" | "entregados";
-
-const TABS: { value: Estado; label: string }[] = [
-  { value: "todos", label: "Todos" },
-  { value: "pendientes", label: "Pendientes" },
-  { value: "entregados", label: "Entregados" },
-];
+type Option = { id: string; name: string };
 
 function parseEstado(value: string | undefined): Estado {
   return value === "pendientes" || value === "entregados" ? value : "todos";
+}
+
+/** Opciones únicas por id, ordenadas alfabéticamente (para los desplegables). */
+function uniqueOptions(items: Option[]): Option[] {
+  const map = new Map(items.map((o) => [o.id, o]));
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
 }
 
 /** PENDIENTE = todavía no lo marcó entregado el vendedor (cualquier status != "delivered"). */
@@ -35,19 +36,35 @@ function rowDelay(i: number): number {
 export default async function PremiosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string }>;
+  searchParams: Promise<{ estado?: string; vendedor?: string; farmacia?: string }>;
 }) {
-  const { estado: estadoParam } = await searchParams;
+  const { estado: estadoParam, vendedor, farmacia } = await searchParams;
   const estado = parseEstado(estadoParam);
 
   const redemptions = await getAllRedemptions();
   const pendingCount = redemptions.filter((r) => isPending(r.status)).length;
 
+  // Opciones de los desplegables: vendedores y farmacias presentes en los canjes.
+  const vendorOptions = uniqueOptions(
+    redemptions.flatMap((r) => (r.vendorId ? [{ id: r.vendorId, name: r.vendorName ?? "—" }] : [])),
+  );
+  const pharmacyOptions = uniqueOptions(
+    redemptions.flatMap((r) => (r.pharmacyId ? [{ id: r.pharmacyId, name: r.pharmacyName }] : [])),
+  );
+
   const filtered = redemptions.filter((r) => {
-    if (estado === "pendientes") return isPending(r.status);
-    if (estado === "entregados") return !isPending(r.status);
+    if (estado === "pendientes" && !isPending(r.status)) return false;
+    if (estado === "entregados" && isPending(r.status)) return false;
+    if (vendedor && r.vendorId !== vendedor) return false;
+    if (farmacia && r.pharmacyId !== farmacia) return false;
     return true;
   });
+
+  const exportParams = new URLSearchParams();
+  if (estado !== "todos") exportParams.set("estado", estado);
+  if (vendedor) exportParams.set("vendedor", vendedor);
+  if (farmacia) exportParams.set("farmacia", farmacia);
+  const exportHref = `/admin/export/premios${exportParams.toString() ? `?${exportParams}` : ""}`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -69,25 +86,18 @@ export default async function PremiosPage({
         <StatCard label="Total canjes" value={redemptions.length} hint="Histórico completo" />
       </Reveal>
 
-      <nav className="flex items-center gap-1">
-        {TABS.map((tab) => {
-          const href = tab.value === "todos" ? "/admin/premios" : `/admin/premios?estado=${tab.value}`;
-          const active = tab.value === estado;
-          return (
-            <Link
-              key={tab.value}
-              href={href}
-              className={`inline-flex items-center min-h-11 rounded-full px-4 text-sm font-bold transition-colors ${
-                active
-                  ? "bg-rosa-suave text-geneo"
-                  : "text-muted hover:bg-rosa-suave/50 active:bg-rosa-suave/50"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <PremiosFilters vendors={vendorOptions} pharmacies={pharmacyOptions} />
+        {redemptions.length > 0 && (
+          <a
+            href={exportHref}
+            className="inline-flex items-center justify-center gap-2 min-h-11 rounded-full border-2 border-line text-muted hover:border-geneo hover:text-geneo active:border-geneo active:text-geneo font-bold text-sm px-5 transition-colors"
+          >
+            <Download size={16} />
+            Descargar CSV
+          </a>
+        )}
+      </div>
 
       {filtered.length === 0 ? (
         <EmptyState
@@ -113,13 +123,20 @@ export default async function PremiosPage({
                     </span>
                     <span className="flex flex-col min-w-0 flex-1">
                       <span className="text-ink font-semibold text-sm truncate">{r.employeeName}</span>
-                      <span className="text-muted text-xs truncate">{r.pharmacyName}</span>
+                      <span className="text-muted text-xs truncate">
+                        {r.pharmacyName}
+                        {r.vendorName ? ` · ${r.vendorName}` : ""}
+                      </span>
                     </span>
                     <StatusBadge status={r.status} />
                   </span>
                   <span className="flex items-center justify-between gap-2 pl-12">
                     <span className="text-ink text-sm truncate">{r.prize}</span>
-                    <span className="text-soft text-xs shrink-0">{fmtDate(r.createdAt)}</span>
+                    <span className="text-soft text-xs shrink-0">
+                      {!isPending(r.status) && r.deliveredAt
+                        ? `Entregado ${fmtDate(r.deliveredAt)}`
+                        : fmtDate(r.createdAt)}
+                    </span>
                   </span>
                 </div>
               </Reveal>
@@ -128,10 +145,11 @@ export default async function PremiosPage({
 
           {/* Desktop (lg+): tabla completa. */}
           <div className="hidden lg:block overflow-x-auto">
-            <div className="min-w-[860px]">
-              <div className="grid grid-cols-[1.3fr_1.1fr_1.6fr_80px_120px_100px] gap-4 px-5 py-3 border-b border-line text-soft text-xs font-bold uppercase tracking-widest">
+            <div className="min-w-[1000px]">
+              <div className="grid grid-cols-[1.2fr_1fr_1fr_1.3fr_70px_110px_120px] gap-4 px-5 py-3 border-b border-line text-soft text-xs font-bold uppercase tracking-widest">
                 <span>Empleado</span>
                 <span>Farmacia</span>
+                <span>Vendedor</span>
                 <span>Premio</span>
                 <span className="text-right">Puntos</span>
                 <span className="text-center">Estado</span>
@@ -140,15 +158,20 @@ export default async function PremiosPage({
               <div className="divide-y divide-line">
                 {filtered.map((r, i) => (
                   <Reveal key={r.id} delay={rowDelay(i)}>
-                    <div className="grid grid-cols-[1.3fr_1.1fr_1.6fr_80px_120px_100px] gap-4 items-center px-5 py-3.5">
+                    <div className="grid grid-cols-[1.2fr_1fr_1fr_1.3fr_70px_110px_120px] gap-4 items-center px-5 py-3.5">
                       <span className="text-ink font-semibold text-sm truncate">{r.employeeName}</span>
                       <span className="text-muted text-sm truncate">{r.pharmacyName}</span>
+                      <span className="text-muted text-sm truncate">{r.vendorName ?? "—"}</span>
                       <span className="text-muted text-sm truncate">{r.prize}</span>
                       <span className="text-ink text-sm font-semibold text-right">{r.points}</span>
                       <span className="flex justify-center">
                         <StatusBadge status={r.status} />
                       </span>
-                      <span className="text-soft text-xs text-right">{fmtDate(r.createdAt)}</span>
+                      <span className="text-soft text-xs text-right">
+                        {!isPending(r.status) && r.deliveredAt
+                          ? `Entregado ${fmtDate(r.deliveredAt)}`
+                          : fmtDate(r.createdAt)}
+                      </span>
                     </div>
                   </Reveal>
                 ))}
