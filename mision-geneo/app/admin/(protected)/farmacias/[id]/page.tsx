@@ -14,14 +14,13 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
   if (!data) notFound();
   const { pharmacy, employees } = data;
   const { key: period } = getPeriodBounds();
-  // Los 3 empleados que hoy definen el score (top activos del período).
-  const topIds = new Set(
-    [...employees]
-      .filter((e) => e.periodPoints > 0)
-      .sort((a, b) => b.periodPoints - a.periodPoints)
-      .slice(0, 3)
-      .map((e) => e.id),
-  );
+  // Empleados activos del período, ordenados por puntos.
+  const activeRanked = [...employees]
+    .filter((e) => e.periodPoints > 0)
+    .sort((a, b) => b.periodPoints - a.periodPoints);
+  // El tag "Top 3" solo aporta si hay MÁS de 3 activos (marca cuáles definen el
+  // score). Con 3 o menos, todos cuentan → el tag confunde, así que no se muestra.
+  const topIds = new Set(activeRanked.length > 3 ? activeRanked.slice(0, 3).map((e) => e.id) : []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -95,9 +94,11 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
                     {e.levelName} · {e.coreDone}/{e.coreTotal} misiones
                   </span>
                 </span>
-                <span className="flex flex-col items-end shrink-0 w-20">
-                  <span className="text-geneo font-extrabold text-sm">{e.periodPoints} pts</span>
-                  <span className="text-soft text-xs">{e.points} histórico</span>
+                <span className="flex flex-col items-end shrink-0 w-24">
+                  <span className="text-geneo font-extrabold text-sm whitespace-nowrap">
+                    {e.periodPoints} pts
+                  </span>
+                  <span className="text-soft text-xs whitespace-nowrap">{e.points} histórico</span>
                 </span>
                 <span className="shrink-0 w-28 flex justify-end">
                   <CertifiedBadge certified={e.certified} />
