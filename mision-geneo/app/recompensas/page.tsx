@@ -41,7 +41,7 @@ function RecompensasContent() {
     : { whileTap: { scale: 0.97 }, transition: { type: "spring" as const, stiffness: 400, damping: 30 } };
 
   const viajeClaim = redemptions.find((r) => parseClaim(r.rewardId)?.prizeId === "viaje-producto");
-  const kitClaimed = redemptions.some((r) => parseClaim(r.rewardId)?.prizeId === "academia-kit");
+  const kitClaim = redemptions.find((r) => parseClaim(r.rewardId)?.prizeId === "academia-kit");
   const viajeProduct = viajeClaim
     ? getProduct(parseClaim(viajeClaim.rewardId)?.productSlug ?? "")
     : undefined;
@@ -85,9 +85,13 @@ function RecompensasContent() {
               <p className="text-ink font-bold text-sm leading-tight">
                 {viajeProduct?.name ?? "Producto Geneo"}
               </p>
-              <p className="text-geneo text-xs font-semibold">
-                Pendiente de entrega en {pharmacyName ?? "tu farmacia"}
-              </p>
+              {viajeClaim.status === "delivered" ? (
+                <p className="text-geneo text-xs font-semibold">Tu producto fue entregado ✓</p>
+              ) : (
+                <p className="text-geneo text-xs font-semibold">
+                  Pendiente de entrega en {pharmacyName ?? "tu farmacia"}
+                </p>
+              )}
             </div>
             <Check size={20} className="text-geneo shrink-0" strokeWidth={3} />
           </Card>
@@ -166,7 +170,7 @@ function RecompensasContent() {
       >
         <SectionHeader>Kit de Academia</SectionHeader>
 
-        {kitClaimed ? (
+        {kitClaim ? (
           <Card variant="quiet" className="flex items-center gap-4 px-5 py-4">
             <span className="relative w-14 h-14 shrink-0">
               <Image src="/img/kit-merch.webp" alt="" fill sizes="56px" className="object-contain" />
@@ -176,7 +180,11 @@ function RecompensasContent() {
                 Kit de merchandising Geneo
               </p>
               <p className="text-soft text-xs">Llavero + bolsa + neceser</p>
-              <p className="text-geneo text-xs font-semibold">Pendiente de entrega</p>
+              {kitClaim.status === "delivered" ? (
+                <p className="text-geneo text-xs font-semibold">Tu kit fue entregado ✓</p>
+              ) : (
+                <p className="text-geneo text-xs font-semibold">Pendiente de entrega</p>
+              )}
             </div>
             <Check size={20} className="text-geneo shrink-0" strokeWidth={3} />
           </Card>

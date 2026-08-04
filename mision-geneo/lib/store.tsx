@@ -34,6 +34,8 @@ export type MissionProgress = {
 export type Redemption = {
   rewardId: string;
   redeemedAt: string; // ISO
+  /** Estado de entrega: "delivered" = el vendedor ya se lo entregó. */
+  status: "requested" | "approved" | "delivered";
 };
 
 export type PharmacyOption = {
@@ -188,7 +190,7 @@ function friendlyAuthError(message: string): string {
 function buildSnapshot(
   profile: { name: string; pharmacy_id: string | null; avatar_path: string | null },
   prog: { mission_slug: string; score: number; completed_at: string }[],
-  reds: { reward_id: string; created_at: string }[],
+  reds: { reward_id: string; created_at: string; status: string }[],
   dailyRows: { day: string; question_id: string; correct: boolean; points: number }[],
   pharmacies: PharmacyOption[],
 ): Snapshot {
@@ -199,6 +201,7 @@ function buildSnapshot(
   const redemptions: Redemption[] = reds.map((r) => ({
     rewardId: r.reward_id,
     redeemedAt: r.created_at,
+    status: (r.status as Redemption["status"]) ?? "requested",
   }));
   const daily: Record<string, DailyEntry> = {};
   for (const d of dailyRows) {
@@ -306,7 +309,7 @@ async function loadUser(userId: string, pharmacies: PharmacyOption[]): Promise<S
         .from("mission_progress")
         .select("mission_slug, score, completed_at")
         .eq("user_id", userId),
-      client.from("redemptions").select("reward_id, created_at").eq("user_id", userId),
+      client.from("redemptions").select("reward_id, created_at, status").eq("user_id", userId),
       client
         .from("daily_answers")
         .select("day, question_id, correct, points")
@@ -508,9 +511,9 @@ export async function claimPrize(
   }
   const result = await postJson<{ rewardId: string }>("/api/prizes", { prizeId, productSlug });
   if (!result.ok) return result;
-  const redemptions = [
+  const redemptions: Redemption[] = [
     ...snapshot.redemptions,
-    { rewardId: result.data.rewardId, redeemedAt: new Date().toISOString() },
+    { rewardId: result.data.rewardId, redeemedAt: new Date().toISOString(), status: "requested" },
   ];
   setSnapshot({ ...snapshot, redemptions });
   return { ok: true };
