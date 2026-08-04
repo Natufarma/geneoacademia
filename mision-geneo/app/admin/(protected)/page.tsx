@@ -60,7 +60,9 @@ export default async function AdminDashboard() {
                 <span className="text-geneo font-extrabold text-sm shrink-0 w-16 text-right">
                   {e.points} pts
                 </span>
-                <CertifiedBadge certified={e.certified} />
+                <span className="flex shrink-0 w-28 justify-end">
+                  <CertifiedBadge certified={e.certified} />
+                </span>
                 <ChevronRight size={16} className="text-soft shrink-0" />
               </Link>
             ))}

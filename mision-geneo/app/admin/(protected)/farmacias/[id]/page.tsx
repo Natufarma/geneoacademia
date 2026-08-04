@@ -99,7 +99,9 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
                   <span className="text-geneo font-extrabold text-sm">{e.periodPoints} pts</span>
                   <span className="text-soft text-xs">{e.points} histórico</span>
                 </span>
-                <CertifiedBadge certified={e.certified} />
+                <span className="shrink-0 w-28 flex justify-end">
+                  <CertifiedBadge certified={e.certified} />
+                </span>
               </Link>
             ))}
           </div>
