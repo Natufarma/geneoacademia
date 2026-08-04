@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getVendorUserId } from "@/lib/vendor-auth";
 import VendorNav from "./_components/VendorNav";
+import VendorLogout from "./_components/VendorLogout";
 
 export default async function VendedorPanelLayout({ children }: { children: ReactNode }) {
   const vendorId = await getVendorUserId();
@@ -14,14 +15,13 @@ export default async function VendedorPanelLayout({ children }: { children: Reac
         <div className="max-w-3xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image src="/img/logo-fuxia.webp" alt="Geneo" width={92} height={30} priority />
-            <span className="hidden sm:inline text-soft text-xs font-bold uppercase tracking-widest">
-              Vendedor
-            </span>
+            <span className="text-soft text-xs font-bold uppercase tracking-widest">Vendedor</span>
           </div>
-          <VendorNav />
+          <VendorLogout />
         </div>
       </header>
-      <main className="max-w-3xl mx-auto px-5 py-8">{children}</main>
+      <main className="max-w-3xl mx-auto px-5 pt-6 pb-28">{children}</main>
+      <VendorNav />
     </div>
   );
 }

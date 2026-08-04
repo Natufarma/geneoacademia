@@ -2,23 +2,25 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { usePathname } from "next/navigation";
+import { Gift, Store, Trophy } from "lucide-react";
 
-const LINKS = [
-  { href: "/vendedor/farmacias", label: "Puntos de venta" },
-  { href: "/vendedor/premios", label: "Premios" },
-  { href: "/vendedor/ranking", label: "Ranking" },
-];
+/**
+ * Navegación del panel de vendedor: barra inferior con íconos (mismo patrón que
+ * la app del empleado). El nav superior anterior apretaba "Puntos de venta" en
+ * varias líneas en mobile; la barra inferior es más clara y thumb-friendly.
+ */
+const TABS = [
+  { href: "/vendedor/farmacias", label: "Puntos de venta", icon: Store },
+  { href: "/vendedor/premios", label: "Premios", icon: Gift },
+  { href: "/vendedor/ranking", label: "Ranking", icon: Trophy },
+] as const;
 
 export default function VendorNav() {
-  const path = usePathname();
-  const router = useRouter();
+  const pathname = usePathname();
   const [pendingPrizes, setPendingPrizes] = useState(0);
 
-  // Badge de premios pendientes: se ve desde cualquier pantalla del panel sin
-  // bloquear el render del nav. Si falla el fetch, no se muestra el badge.
+  // Badge de premios pendientes: se ve desde cualquier pantalla del panel.
   useEffect(() => {
     let cancelled = false;
     fetch("/api/vendedor/premios")
@@ -28,8 +30,7 @@ export default function VendorNav() {
       })
       .then((json) => {
         if (cancelled) return;
-        const pending = (json.prizes ?? []).filter((p) => p.status !== "delivered").length;
-        setPendingPrizes(pending);
+        setPendingPrizes((json.prizes ?? []).filter((p) => p.status !== "delivered").length);
       })
       .catch(() => {
         // Silencioso: sin badge si falla la carga.
@@ -39,46 +40,37 @@ export default function VendorNav() {
     };
   }, []);
 
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/vendedor/acceso");
-  }
-
   return (
-    <div className="flex items-center gap-2">
-      <nav className="flex items-center gap-1">
-        {LINKS.map((l) => {
-          const active = path.startsWith(l.href);
-          const showBadge = l.href === "/vendedor/premios" && pendingPrizes > 0;
+    <nav
+      aria-label="Navegación del vendedor"
+      className="no-print fixed bottom-0 inset-x-0 z-50 bg-paper/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]"
+    >
+      <div className="max-w-3xl mx-auto grid grid-cols-3">
+        {TABS.map(({ href, label, icon: Icon }) => {
+          const active = pathname.startsWith(href);
+          const showBadge = href === "/vendedor/premios" && pendingPrizes > 0;
           return (
             <Link
-              key={l.href}
-              href={l.href}
-              className={`inline-flex items-center min-h-11 rounded-full px-4 text-sm font-bold transition-colors ${
-                active
-                  ? "bg-rosa-suave text-geneo"
-                  : "text-muted hover:bg-rosa-suave/50 active:bg-rosa-suave/50"
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold tracking-wide text-center leading-tight transition-colors ${
+                active ? "text-geneo" : "text-soft hover:text-muted"
               }`}
             >
-              {l.label}
-              {showBadge && (
-                <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-geneo px-1 text-[10px] font-bold text-white">
-                  {pendingPrizes}
-                </span>
-              )}
+              <span className="relative">
+                <Icon size={22} strokeWidth={active ? 2.4 : 2} />
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-2.5 inline-flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-geneo px-1 text-[9px] font-bold text-white">
+                    {pendingPrizes}
+                  </span>
+                )}
+              </span>
+              {label}
             </Link>
           );
         })}
-      </nav>
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="inline-flex items-center justify-center gap-2 min-h-11 rounded-full px-4 text-sm font-bold text-muted hover:bg-rosa-suave/50 active:bg-rosa-suave/50 transition-colors"
-      >
-        <LogOut size={16} />
-        <span className="hidden sm:inline">Salir</span>
-      </button>
-    </div>
+      </div>
+    </nav>
   );
 }
