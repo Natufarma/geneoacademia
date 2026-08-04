@@ -9,6 +9,7 @@ import {
   MapPin,
   Pencil,
   Plus,
+  Search,
   Store,
   Trash2,
   Users,
@@ -53,6 +54,7 @@ export default function FarmaciasVendedor() {
   const [pharmacies, setPharmacies] = useState<Pharmacy[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [q, setQ] = useState("");
 
   const [type, setType] = useState<PharmacyType>("farmacia");
   const [name, setName] = useState("");
@@ -123,6 +125,19 @@ export default function FarmaciasVendedor() {
       setSubmitting(false);
     }
   }
+
+  // Lista filtrada por búsqueda (nombre, ciudad o sucursal).
+  const term = q.trim().toLowerCase();
+  const visible =
+    pharmacies == null
+      ? null
+      : pharmacies.filter(
+          (p) =>
+            !term ||
+            p.name.toLowerCase().includes(term) ||
+            (p.city ?? "").toLowerCase().includes(term) ||
+            (p.branch ?? "").toLowerCase().includes(term),
+        );
 
   return (
     <div className="flex flex-col gap-6">
@@ -243,9 +258,32 @@ export default function FarmaciasVendedor() {
         </div>
       )}
 
+      {/* Buscador (solo si hay puntos de venta). */}
       {!loadError && pharmacies !== null && pharmacies.length > 0 && (
+        <label className="relative flex items-center">
+          <Search size={16} className="absolute left-4 text-soft" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar por nombre o ciudad…"
+            className="w-full min-h-11 rounded-full border border-line bg-paper pl-10 pr-5 text-ink text-sm outline-none focus:border-geneo transition-colors"
+          />
+        </label>
+      )}
+
+      {!loadError &&
+        pharmacies !== null &&
+        pharmacies.length > 0 &&
+        visible !== null &&
+        visible.length === 0 && (
+          <div className="bg-paper rounded-3xl shadow-soft px-6 py-8 text-center">
+            <p className="text-muted text-sm">Sin resultados para “{q.trim()}”.</p>
+          </div>
+        )}
+
+      {!loadError && visible !== null && visible.length > 0 && (
         <ul className="flex flex-col gap-3">
-          {pharmacies.map((p, i) => (
+          {visible.map((p, i) => (
             <PharmacyItem
               key={p.id}
               pharmacy={p}

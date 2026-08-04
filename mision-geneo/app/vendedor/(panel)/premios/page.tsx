@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Check, Gift, Package } from "lucide-react";
+import { AlertCircle, Check, Gift, Package, Search } from "lucide-react";
 import { Badge, Card } from "@/components/ui";
 
 /**
@@ -28,6 +28,8 @@ export default function PremiosVendedor() {
   const [loadError, setLoadError] = useState(false);
   const [delivering, setDelivering] = useState<string | null>(null);
   const [rowError, setRowError] = useState<{ id: string; message: string } | null>(null);
+  const [q, setQ] = useState("");
+  const [onlyPending, setOnlyPending] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,6 +67,22 @@ export default function PremiosVendedor() {
     if (!prizes) return null;
     return prizes.filter((p) => p.status !== "delivered").length;
   }, [prizes]);
+
+  // Lista visible: filtrada por búsqueda (empleado/farmacia/premio) y por el
+  // toggle "solo pendientes".
+  const visible = useMemo(() => {
+    if (!sorted) return null;
+    const term = q.trim().toLowerCase();
+    return sorted.filter((p) => {
+      if (onlyPending && p.status === "delivered") return false;
+      if (!term) return true;
+      return (
+        p.employeeName.toLowerCase().includes(term) ||
+        p.pharmacyName.toLowerCase().includes(term) ||
+        p.prize.toLowerCase().includes(term)
+      );
+    });
+  }, [sorted, q, onlyPending]);
 
   async function markDelivered(id: string) {
     setRowError(null);
@@ -128,6 +146,34 @@ export default function PremiosVendedor() {
         </Card>
       )}
 
+      {/* Buscador + toggle "solo pendientes" (solo si hay al menos un premio). */}
+      {!loadError && sorted !== null && sorted.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <label className="relative flex items-center">
+            <Search size={16} className="absolute left-4 text-soft" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar por empleado o farmacia…"
+              className="w-full min-h-11 rounded-full border border-line bg-paper pl-10 pr-5 text-ink text-sm outline-none focus:border-geneo transition-colors"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setOnlyPending((v) => !v)}
+            aria-pressed={onlyPending}
+            className={`self-start inline-flex items-center gap-2 min-h-11 rounded-full px-4 text-sm font-bold transition-colors ${
+              onlyPending
+                ? "bg-geneo text-white"
+                : "border border-line text-muted hover:text-geneo active:text-geneo"
+            }`}
+          >
+            {onlyPending && <Check size={16} strokeWidth={3} />}
+            Solo pendientes
+          </button>
+        </div>
+      )}
+
       {loadError && (
         <div className="bg-paper rounded-3xl shadow-soft px-6 py-10 flex flex-col items-center text-center gap-3">
           <AlertCircle size={28} className="text-soft" />
@@ -155,9 +201,17 @@ export default function PremiosVendedor() {
         </div>
       )}
 
-      {!loadError && sorted !== null && sorted.length > 0 && (
+      {!loadError && sorted !== null && sorted.length > 0 && visible !== null && visible.length === 0 && (
+        <div className="bg-paper rounded-3xl shadow-soft px-6 py-8 text-center">
+          <p className="text-muted text-sm">
+            {q.trim() ? `Sin resultados para “${q.trim()}”.` : "No tenés premios pendientes."}
+          </p>
+        </div>
+      )}
+
+      {!loadError && visible !== null && visible.length > 0 && (
         <ul className="flex flex-col gap-3">
-          {sorted.map((p, i) => {
+          {visible.map((p, i) => {
             const delivered = p.status === "delivered";
             return (
               <motion.li
