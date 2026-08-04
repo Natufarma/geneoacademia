@@ -6,10 +6,20 @@ import type { VendorSummary } from "@/lib/admin-data";
 import { setVendorActive } from "../(protected)/vendedores/actions";
 import { fmtDate } from "./ui";
 
-const COLS = "grid grid-cols-[1.1fr_1.4fr_auto_1.5fr_0.8fr_1.3fr] gap-4";
+const COLS = "grid grid-cols-[1.1fr_1.3fr_74px_1.3fr_84px_200px] gap-4";
 
-/** Badge de estado + botón dar de baja / reactivar (con confirmación). */
-function VendorControls({ vendor }: { vendor: VendorSummary }) {
+/**
+ * Badge de estado + botón dar de baja / reactivar (con confirmación).
+ * orientation="row" (tabla de escritorio) pone badge y botón en línea;
+ * "col" (tarjeta mobile) los apila.
+ */
+function VendorControls({
+  vendor,
+  orientation = "col",
+}: {
+  vendor: VendorSummary;
+  orientation?: "row" | "col";
+}) {
   const [pending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
@@ -27,8 +37,13 @@ function VendorControls({ vendor }: { vendor: VendorSummary }) {
     ? "bg-rosa-suave text-geneo"
     : "bg-line/60 text-soft";
 
+  const row = orientation === "row";
+  const wrap = row
+    ? "flex flex-wrap items-center gap-2"
+    : "flex flex-col items-start gap-1.5";
+
   return (
-    <div className="flex flex-col items-start gap-1.5">
+    <div className={wrap}>
       <span
         className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${badge}`}
       >
@@ -37,8 +52,8 @@ function VendorControls({ vendor }: { vendor: VendorSummary }) {
 
       {vendor.active ? (
         confirming ? (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-muted text-xs">¿Dar de baja a este vendedor?</span>
+          <div className={row ? "flex items-center gap-1.5" : "flex flex-col gap-1.5"}>
+            <span className="text-muted text-xs">{row ? "¿Seguro?" : "¿Dar de baja a este vendedor?"}</span>
             <div className="flex gap-1.5">
               <button
                 type="button"
@@ -171,7 +186,7 @@ export default function VendorsTable({ vendors }: { vendors: VendorSummary[] }) 
                       {v.pharmacyNames.length ? v.pharmacyNames.join(" · ") : "—"}
                     </span>
                     <span className="text-muted text-sm text-right">{fmtDate(v.createdAt)}</span>
-                    <VendorControls vendor={v} />
+                    <VendorControls vendor={v} orientation="row" />
                   </div>
                 ))}
               </div>
