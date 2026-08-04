@@ -34,7 +34,7 @@ export default function EmployeesTable({ employees }: { employees: EmployeeSumma
 
       <div className="overflow-x-auto bg-paper rounded-3xl shadow-soft">
         <div className="min-w-[960px]">
-          <div className="grid grid-cols-[1.3fr_1.4fr_1.1fr_0.9fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-line text-soft text-[11px] font-bold uppercase tracking-widest">
+          <div className="grid grid-cols-[1.3fr_1.4fr_1.1fr_0.9fr_70px_90px_80px_90px] gap-4 px-5 py-3 border-b border-line text-soft text-[11px] font-bold uppercase tracking-widest">
             <span>Empleado</span>
             <span>Email</span>
             <span>Farmacia</span>
@@ -53,7 +53,7 @@ export default function EmployeesTable({ employees }: { employees: EmployeeSumma
                 <Link
                   key={e.id}
                   href={`/admin/empleados/${e.id}`}
-                  className="grid grid-cols-[1.3fr_1.4fr_1.1fr_0.9fr_auto_auto_auto_auto] gap-4 items-center px-5 py-3.5 hover:bg-rosa-suave/30 active:bg-rosa-suave/30 transition-colors"
+                  className="grid grid-cols-[1.3fr_1.4fr_1.1fr_0.9fr_70px_90px_80px_90px] gap-4 items-center px-5 py-3.5 hover:bg-rosa-suave/30 active:bg-rosa-suave/30 transition-colors"
                 >
                   <span className="text-ink font-semibold text-sm truncate">{e.name}</span>
                   <span className="text-muted text-sm truncate">{e.email ?? "—"}</span>
