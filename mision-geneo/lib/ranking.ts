@@ -41,16 +41,67 @@ export type Period = {
   key: string;
 };
 
+/** Clave "YYYY-MM" (hora de Argentina) del mes que contiene `ref`. */
+export function periodKeyOf(ref: Date = new Date()): string {
+  return argentinaDateKey(ref).slice(0, 7);
+}
+
 /** Mes calendario argentino que contiene `ref` (por defecto: ahora). */
 export function getPeriodBounds(ref: Date = new Date()): Period {
-  return { key: argentinaDateKey(ref).slice(0, 7) };
+  return { key: periodKeyOf(ref) };
+}
+
+/**
+ * Valida una clave de período que viene de afuera (querystring del admin).
+ * Sin esto, `?periodo=cualquier-cosa` devolvería un ranking vacío en silencio
+ * en vez de caer al mes en curso.
+ */
+export function isPeriodKey(value: string | undefined | null): value is string {
+  return typeof value === "string" && /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+}
+
+/** Período a partir de una clave externa; si no es válida, cae al mes en curso. */
+export function periodFromKey(value: string | undefined | null): Period {
+  return { key: isPeriodKey(value) ? value : periodKeyOf() };
+}
+
+const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+/** "2026-08" → "Agosto 2026". Legible para el admin; la clave cruda no lo es. */
+export function periodLabel(key: string): string {
+  if (!isPeriodKey(key)) return key;
+  const [year, month] = key.split("-");
+  return `${MONTH_NAMES[Number(month) - 1]} ${year}`;
+}
+
+/**
+ * Meses (desc, más reciente primero) en los que hubo actividad, más el mes en
+ * curso — que siempre debe poder elegirse aunque todavía esté vacío. Es la
+ * lista del selector de período del admin.
+ */
+export function listPeriodKeys(
+  missionProgress: { completed_at: string }[],
+  dailyAnswers: { day: string }[],
+): string[] {
+  const keys = new Set<string>([periodKeyOf()]);
+  for (const p of missionProgress) {
+    const d = new Date(p.completed_at);
+    if (!Number.isNaN(d.getTime())) keys.add(periodKeyOf(d));
+  }
+  for (const a of dailyAnswers) {
+    if (isPeriodKey(a.day?.slice(0, 7))) keys.add(a.day.slice(0, 7));
+  }
+  return [...keys].sort((a, b) => b.localeCompare(a));
 }
 
 /** `completed_at` es un timestamptz ISO; se lleva a hora argentina antes de comparar. */
 function isTimestampInPeriod(iso: string, period: Period): boolean {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return false;
-  return argentinaDateKey(d).slice(0, 7) === period.key;
+  return periodKeyOf(d) === period.key;
 }
 
 /** `day` ya es "YYYY-MM-DD" local (ver lib/daily.ts#dayKey): se compara el mes directo. */

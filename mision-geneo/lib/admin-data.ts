@@ -2,7 +2,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ADVANCED_MISSIONS, CAMPAIGN_MISSIONS, MISSIONS } from "@/lib/missions";
 import { getLevel } from "@/lib/levels";
 import { claimLabel } from "@/lib/prizes";
-import { employeePoints, getPeriodBounds, pharmacyScore, pointsInPeriod, rankPharmacies } from "@/lib/ranking";
+import {
+  employeePoints,
+  listPeriodKeys,
+  periodFromKey,
+  periodLabel,
+  pharmacyScore,
+  pointsInPeriod,
+  rankPharmacies,
+} from "@/lib/ranking";
 import type { Period } from "@/lib/ranking";
 
 /**
@@ -98,7 +106,15 @@ function summarize(
   };
 }
 
-async function fetchAll() {
+/** Opción del selector de período del admin: clave cruda + etiqueta legible. */
+export type PeriodOption = { key: string; label: string };
+
+/**
+ * `periodKey` ("YYYY-MM") permite mirar meses cerrados: el ranking se reinicia
+ * cada mes, así que sin este parámetro el panel sería ciego a todo el
+ * histórico. Si viene inválido o ausente, cae al mes en curso.
+ */
+async function fetchAll(periodKey?: string) {
   const sb = createAdminClient();
   const [profilesRes, pharmaciesRes, progressRes, certsRes, dailyRes] = await Promise.all([
     sb.from("profiles").select("id, name, email, phone, pharmacy_id, role, created_at").order("created_at", { ascending: false }),
@@ -118,8 +134,12 @@ async function fetchAll() {
   const pharmMap = new Map(pharmacies.map((p) => [p.id, p.name]));
   const certMap = new Map<string, string>();
   for (const c of certs) if (!certMap.has(c.user_id)) certMap.set(c.user_id, c.issued_at);
-  const period = getPeriodBounds();
-  return { profiles, pharmacies, progress, daily, certMap, pharmMap, period };
+  const period = periodFromKey(periodKey);
+  const periods: PeriodOption[] = listPeriodKeys(progress, daily).map((key) => ({
+    key,
+    label: periodLabel(key),
+  }));
+  return { profiles, pharmacies, progress, daily, certMap, pharmMap, period, periods };
 }
 
 export async function getEmployees(): Promise<EmployeeSummary[]> {
@@ -244,8 +264,17 @@ function summarizePharmacy(
   };
 }
 
-export async function getPharmacies(): Promise<PharmacySummary[]> {
-  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period } = await fetchAll();
+export type PharmaciesView = {
+  pharmacies: PharmacySummary[];
+  /** Período efectivamente usado (puede diferir del pedido si vino inválido). */
+  period: string;
+  /** Meses elegibles en el selector, del más reciente al más viejo. */
+  periods: PeriodOption[];
+};
+
+export async function getPharmacies(periodKey?: string): Promise<PharmaciesView> {
+  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period, periods } =
+    await fetchAll(periodKey);
   const byPharm = new Map<string, EmployeeSummary[]>();
   for (const p of profiles) {
     const e = summarize(p, pharmMap, progress, daily, certMap.get(p.id) ?? null, period);
@@ -258,14 +287,20 @@ export async function getPharmacies(): Promise<PharmacySummary[]> {
   // Mismo criterio de desempate que el ranking público (más activos, luego
   // alfabético); acá se rankean TODAS las farmacias (incluidas inactivas y
   // sin activos) para que el admin tenga visibilidad completa.
-  return rankPharmacies(summaries);
+  return { pharmacies: rankPharmacies(summaries), period: period.key, periods };
 }
 
-export async function getPharmacy(id: string): Promise<{
+export async function getPharmacy(
+  id: string,
+  periodKey?: string,
+): Promise<{
   pharmacy: PharmacySummary;
   employees: EmployeeSummary[];
+  period: string;
+  periods: PeriodOption[];
 } | null> {
-  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period } = await fetchAll();
+  const { profiles, pharmacies, progress, daily, certMap, pharmMap, period, periods } =
+    await fetchAll(periodKey);
   const ph = pharmacies.find((p) => p.id === id);
   if (!ph) return null;
 
@@ -282,7 +317,7 @@ export async function getPharmacy(id: string): Promise<{
   const pharmacy = ranked.find((p) => p.id === id);
   if (!pharmacy) return null;
 
-  return { pharmacy, employees: byPharm.get(id) ?? [] };
+  return { pharmacy, employees: byPharm.get(id) ?? [], period: period.key, periods };
 }
 
 export type MissionRow = {
@@ -341,7 +376,7 @@ export async function getEmployee(id: string): Promise<EmployeeDetail | null> {
   const daily = (dailyRes.data ?? []) as DailyRow[];
   const certAt = certsRes.data?.[0]?.issued_at ?? null;
 
-  const summary = summarize(profile, pharmMap, progress, daily, certAt, getPeriodBounds());
+  const summary = summarize(profile, pharmMap, progress, daily, certAt, periodFromKey(undefined));
   const progMap = new Map(progress.map((p) => [p.mission_slug, p]));
 
   const groups: [typeof MISSIONS, MissionRow["group"]][] = [

@@ -2,18 +2,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Store } from "lucide-react";
 import { getPharmacy } from "@/lib/admin-data";
-import { getPeriodBounds } from "@/lib/ranking";
+import { periodLabel } from "@/lib/ranking";
+import PeriodoFilter from "../../../_components/PeriodoFilter";
 import { Reveal } from "../../../_components/Reveal";
 import { CertifiedBadge, EmptyState, StatCard } from "../../../_components/ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function FarmaciaDetalle({ params }: { params: Promise<{ id: string }> }) {
+export default async function FarmaciaDetalle({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ periodo?: string }>;
+}) {
   const { id } = await params;
-  const data = await getPharmacy(id);
+  const { periodo } = await searchParams;
+  const data = await getPharmacy(id, periodo);
   if (!data) notFound();
-  const { pharmacy, employees } = data;
-  const { key: period } = getPeriodBounds();
+  const { pharmacy, employees, period, periods } = data;
   // Empleados activos del período, ordenados por puntos.
   const activeRanked = [...employees]
     .filter((e) => e.periodPoints > 0)
@@ -25,13 +32,16 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
-        <Link
-          href="/admin/farmacias"
-          className="inline-flex items-center gap-1.5 py-3 text-muted hover:text-geneo active:text-geneo text-sm font-semibold transition-colors self-start"
-        >
-          <ArrowLeft size={16} />
-          Farmacias
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href={`/admin/farmacias?periodo=${period}`}
+            className="inline-flex items-center gap-1.5 py-3 text-muted hover:text-geneo active:text-geneo text-sm font-semibold transition-colors self-start"
+          >
+            <ArrowLeft size={16} />
+            Farmacias
+          </Link>
+          <PeriodoFilter periods={periods} current={period} />
+        </div>
 
         <header className="flex items-center gap-4">
           <span className="flex items-center justify-center w-14 h-14 rounded-full bg-rosa-suave text-geneo shrink-0">
@@ -42,7 +52,7 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
               {pharmacy.name}
             </h1>
             <p className="text-muted text-sm">
-              Código: {pharmacy.code} · {pharmacy.position}º puesto · Período {period}
+              Código: {pharmacy.code} · {pharmacy.position}º puesto · {periodLabel(period)}
             </p>
           </div>
         </header>
@@ -50,7 +60,7 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
 
       <Reveal className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard label="Empleados" value={pharmacy.employees} />
-        <StatCard label="Activos" value={pharmacy.activeCount} hint="Con puntos este mes" />
+        <StatCard label="Activos" value={pharmacy.activeCount} hint="Con puntos en el período" />
         <StatCard label="Certificados" value={pharmacy.certified} />
         <StatCard label="Score" value={pharmacy.score} hint="Promedio top-3 del período" />
         <StatCard
@@ -65,7 +75,7 @@ export default async function FarmaciaDetalle({ params }: { params: Promise<{ id
         <div className="flex flex-col gap-1">
           <h2 className="text-ink font-bold text-lg tracking-tight">Equipo</h2>
           <p className="text-muted text-xs">
-            Puntos del período (mes en curso) por empleado. Los 3 marcados definen el score de la
+            Puntos de {periodLabel(period)} por empleado. Los 3 marcados definen el score de la
             farmacia.
           </p>
         </div>

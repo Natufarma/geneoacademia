@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Store } from "lucide-react";
 import { getPharmacies } from "@/lib/admin-data";
-import { getPeriodBounds } from "@/lib/ranking";
+import { periodLabel } from "@/lib/ranking";
+import PeriodoFilter from "../../_components/PeriodoFilter";
 import { Reveal } from "../../_components/Reveal";
 import { EmptyState } from "../../_components/ui";
 
@@ -12,18 +13,42 @@ function rowDelay(i: number): number {
   return Math.min(i, 8) * 0.05;
 }
 
-export default async function FarmaciasPage() {
-  const pharmacies = await getPharmacies();
-  const { key: period } = getPeriodBounds();
+export default async function FarmaciasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ periodo?: string }>;
+}) {
+  const { periodo } = await searchParams;
+  const { pharmacies, period, periods } = await getPharmacies(periodo);
+  // El ranking se reinicia cada mes: un mes sin actividad da TODAS las
+  // farmacias en 0, que es correcto pero se lee como si el panel estuviera
+  // roto. Se avisa explícitamente en vez de dejar la tabla muda.
+  const sinActividad = pharmacies.every((p) => p.activeCount === 0);
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-ink font-extrabold text-2xl tracking-tight">Farmacias</h1>
-        <p className="text-muted text-sm">
-          Ranking del período {period} · promedio de los 3 empleados activos con más puntos.
-        </p>
+      <header className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-ink font-extrabold text-2xl tracking-tight">Farmacias</h1>
+          <p className="text-muted text-sm">
+            Ranking de {periodLabel(period)} · promedio de los 3 empleados activos con más puntos.
+            El ranking se reinicia cada mes.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <PeriodoFilter periods={periods} current={period} />
+        </div>
       </header>
+
+      {sinActividad && pharmacies.length > 0 && (
+        <p className="bg-rosa-suave/40 text-muted rounded-2xl px-5 py-4 text-sm">
+          <strong className="text-ink font-bold">
+            Sin actividad en {periodLabel(period)}.
+          </strong>{" "}
+          Ninguna farmacia sumó puntos en este mes, por eso todos los puntajes están en 0. Elegí
+          otro período arriba para ver los meses con actividad.
+        </p>
+      )}
 
       {pharmacies.length === 0 ? (
         <EmptyState title="No hay farmacias cargadas" />
@@ -35,7 +60,7 @@ export default async function FarmaciasPage() {
             {pharmacies.map((p, i) => (
               <Reveal key={p.id} delay={rowDelay(i)}>
                 <Link
-                  href={`/admin/farmacias/${p.id}`}
+                  href={`/admin/farmacias/${p.id}?periodo=${period}`}
                   className="flex flex-col gap-3 px-5 py-4 hover:bg-rosa-suave/30 active:bg-rosa-suave/30 transition-colors"
                 >
                   <span className="flex items-center gap-3 min-w-0">
@@ -86,7 +111,7 @@ export default async function FarmaciasPage() {
                 {pharmacies.map((p, i) => (
                   <Reveal key={p.id} delay={rowDelay(i)}>
                     <Link
-                      href={`/admin/farmacias/${p.id}`}
+                      href={`/admin/farmacias/${p.id}?periodo=${period}`}
                       className="grid grid-cols-[40px_1.6fr_96px_80px_112px_80px_128px] gap-4 items-center px-5 py-3.5 hover:bg-rosa-suave/30 active:bg-rosa-suave/30 transition-colors"
                     >
                       <span className="text-soft text-sm font-bold">{p.position}º</span>
