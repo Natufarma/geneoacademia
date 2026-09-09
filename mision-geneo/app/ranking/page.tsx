@@ -5,13 +5,19 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowDown, ArrowUp, ChevronRight, Info, RotateCcw, Store, Trophy, Users } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import PeriodNav from "@/components/PeriodNav";
 import { useApp } from "@/lib/store";
+import { periodLabel } from "@/lib/ranking";
 import { Badge, Card } from "@/components/ui";
 
 /**
  * Ranking nacional de empleados y farmacias, alimentado por /api/ranking.
  * Período = mes calendario (resetea todos los meses); el nivel de
  * Especialista, el certificado y el saldo de canjes NO dependen de esto.
+ *
+ * Se puede retroceder de mes: el ranking se reinicia el día 1, así que sin
+ * navegación el primero de cada mes la pantalla aparecería vacía y el
+ * empleado no tendría forma de ver quién ganó el mes que acaba de cerrar.
  */
 
 type EmployeeRankRow = {
@@ -31,6 +37,8 @@ type PharmacyRankRow = {
 
 type RankingResponse = {
   period: string;
+  /** Meses navegables, del más reciente al más viejo. */
+  periods: string[];
   employees: EmployeeRankRow[];
   pharmacies: PharmacyRankRow[];
 };
@@ -68,13 +76,6 @@ function RankMark({ position }: { position: number }) {
   );
 }
 
-/** "2026-07" → "julio 2026" */
-function periodLabel(key: string): string {
-  const [y, m] = key.split("-").map(Number);
-  if (!y || !m) return key;
-  return new Date(y, m - 1, 1).toLocaleDateString("es-AR", { month: "long", year: "numeric" });
-}
-
 export default function Ranking() {
   return (
     <AppShell>
@@ -89,12 +90,15 @@ function RankingContent() {
   const [data, setData] = useState<RankingResponse | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [reloadKey, setReloadKey] = useState(0);
+  // Mes que se está mirando. `null` = todavía no se eligió ninguno: la API
+  // responde el mes en curso y de ahí sale el valor inicial.
+  const [period, setPeriod] = useState<string | null>(null);
   // Movimiento de puesto desde la última visita (comparado contra localStorage).
   const [movement, setMovement] = useState<{ delta: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/ranking")
+    fetch(period ? `/api/ranking?periodo=${period}` : "/api/ranking")
       .then((res) => {
         if (!res.ok) throw new Error(`status ${res.status}`);
         return res.json() as Promise<RankingResponse>;
@@ -104,8 +108,13 @@ function RankingContent() {
         setData(json);
         setStatus("ready");
 
-        // Comparar mi puesto de empleado con el de la última visita (mismo mes).
-        const me = json.employees.find((e) => e.isCurrentUser);
+        // El movimiento de puesto SOLO tiene sentido en el mes en curso, que es
+        // el primero de la lista. Si se guardara mirando un mes cerrado, la
+        // posición histórica pisaría la actual en localStorage y en la próxima
+        // visita se mostraría un "subiste N puestos" falso.
+        const esMesEnCurso = json.period === json.periods[0];
+        setMovement(null);
+        const me = esMesEnCurso ? json.employees.find((e) => e.isCurrentUser) : undefined;
         if (me) {
           const KEY = "geneo-rank-pos";
           let prev: { period: string; position: number } | null = null;
@@ -135,24 +144,48 @@ function RankingContent() {
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
+  }, [reloadKey, period]);
+
+  const esMesEnCurso = !data || data.period === data.periods[0];
+
+  /** El esqueleto se muestra desde el handler, no desde el efecto: setear
+      estado dentro del efecto dispara `react-hooks/set-state-in-effect`, y es
+      la misma convención que usa el botón "Reintentar" de más abajo. */
+  function cambiarPeriodo(next: string) {
+    setStatus("loading");
+    setPeriod(next);
+  }
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-ink font-extrabold text-2xl tracking-tight">
-          Ranking <span className="text-geneo">mensual</span>
-        </h1>
-        <p className="text-muted text-sm">
-          {data ? (
-            <>
-              Período de <span className="font-semibold text-ink">{periodLabel(data.period)}</span> ·
-              resetea cada mes
-            </>
-          ) : (
-            "¡Tu farmacia puede ser la número 1!"
-          )}
-        </p>
+      <header className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-ink font-extrabold text-2xl tracking-tight">
+            Ranking <span className="text-geneo">mensual</span>
+          </h1>
+          <p className="text-muted text-sm">
+            {!data ? (
+              "¡Tu farmacia puede ser la número 1!"
+            ) : data.periods.length > 1 ? (
+              // El mes lo dice el navegador de abajo: acá solo la regla.
+              esMesEnCurso ? (
+                "El ranking se reinicia el 1 de cada mes."
+              ) : (
+                "Mes cerrado: así terminó el ranking."
+              )
+            ) : (
+              // Sin navegador, el mes tiene que decirse acá o no se dice en ningún lado.
+              <>
+                Período de{" "}
+                <span className="font-semibold text-ink">{periodLabel(data.period)}</span> · resetea
+                cada mes
+              </>
+            )}
+          </p>
+        </div>
+        {data && data.periods.length > 1 && (
+          <PeriodNav periods={data.periods} current={data.period} onChange={cambiarPeriodo} />
+        )}
       </header>
 
       {/* Movimiento de puesto desde la última visita */}
@@ -308,7 +341,7 @@ function RankingContent() {
                   exit={{ opacity: 0, y: -30 }}
                   transition={{ type: "spring", stiffness: 260, damping: 28 }}
                 >
-                  <EmployeesList rows={data.employees} />
+                  <EmployeesList rows={data.employees} period={data.period} />
                 </motion.div>
               ) : (
                 <motion.div
@@ -318,7 +351,11 @@ function RankingContent() {
                   exit={{ opacity: 0, y: -30 }}
                   transition={{ type: "spring", stiffness: 260, damping: 28 }}
                 >
-                  <PharmaciesList rows={data.pharmacies} myPharmacyName={pharmacyName} />
+                  <PharmaciesList
+                    rows={data.pharmacies}
+                    period={data.period}
+                    myPharmacyName={pharmacyName}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -346,12 +383,14 @@ function RankingSkeleton() {
   );
 }
 
-function EmployeesList({ rows }: { rows: EmployeeRankRow[] }) {
+function EmployeesList({ rows, period }: { rows: EmployeeRankRow[]; period: string }) {
   if (rows.length === 0) {
     return (
       <div className="bg-paper rounded-3xl shadow-soft px-6 py-10 flex flex-col items-center text-center gap-1">
-        <p className="text-ink font-bold text-sm">Todavía nadie sumó puntos este mes</p>
-        <p className="text-muted text-sm">Completá una misión o la pregunta del día para abrir el ranking.</p>
+        <p className="text-ink font-bold text-sm">Nadie sumó puntos en {periodLabel(period)}</p>
+        <p className="text-muted text-sm">
+          Completá una misión o la pregunta del día para abrir el ranking.
+        </p>
       </div>
     );
   }
@@ -389,15 +428,19 @@ function EmployeesList({ rows }: { rows: EmployeeRankRow[] }) {
 
 function PharmaciesList({
   rows,
+  period,
   myPharmacyName,
 }: {
   rows: PharmacyRankRow[];
+  period: string;
   myPharmacyName: string | null;
 }) {
   if (rows.length === 0) {
     return (
       <div className="bg-paper rounded-3xl shadow-soft px-6 py-10 flex flex-col items-center text-center gap-1">
-        <p className="text-ink font-bold text-sm">Ninguna farmacia sumó puntos todavía</p>
+        <p className="text-ink font-bold text-sm">
+          Ninguna farmacia sumó puntos en {periodLabel(period)}
+        </p>
         <p className="text-muted text-sm">En cuanto un equipo empiece a jugar, aparece acá.</p>
       </div>
     );

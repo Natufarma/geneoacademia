@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   displayName,
-  getPeriodBounds,
+  listPeriodKeys,
+  periodFromKey,
   pharmacyScore,
   pointsInPeriod,
   rankEmployees,
@@ -11,7 +12,12 @@ import {
 } from "@/lib/ranking";
 
 /**
- * Ranking nacional (empleados + farmacias) del período en curso.
+ * Ranking nacional (empleados + farmacias) de un mes calendario.
+ *
+ * `?periodo=YYYY-MM` elige el mes; sin parámetro (o con uno inválido) responde
+ * el mes en curso. Sin esto la app sería ciega al histórico: como el ranking
+ * se reinicia el día 1, el primero de cada mes el empleado abriría la pantalla
+ * y su ranking habría desaparecido sin explicación ni forma de ver quién ganó.
  *
  * Exige sesión de Supabase (la RLS de la app no permite leer el progreso de
  * OTROS usuarios desde el navegador, así que el agregado se resuelve acá con
@@ -27,7 +33,7 @@ type PharmacyRow = { id: string; name: string; city: string | null };
 type ProgressRow = { user_id: string; score: number; completed_at: string };
 type DailyRow = { user_id: string; day: string; points: number };
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,7 +43,9 @@ export async function GET() {
   }
 
   const admin = createAdminClient();
-  const period = getPeriodBounds();
+  // `periodFromKey` valida la clave que llega del cliente: cualquier cosa que
+  // no sea "YYYY-MM" cae al mes en curso en vez de devolver un ranking vacío.
+  const period = periodFromKey(new URL(request.url).searchParams.get("periodo"));
 
   const [profilesRes, pharmaciesRes, progressRes, dailyRes] = await Promise.all([
     admin.from("profiles").select("id, name, pharmacy_id, role"),
@@ -94,6 +102,9 @@ export async function GET() {
 
   return NextResponse.json({
     period: period.key,
+    // Meses navegables (desc): los que tuvieron actividad más el mes en curso.
+    // El cliente los usa para saber hasta dónde puede retroceder.
+    periods: listPeriodKeys(progress, daily),
     employees,
     pharmacies: pharmacyRanking,
   });
