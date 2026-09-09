@@ -9,7 +9,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
 
   return (
     <div className="min-h-dvh bg-surface">
-      <header className="sticky top-0 z-10 bg-paper/90 backdrop-blur border-b border-line">
+      <header className="no-print sticky top-0 z-10 bg-paper/90 backdrop-blur border-b border-line">
         <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Image src="/img/logo-fuxia.webp" alt="Geneo" width={92} height={30} priority />
@@ -30,9 +30,9 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-5 md:px-8 py-8">{children}</main>
+      <main className="max-w-6xl mx-auto px-5 md:px-8 py-8 print:p-0 print:max-w-none">{children}</main>
 
-      <footer className="max-w-6xl mx-auto px-5 md:px-8 pb-8">
+      <footer className="no-print max-w-6xl mx-auto px-5 md:px-8 pb-8">
         <p className="text-soft text-xs">
           Misión Geneo · Panel de administración · Datos de Farmacias Aliadas.
         </p>

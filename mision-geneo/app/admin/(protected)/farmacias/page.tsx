@@ -2,11 +2,25 @@ import Link from "next/link";
 import { Store } from "lucide-react";
 import { getPharmacies } from "@/lib/admin-data";
 import { periodLabel } from "@/lib/ranking";
+import { TIMEZONE } from "@/lib/timezone";
 import PeriodoFilter from "../../_components/PeriodoFilter";
+import PrintButton from "../../_components/PrintButton";
 import { Reveal } from "../../_components/Reveal";
 import { EmptyState } from "../../_components/ui";
+import RankingReport from "./_components/RankingReport";
 
 export const dynamic = "force-dynamic";
+
+/** Fecha de emisión del PDF, resuelta en el server y anclada a Argentina para
+    que no dependa del huso del navegador que imprime. */
+function fechaDeEmision(): string {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: TIMEZONE,
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+}
 
 /** Delay escalonado por fila, capado para que listas largas no se sientan lentas. */
 function rowDelay(i: number): number {
@@ -27,7 +41,10 @@ export default async function FarmaciasPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
+      {/* Hoja imprimible: invisible en pantalla, es lo ÚNICO que sale en el PDF. */}
+      <RankingReport pharmacies={pharmacies} period={period} generatedAt={fechaDeEmision()} />
+
+      <header className="no-print flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="text-ink font-extrabold text-2xl tracking-tight">Farmacias</h1>
           <p className="text-muted text-sm">
@@ -37,11 +54,23 @@ export default async function FarmaciasPage({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <PeriodoFilter periods={periods} current={period} />
+          <PrintButton
+            label={`Descargar ${periodLabel(period)} en PDF`}
+            disabledHint={
+              sinActividad
+                ? `No hay actividad en ${periodLabel(period)}: el PDF saldría vacío.`
+                : undefined
+            }
+          />
         </div>
+        <p className="text-soft text-xs">
+          El botón abre el diálogo de impresión: elegí “Guardar como PDF”. Para una hoja limpia,
+          destildá “Encabezados y pies de página”.
+        </p>
       </header>
 
       {sinActividad && pharmacies.length > 0 && (
-        <p className="bg-rosa-suave/40 text-muted rounded-2xl px-5 py-4 text-sm">
+        <p className="no-print bg-rosa-suave/40 text-muted rounded-2xl px-5 py-4 text-sm">
           <strong className="text-ink font-bold">
             Sin actividad en {periodLabel(period)}.
           </strong>{" "}
@@ -51,9 +80,11 @@ export default async function FarmaciasPage({
       )}
 
       {pharmacies.length === 0 ? (
-        <EmptyState title="No hay farmacias cargadas" />
+        <div className="no-print">
+          <EmptyState title="No hay farmacias cargadas" />
+        </div>
       ) : (
-        <div className="bg-paper rounded-3xl shadow-soft overflow-hidden">
+        <div className="no-print bg-paper rounded-3xl shadow-soft overflow-hidden">
           {/* Mobile y tablet (hasta lg, incluye iPad vertical de 768px): cards apiladas
               sin scroll horizontal táctil, reveladas en cascada. */}
           <div className="lg:hidden divide-y divide-line">

@@ -115,8 +115,19 @@ body {
   display: none;
 }
 
-/* ───────────────────────── Certificado imprimible ─────────────────────────
-   Al imprimir/guardar como PDF, solo queda el certificado en la hoja. */
+/* ───────────────────────── Contenido imprimible ───────────────────────────
+   Dos direcciones: `.no-print` saca de la hoja lo que solo sirve en pantalla
+   (nav, botones, filtros); `.print-only` hace lo inverso — un bloque que NO
+   se ve en pantalla y aparece solo al imprimir.
+
+   `.print-only` existe porque la tabla del ranking del admin NO es
+   imprimible: sus filas se animan con framer-motion (`Reveal`, whileInView)
+   desde `opacity: 0`, así que las que nunca entraron al viewport saldrían EN
+   BLANCO en el PDF. La hoja de reporte es markup aparte, sin animaciones. */
+.print-only {
+  display: none;
+}
+
 @media print {
   body {
     background: #ffffff;
@@ -124,11 +135,58 @@ body {
   .no-print {
     display: none !important;
   }
+  .print-only {
+    display: block !important;
+  }
   .print-area {
     box-shadow: none !important;
     margin: 0 !important;
     border-radius: 0 !important;
   }
+
+  /* El navegador NO imprime fondos por defecto: el reporte se apoya en color
+     de texto y bordes, que sí salen, en vez de rellenos. */
+  .print-sheet {
+    color: #000000;
+    font-size: 11pt;
+  }
+  .print-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .print-sheet thead {
+    /* Repite el encabezado en cada hoja de un ranking largo. */
+    display: table-header-group;
+  }
+  .print-sheet tr {
+    break-inside: avoid;
+  }
+  .print-sheet th,
+  .print-sheet td {
+    border-bottom: 1px solid #d4d4d4;
+    padding: 6pt 4pt;
+    text-align: left;
+  }
+  .print-sheet th {
+    border-bottom: 1.5pt solid #000000;
+    font-size: 8pt;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .print-sheet .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Página NOMBRADA, no `@page` global: una regla global le cambiaría los
+   márgenes al certificado del empleado, que usa `.print-area { margin: 0 }`
+   justamente para ocupar la hoja entera. Solo el reporte del ranking la usa. */
+@page ranking {
+  margin: 14mm;
+}
+.print-sheet {
+  page: ranking;
 }
 
 @media (prefers-reduced-motion: reduce) {
