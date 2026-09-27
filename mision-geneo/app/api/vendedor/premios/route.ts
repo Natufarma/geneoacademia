@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getVendorUserId, vendorOwnsPharmacy } from "@/lib/vendor-auth";
-import { claimLabel } from "@/lib/prizes";
+import { claimLabel, parseClaim } from "@/lib/prizes";
+import { getProduct } from "@/lib/products";
 
 /**
  * Premios reclamados por empleados de las farmacias del vendedor logueado.
@@ -41,11 +42,18 @@ export async function GET() {
 
   const prizes = (reds ?? []).map((r) => {
     const emp = empMap.get(r.user_id);
+    // Producto elegido (solo "viaje-producto:<slug>"): el vendedor tiene que
+    // saber cuál entregar, no alcanza con la etiqueta truncada.
+    const slug = parseClaim(r.reward_id)?.productSlug;
+    const product = slug ? getProduct(slug) : undefined;
     return {
       id: r.id,
       employeeName: emp?.name ?? "—",
       pharmacyName: emp ? pharmMap.get(emp.pharmacy_id ?? "") ?? "—" : "—",
       prize: claimLabel(r.reward_id),
+      product: product
+        ? { name: product.name, presentacion: product.presentacion, img: product.img }
+        : null,
       status: r.status,
       createdAt: r.created_at,
       deliveredAt: r.delivered_at,

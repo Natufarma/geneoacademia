@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { AlertCircle, Check, Gift, Package, Search } from "lucide-react";
 import { Badge, Card } from "@/components/ui";
@@ -17,6 +18,8 @@ type Prize = {
   employeeName: string;
   pharmacyName: string;
   prize: string;
+  /** Producto que eligió el empleado (solo en "Producto a elección"). */
+  product: { name: string; presentacion: string | null; img: string } | null;
   status: "requested" | "approved" | "delivered";
   createdAt: string;
   deliveredAt: string | null;
@@ -84,7 +87,8 @@ export default function PremiosVendedor() {
       return (
         p.employeeName.toLowerCase().includes(term) ||
         p.pharmacyName.toLowerCase().includes(term) ||
-        p.prize.toLowerCase().includes(term)
+        p.prize.toLowerCase().includes(term) ||
+        (p.product?.name.toLowerCase().includes(term) ?? false)
       );
     });
   }, [sorted, q, filter]);
@@ -159,7 +163,7 @@ export default function PremiosVendedor() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar por empleado o farmacia…"
+              placeholder="Buscar por empleado, farmacia o producto…"
               className="w-full min-h-11 rounded-full border border-line bg-paper pl-10 pr-5 text-ink text-sm outline-none focus:border-geneo transition-colors"
             />
           </label>
@@ -251,7 +255,11 @@ export default function PremiosVendedor() {
                     <Gift size={19} />
                   </span>
                   <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                    <p className="font-bold text-ink text-sm leading-tight truncate">{p.prize}</p>
+                    {/* Con producto, el título va sin el nombre: el producto
+                        tiene su propio bloque abajo, sin truncar. */}
+                    <p className="font-bold text-ink text-sm leading-tight line-clamp-2">
+                      {p.product ? "Producto a elección" : p.prize}
+                    </p>
                     <p className="text-muted text-xs truncate">
                       {p.employeeName} · {p.pharmacyName}
                     </p>
@@ -272,6 +280,21 @@ export default function PremiosVendedor() {
                     </Badge>
                   )}
                 </div>
+
+                {p.product && (
+                  <div className="flex items-center gap-3 rounded-2xl bg-surface border border-line px-3 py-3">
+                    <span className="relative w-14 h-14 shrink-0 rounded-xl bg-paper">
+                      <Image src={p.product.img} alt="" fill sizes="56px" className="object-contain p-1" />
+                    </span>
+                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                      <p className="text-soft text-[11px] font-bold uppercase tracking-wide">Eligió</p>
+                      <p className="text-ink font-bold text-sm leading-snug">{p.product.name}</p>
+                      {p.product.presentacion && (
+                        <p className="text-muted text-xs leading-snug">{p.product.presentacion}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {!delivered && (
                   <div className="flex flex-col gap-2">
