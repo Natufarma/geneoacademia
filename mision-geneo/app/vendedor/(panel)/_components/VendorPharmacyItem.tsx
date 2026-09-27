@@ -43,7 +43,8 @@ export const vendorInputClass =
 
 /**
  * Fila de un punto de venta con acciones de editar y eliminar.
- * - Editar: cambia tipo/nombre/ciudad/sucursal en línea (PATCH).
+ * - Editar: cambia tipo/nombre/ciudad/sucursal en línea (PATCH) — es la vía
+ *   para renombrar una farmacia.
  * - Eliminar: pide confirmación y borra (DELETE); el servidor rechaza si la
  *   farmacia ya tiene empleados registrados y ese mensaje se muestra acá.
  */
@@ -136,8 +137,8 @@ export default function VendorPharmacyItem({
     }
   }
 
-  const iconBtn =
-    "flex items-center justify-center w-11 h-11 rounded-full text-soft hover:text-geneo active:text-geneo transition-colors shrink-0";
+  const actionBtn =
+    "inline-flex items-center gap-1.5 rounded-full border border-line text-muted font-bold uppercase tracking-wide text-xs px-4 min-h-11 transition-colors hover:text-geneo hover:border-geneo active:text-geneo active:border-geneo";
 
   return (
     <motion.li
@@ -166,25 +167,29 @@ export default function VendorPharmacyItem({
                 </span>
               )}
             </span>
-            {!confirmingDelete && (
-              <span className="flex items-center shrink-0">
-                <button type="button" onClick={startEdit} aria-label="Editar punto de venta" className={iconBtn}>
-                  <Pencil size={17} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setError("");
-                    setConfirmingDelete(true);
-                  }}
-                  aria-label="Eliminar punto de venta"
-                  className={iconBtn}
-                >
-                  <Trash2 size={17} />
-                </button>
-              </span>
-            )}
           </div>
+
+          {/* Acciones con texto: con solo íconos grises los vendedores no
+              encontraban cómo renombrar la farmacia. */}
+          {!confirmingDelete && (
+            <div className="flex gap-2">
+              <button type="button" onClick={startEdit} className={actionBtn}>
+                <Pencil size={14} />
+                Editar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setError("");
+                  setConfirmingDelete(true);
+                }}
+                className={actionBtn}
+              >
+                <Trash2 size={14} />
+                Eliminar
+              </button>
+            </div>
+          )}
 
           {/* Empleados registrados en esta farmacia (nombre + puntos + certificado). */}
           {pharmacy.employees.length === 0 ? (
