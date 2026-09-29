@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { AlertCircle, Check, Gift, Package, Search } from "lucide-react";
+import { AlertCircle, Check, Gift, MapPin, Package, Search } from "lucide-react";
 import { Badge, Card } from "@/components/ui";
 
 /**
@@ -17,6 +17,9 @@ type Prize = {
   id: string;
   employeeName: string;
   pharmacyName: string;
+  pharmacyCity: string | null;
+  /** Sucursal: distingue locales de la misma farmacia en una ciudad. */
+  pharmacyBranch: string | null;
   prize: string;
   /** Producto que eligió el empleado (solo en "Producto a elección"). */
   product: { name: string; presentacion: string | null; img: string } | null;
@@ -26,6 +29,12 @@ type Prize = {
 };
 
 type PrizeFilter = "pending" | "delivered" | "all";
+
+/** "Norte" → "Sucursal Norte"; si ya lo dice ("Sucursal Norte"), no lo repite. */
+function branchLabel(branch: string | null) {
+  if (!branch) return null;
+  return /^sucursal\b/i.test(branch) ? branch : `Sucursal ${branch}`;
+}
 
 const dateFormatter = new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "short" });
 
@@ -87,6 +96,8 @@ export default function PremiosVendedor() {
       return (
         p.employeeName.toLowerCase().includes(term) ||
         p.pharmacyName.toLowerCase().includes(term) ||
+        (p.pharmacyCity ?? "").toLowerCase().includes(term) ||
+        (p.pharmacyBranch ?? "").toLowerCase().includes(term) ||
         p.prize.toLowerCase().includes(term) ||
         (p.product?.name.toLowerCase().includes(term) ?? false)
       );
@@ -163,7 +174,7 @@ export default function PremiosVendedor() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar por empleado, farmacia o producto…"
+              placeholder="Buscar empleado, farmacia, sucursal…"
               className="w-full min-h-11 rounded-full border border-line bg-paper pl-10 pr-5 text-ink text-sm outline-none focus:border-geneo transition-colors"
             />
           </label>
@@ -260,9 +271,7 @@ export default function PremiosVendedor() {
                     <p className="font-bold text-ink text-sm leading-tight line-clamp-2">
                       {p.product ? "Producto a elección" : p.prize}
                     </p>
-                    <p className="text-muted text-xs truncate">
-                      {p.employeeName} · {p.pharmacyName}
-                    </p>
+                    <p className="text-muted text-xs truncate">{p.employeeName}</p>
                     <p className="text-soft text-[11px]">
                       {delivered && p.deliveredAt
                         ? `Entregado el ${dateFormatter.format(new Date(p.deliveredAt))}`
@@ -279,6 +288,22 @@ export default function PremiosVendedor() {
                       Pendiente
                     </Badge>
                   )}
+                </div>
+
+                {/* Dónde entregar: farmacia + ciudad/sucursal completas, sin
+                    truncar, para no tener que ir a "Mis Farmacias" a buscarla. */}
+                <div className="flex items-start gap-2.5 px-1">
+                  <MapPin size={16} className="text-geneo shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <p className="text-ink text-sm font-bold leading-snug">{p.pharmacyName}</p>
+                    {(p.pharmacyBranch || p.pharmacyCity) && (
+                      <p className="text-muted text-xs leading-snug">
+                        {[branchLabel(p.pharmacyBranch), p.pharmacyCity]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {p.product && (

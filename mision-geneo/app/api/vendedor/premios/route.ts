@@ -27,10 +27,10 @@ export async function GET() {
 
   const [{ data: employees }, { data: pharmacies }] = await Promise.all([
     admin.from("profiles").select("id, name, pharmacy_id").in("pharmacy_id", pharmacyIds),
-    admin.from("pharmacies").select("id, name").in("id", pharmacyIds),
+    admin.from("pharmacies").select("id, name, city, branch").in("id", pharmacyIds),
   ]);
   const empMap = new Map((employees ?? []).map((e) => [e.id, e]));
-  const pharmMap = new Map((pharmacies ?? []).map((p) => [p.id, p.name]));
+  const pharmMap = new Map((pharmacies ?? []).map((p) => [p.id, p]));
   const empIds = (employees ?? []).map((e) => e.id);
   if (!empIds.length) return NextResponse.json({ prizes: [] });
 
@@ -46,10 +46,15 @@ export async function GET() {
     // saber cuál entregar, no alcanza con la etiqueta truncada.
     const slug = parseClaim(r.reward_id)?.productSlug;
     const product = slug ? getProduct(slug) : undefined;
+    // Ciudad y sucursal: el vendedor puede tener varias sucursales de la
+    // misma farmacia y necesita saber a cuál llevar el premio.
+    const pharm = emp ? pharmMap.get(emp.pharmacy_id ?? "") : undefined;
     return {
       id: r.id,
       employeeName: emp?.name ?? "—",
-      pharmacyName: emp ? pharmMap.get(emp.pharmacy_id ?? "") ?? "—" : "—",
+      pharmacyName: pharm?.name ?? "—",
+      pharmacyCity: pharm?.city ?? null,
+      pharmacyBranch: pharm?.branch ?? null,
       prize: claimLabel(r.reward_id),
       product: product
         ? { name: product.name, presentacion: product.presentacion, img: product.img }
